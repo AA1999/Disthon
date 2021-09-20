@@ -1,6 +1,7 @@
 import typing
 import aiohttp
 import handler
+import asyncio
 import sys
 import zlib
 import json
@@ -26,14 +27,13 @@ class WebSocket:
         self.buffer = bytearray()
         self.client = client
         self.token = token
+        self.session_id = None
 
-    async def gateway(self):
-        try:
-            gw_data = await self.client.handler.request("GET", "/gateway")
-            url = gw_data['url'] + '?encoding=json&v=9&compress=zlib-stream'
-            return url
-        except Exception as e:
-            raise ConnectionError("An issue occured connecting to the discord API") from e
+    async def start(self, url):
+        self.socket = await self.client.handler.connect(url)
+        await self.receive_events()
+        await self.identify()
+        return self
 
     def on_websocket_message(self, msg):
         # always push the message data to your cache
@@ -50,10 +50,9 @@ class WebSocket:
         return msg.decode('utf-8')
 
     async def receive_events(self):
-        msg = await self.connection.receive()
-        print(msg.type)
+        msg = await self.socket.receive()
         if msg.type is aiohttp.WSMsgType.TEXT:
-            msg = self.on_websocket_message(msg.data)
+            msg = msg.data
         elif msg.type is aiohttp.WSMsgType.BINARY:
             msg = self.on_websocket_message(msg.data)
         
@@ -63,12 +62,17 @@ class WebSocket:
         op = msg["op"]
         data = msg["d"]
         sequence = msg["s"]
-
-        if op == self.HEARTBEAT:
+        
+        if op == self.HELLO:
             self.sequence = sequence
             await self.heartbeat()
 
-    def dispatch(self):
+        if op == self.HEARTBEAT:
+            print("HB")
+            self.sequence = sequence
+            await self.heartbeat()
+
+    async def dispatch(self):
         pass
     
     async def heartbeat(self):
@@ -77,27 +81,36 @@ class WebSocket:
             'op': self.HEARTBEAT,
             'd': self.sequence
             }
-        self.connection.send_json(payload, compress=9)
+        await self.socket.send_json(payload, compress=9)
 
     async def identify(self):
         """Sends the IDENTIFY packet"""
+        print("sent identify")
         payload = {
             'op': self.IDENTIFY,
             'd': {
                 'token': self.token,
                 'properties': {
                     '$os': sys.platform,
-                    '$browser': 'discord.py',
-                    '$device': 'discord.py',
-                    '$referrer': '',
-                    '$referring_domain': ''
+                    '$browser': 'disthon.',
+                    '$device': 'disthon',
                 },
                 'compress': True,
                 'large_threshold': 250,
                 'v': 3
             }
         }
-        await self.connection.send_json(payload, compress=9)
+        await self.socket.send_json(payload, compress=9)
     
-    def resume(self):
-        pass
+    async def resume(self):
+        """Sends the RESUME packet."""
+        payload = {
+            'op': self.RESUME,
+            'd': {
+                'seq': self.sequence,
+                'session_id': self.session_id,
+                'token': self.token
+            }
+        }
+
+        await self.socket.send_json(payload)
