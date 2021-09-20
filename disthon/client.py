@@ -42,6 +42,3 @@ class Client:
         self.__loop.create_task(self.login(token))
         self.__loop.create_task(self.alive())
         self.__loop.run_forever()
-
-client = Client()
-client.run("ODg5NDkzMDg1MDIzNzY0NTAw.YUiC_Q.TjN8RGmrbCtmR5yXIZOpHqm3QLw")
