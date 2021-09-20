@@ -56,7 +56,7 @@ class WebSocket:
         elif msg.type is aiohttp.WSMsgType.BINARY:
             msg = self.on_websocket_message(msg.data)
         
-        print("msg ", msg)
+        print(msg)
         msg = json.loads(msg)
 
         op = msg["op"]
