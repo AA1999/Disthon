@@ -104,7 +104,7 @@ class WebSocket:
             'op': self.IDENTIFY,
             'd': {
                 'token': self.token,
-                'intents': 32767,
+                'intents': self.client.intents.value,
                 'properties': {
                     '$os': sys.platform,
                     '$browser': 'disthon',

@@ -1,16 +1,21 @@
+from logging import Handler
 import handler
 import websocket
 import aiohttp
+import intents as intent
 from os import getenv
 import typing
 import asyncio
 
 class Client:
-    def __init__(self) -> None:
+    def __init__(self, *, intents: typing.Optional[intent.Intents] = None) -> None:
         self.stay_alive = True
         self.handler = handler.Handler()
         self.lock = asyncio.Lock()
         self.closed = False
+        if not intents:
+            intents = intent.Intents.default()
+        self.intents = intents
 
     async def login(self, token: str) -> None:
         async with self.lock:
@@ -22,6 +27,8 @@ class Client:
             socket = websocket.WebSocket(self, self.token)
             async with self.lock:
                 g_url = await self.handler.gateway()
+                if not isinstance(self.intents, intent.Intents):
+                    raise TypeError(f"Intents must be of type Intents, got {self.intents.__class__}")
                 self.ws = await asyncio.wait_for(socket.start(g_url), timeout=30)
 
             while True:
@@ -52,6 +59,7 @@ class Client:
 
         future = asyncio.ensure_future(self.alive(token), loop=self.__loop)
         future.add_done_callback(stop_loop_on_completion)
+
 
         self.__loop.run_forever()
 
