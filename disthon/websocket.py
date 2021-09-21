@@ -1,7 +1,8 @@
 import typing
 import aiohttp
-import handler
 import asyncio
+import threading
+import time
 import sys
 import zlib
 import json
@@ -33,7 +34,14 @@ class WebSocket:
         self.socket = await self.client.handler.connect(url)
         await self.receive_events()
         await self.identify()
+        t = threading.Thread(target=self.keepAlive, daemon=True)
+        t.start()
         return self
+
+    def keepAlive(self):
+        while True:
+            time.sleep(self.hb_int)
+            asyncio.run(self.heartbeat())
 
     def on_websocket_message(self, msg):
         # always push the message data to your cache'
@@ -57,10 +65,8 @@ class WebSocket:
         elif msg.type is aiohttp.WSMsgType.BINARY:
             msg = self.on_websocket_message(msg.data)
         elif msg.type in (aiohttp.WSMsgType.CLOSE, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSED):
-            print(msg)
             raise ConnectionResetError(msg.extra)
         
-        print(msg)
         msg = json.loads(msg)
 
         op = msg["op"]
@@ -69,12 +75,15 @@ class WebSocket:
         
         if op == self.HELLO:
             self.sequence = sequence
+            self.hb_int = msg['d']['heartbeat_interval'] // 1000
             await self.heartbeat()
 
         if op == self.HEARTBEAT:
-            print("HB")
             self.sequence = sequence
             await self.heartbeat()
+
+        else:
+            self.sequence = sequence
 
     async def dispatch(self):
         pass
@@ -101,6 +110,7 @@ class WebSocket:
                     '$device': 'disthon'
                 },
                 'large_threshold': 250,
+                'compress': True
             }
         }
         await self.socket.send_json(payload)
