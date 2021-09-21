@@ -67,6 +67,7 @@ class WebSocket:
         elif msg.type is aiohttp.WSMsgType.BINARY:
             msg = self.on_websocket_message(msg.data)
         elif msg.type in (aiohttp.WSMsgType.CLOSE, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSED):
+            print(msg)
             raise ConnectionResetError(msg.extra)
         
         msg = json.loads(msg)
@@ -75,20 +76,18 @@ class WebSocket:
         data = msg["d"]
         sequence = msg["s"]
         
+        self.sequence = sequence
+
         if op == self.HELLO:
-            self.sequence = sequence
             self.hb_int = msg['d']['heartbeat_interval'] // 1000
             await self.heartbeat()
 
-        if op == self.HEARTBEAT:
-            self.sequence = sequence
+        elif op == self.HEARTBEAT:
             await self.heartbeat()
 
-        else:
-            self.sequence = sequence
+        elif op == self.DISPATCH:
+            await self.client.handle_event(msg)
 
-    async def dispatch(self) -> None:
-        pass
     
     async def heartbeat(self) -> None:
         """Send HB packet"""

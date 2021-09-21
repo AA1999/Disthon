@@ -8,7 +8,7 @@ import typing
 import asyncio
 
 class Client:
-    def __init__(self, *, intents: typing.Optional[intent.Intents] = None) -> None:
+    def __init__(self, *, intents: typing.Optional[intent.Intents] = None, respond_self: typing.Optional[bool] = False) -> None:
         self.stay_alive = True
         self.handler = handler.Handler()
         self.lock = asyncio.Lock()
@@ -16,6 +16,7 @@ class Client:
         if not intents:
             intents = intent.Intents.default()
         self.intents = intents
+        self.events = {}
 
     async def login(self, token: str) -> None:
         async with self.lock:
@@ -65,3 +66,11 @@ class Client:
 
         if not future.cancelled():
             return future.result()
+
+    async def handle_event(self, msg):
+        event = msg['t']
+        try:
+            for coro in self.events[event]:
+                await coro(msg)
+        except KeyError:
+            return

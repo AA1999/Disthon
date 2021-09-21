@@ -54,3 +54,16 @@ class Handler:
     async def close(self) -> None:
         await self.__session.close()
 
+    async def send_message(self, channel_id: int, content: typing.Optional[str]=None):
+        payload = {
+            'content': content,
+        }
+
+        data = await self.request("POST", f"/channels/{channel_id}/messages", headers={"Authorization": "Bot " + self.token}, data=payload)
+        try:
+            if data['code'] == 50008:
+                raise TypeError("Invalid channel")
+            elif data['code'] == 10003:
+                raise TypeError("Unknown channel")
+        except KeyError:
+            return data
