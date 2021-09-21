@@ -100,7 +100,6 @@ class WebSocket:
 
     async def identify(self) -> None:
         """Sends the IDENTIFY packet"""
-        print("sent identify")
         payload = {
             'op': self.IDENTIFY,
             'd': {
