@@ -7,6 +7,8 @@ import sys
 import zlib
 import json
 
+from aiohttp.http_websocket import WSMessage, WSMsgType
+
 class WebSocket:    
     # websocket opcodes
     DISPATCH           = 0
@@ -23,14 +25,14 @@ class WebSocket:
     HEARTBEAT_ACK      = 11
     GUILD_SYNC         = 12
 
-    def __init__(self, client, token):
+    def __init__(self, client, token: str) -> None:
         self.decompress = zlib.decompressobj()
         self.buffer = bytearray()
         self.client = client
         self.token = token
         self.session_id = None
 
-    async def start(self, url):
+    async def start(self, url: str):
         self.socket = await self.client.handler.connect(url)
         await self.receive_events()
         await self.identify()
@@ -38,12 +40,12 @@ class WebSocket:
         t.start()
         return self
 
-    def keepAlive(self):
+    def keepAlive(self) -> None:
         while True:
             time.sleep(self.hb_int)
             asyncio.run(self.heartbeat())
 
-    def on_websocket_message(self, msg):
+    def on_websocket_message(self, msg: dict) -> dict:
         # always push the message data to your cache'
         if type(msg) is bytes:
             self.buffer.extend(msg)
@@ -58,8 +60,8 @@ class WebSocket:
 
         return msg.decode('utf-8')
 
-    async def receive_events(self):
-        msg = await self.socket.receive()
+    async def receive_events(self) -> None:
+        msg: WSMessage = await self.socket.receive()
         if msg.type is aiohttp.WSMsgType.TEXT:
             msg = self.on_websocket_message(msg.data)
         elif msg.type is aiohttp.WSMsgType.BINARY:
@@ -85,10 +87,10 @@ class WebSocket:
         else:
             self.sequence = sequence
 
-    async def dispatch(self):
+    async def dispatch(self) -> None:
         pass
     
-    async def heartbeat(self):
+    async def heartbeat(self) -> None:
         """Send HB packet"""
         payload = {
             'op': self.HEARTBEAT,
@@ -96,7 +98,7 @@ class WebSocket:
             }
         await self.socket.send_json(payload)
 
-    async def identify(self):
+    async def identify(self) -> None:
         """Sends the IDENTIFY packet"""
         print("sent identify")
         payload = {
@@ -115,7 +117,7 @@ class WebSocket:
         }
         await self.socket.send_json(payload)
     
-    async def resume(self):
+    async def resume(self) -> None:
         """Sends the RESUME packet."""
         payload = {
             'op': self.RESUME,
