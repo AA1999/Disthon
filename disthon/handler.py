@@ -42,7 +42,6 @@ class Handler:
 
     async def connect(self, url):
         payload = {
-            'max_msg_size': 0,
             'timeout': 30.0,
             'autoclose': False,
             'headers': {

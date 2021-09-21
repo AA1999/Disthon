@@ -36,8 +36,9 @@ class WebSocket:
         return self
 
     def on_websocket_message(self, msg):
-        # always push the message data to your cache
-        self.buffer.extend(msg)
+        # always push the message data to your cache'
+        if type(msg) is bytes:
+            self.buffer.extend(msg)
 
         # check if the last four bytes are equal to ZLIB_SUFFIX
         if len(msg) < 4 or msg[-4:] != b'\x00\x00\xff\xff':
@@ -52,9 +53,12 @@ class WebSocket:
     async def receive_events(self):
         msg = await self.socket.receive()
         if msg.type is aiohttp.WSMsgType.TEXT:
-            msg = msg.data
+            msg = self.on_websocket_message(msg.data)
         elif msg.type is aiohttp.WSMsgType.BINARY:
             msg = self.on_websocket_message(msg.data)
+        elif msg.type in (aiohttp.WSMsgType.CLOSE, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSED):
+            print(msg)
+            raise ConnectionResetError(msg.extra)
         
         print(msg)
         msg = json.loads(msg)
@@ -81,7 +85,7 @@ class WebSocket:
             'op': self.HEARTBEAT,
             'd': self.sequence
             }
-        await self.socket.send_json(payload, compress=9)
+        await self.socket.send_json(payload)
 
     async def identify(self):
         """Sends the IDENTIFY packet"""
@@ -90,17 +94,16 @@ class WebSocket:
             'op': self.IDENTIFY,
             'd': {
                 'token': self.token,
+                'intents': 32767,
                 'properties': {
                     '$os': sys.platform,
-                    '$browser': 'disthon.',
-                    '$device': 'disthon',
+                    '$browser': 'disthon',
+                    '$device': 'disthon'
                 },
-                'compress': True,
                 'large_threshold': 250,
-                'v': 3
             }
         }
-        await self.socket.send_json(payload, compress=9)
+        await self.socket.send_json(payload)
     
     async def resume(self):
         """Sends the RESUME packet."""
