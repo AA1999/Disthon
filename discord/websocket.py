@@ -1,4 +1,3 @@
-import typing
 import aiohttp
 import asyncio
 import threading
@@ -36,11 +35,11 @@ class WebSocket:
         self.socket = await self.client.handler.connect(url)
         await self.receive_events()
         await self.identify()
-        t = threading.Thread(target=self.keepAlive, daemon=True)
+        t = threading.Thread(target=self.keep_alive, daemon=True)
         t.start()
         return self
 
-    def keepAlive(self) -> None:
+    def keep_alive(self) -> None:
         while True:
             time.sleep(self.hb_int)
             asyncio.run(self.heartbeat())

@@ -1,8 +1,5 @@
 import aiohttp
 import typing
-import os
-
-from aiohttp.connector import Connection
 
 class Handler:
     def __init__(self):

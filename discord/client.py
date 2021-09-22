@@ -1,4 +1,3 @@
-from logging import Handler
 import handler
 import websocket
 import inspect
