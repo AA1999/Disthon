@@ -1,27 +1,31 @@
 from logging import Handler
 import handler
 import websocket
-import aiohttp
+import inspect
+from copy import deepcopy
 import intents as intent
 from os import getenv
 import typing
 import asyncio
 
 class Client:
-    def __init__(self, *, intents: typing.Optional[intent.Intents] = None, respond_self: typing.Optional[bool] = False) -> None:
+    def __init__(self, *, intents: typing.Optional[intent.Intents] = None, respond_self: typing.Optional[bool] = False, loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
+        self.__loop: asyncio.AbstractEventLoop = loop or asyncio.get_event_loop()
+        if not intents:
+            intents = intent.Intents.default()
+        self.intents = intents
+        self.respond_self = respond_self
+
         self.stay_alive = True
         self.handler = handler.Handler()
         self.lock = asyncio.Lock()
         self.closed = False
-        if not intents:
-            intents = intent.Intents.default()
-        self.intents = intents
         self.events = {}
 
     async def login(self, token: str) -> None:
+        self.token = token
         async with self.lock:
             self.info = await self.handler.login(token)
-        self.token = token
 
     async def connect(self) -> None:
         while not self.closed:
@@ -35,7 +39,7 @@ class Client:
             while True:
                 await self.ws.receive_events()
 
-    async def alive(self, token: str) -> None:
+    async def alive_loop(self, token: str) -> None:
         await self.login(token)
         try:
             await self.connect()
@@ -53,12 +57,11 @@ class Client:
                     raise ValueError("No token has been passed, or no valid TOKEN entry in a dotenv could be found.")
             except KeyError:
                 	raise ValueError("No token has been passed, or no valid TOKEN entry in a dotenv could be found.")
-        self.__loop = asyncio.get_event_loop()
 
-        def stop_loop_on_completion(f):
+        def stop_loop_on_completion(_):
             self.__loop.stop()
 
-        future = asyncio.ensure_future(self.alive(token), loop=self.__loop)
+        future = asyncio.ensure_future(self.alive_loop(token), loop=self.__loop)
         future.add_done_callback(stop_loop_on_completion)
 
 
@@ -66,10 +69,26 @@ class Client:
 
         if not future.cancelled():
             return future.result()
+    
+    def add_listener(self, func: typing.Callable, event: typing.Optional[str] = None) -> None:
+        event = event or func.__name__
+        if not inspect.iscoroutinefunction(func):
+            raise TypeError("The callback is not a valid coroutine function. Did you forget to add async before def?")
+        
+        if event in self.events:
+            self.events[event].append(func)
+        else:
+            self.events[event] = [func]
 
     async def handle_event(self, msg):
-        event = msg['t']
+        event = "on_" + msg['t'].lower()
+        
+        if event in ("on_message_create", "on_dm_message_create"):
+            global_message = deepcopy(msg)
+            global_message['t'] = "MESSAGE"
+            await self.handle_event(global_message)
         try:
+
             for coro in self.events[event]:
                 await coro(msg)
         except KeyError:

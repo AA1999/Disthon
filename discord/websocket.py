@@ -67,7 +67,6 @@ class WebSocket:
         elif msg.type is aiohttp.WSMsgType.BINARY:
             msg = self.on_websocket_message(msg.data)
         elif msg.type in (aiohttp.WSMsgType.CLOSE, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSED):
-            print(msg)
             raise ConnectionResetError(msg.extra)
         
         msg = json.loads(msg)
