@@ -2,7 +2,6 @@ import asyncio
 import inspect
 import typing
 from copy import deepcopy
-from os import getenv
 
 from . import handler
 from . import intents as intent
@@ -51,16 +50,7 @@ class Client:
     async def close(self) -> None:
         await self.handler.close()
 
-    def run(self, token: typing.Optional[str] = None) -> asyncio.Future.result:
-        if not token:
-            try:
-                token = getenv("TOKEN")
-                if not len(token) > 0:
-                    raise ValueError(
-                        "No token has been passed, or no valid TOKEN entry in a dotenv could be found.")
-            except KeyError:
-                raise ValueError(
-                    "No token has been passed, or no valid TOKEN entry in a dotenv could be found.")
+    def run(self, token: str) -> asyncio.Future.result:
 
         def stop_loop_on_completion(_):
             self.__loop.stop()
