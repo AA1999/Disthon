@@ -1,4 +1,3 @@
-import typing
 from typing import (
   Hashable,
   Dict,
@@ -6,9 +5,6 @@ from typing import (
   Optional,
   Snowflake
   )
-import unicodedata
-import datetime
-import copy
 
 
 __slots__(
