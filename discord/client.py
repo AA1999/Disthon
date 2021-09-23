@@ -1,11 +1,13 @@
 import handler
 import websocket
 import inspect
-from copy import deepcopy
-import intents as intent
-from os import getenv
 import typing
 import asyncio
+import intents as intent
+
+from copy import deepcopy
+from os import getenv
+
 
 class Client:
     def __init__(self, *, intents: typing.Optional[intent.Intents] = None, respond_self: typing.Optional[bool] = False, loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
