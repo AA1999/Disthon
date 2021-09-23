@@ -3,10 +3,11 @@ import asyncio
 import threading
 import time
 import sys
-import zlib
 import json
+import zlib
 
 from aiohttp.http_websocket import WSMessage, WSMsgType
+
 
 class WebSocket:    
     # websocket opcodes

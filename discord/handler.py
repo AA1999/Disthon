@@ -1,5 +1,7 @@
-import aiohttp
 import typing
+
+import aiohttp
+
 
 class Handler:
     def __init__(self):
