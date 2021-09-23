@@ -1,5 +1,4 @@
 import typing
-
 import aiohttp
 
 
@@ -8,8 +7,8 @@ class Handler:
         self.base_url: str = 'https://discord.com/api/v8/'
         self.user_agent: str = "Disthon test library V0.0.1b. User: sebkuip#3632"
 
-    async def request(self, method: str, dest: str, *, headers: typing.Optional[dict]=None, data:typing.Optional[dict]=None) -> typing.Union[str, dict]:
-        async with self.__session.request(method, self.base_url + dest, headers=headers, data=data) as r:
+    async def request(self, method: str, dest: str, *, headers: typing.Optional[dict] = None, data: typing.Optional[dict] = None) -> typing.Union[str, dict]:
+        async with self.__session.request(method, self.base_url + dest, headers=headers, json=data) as r:
             if not 200 <= r.status < 300:
                 if r.status == 401:
                     raise ConnectionError("Not authorized")
@@ -25,13 +24,12 @@ class Handler:
     async def login(self, token: str) -> dict:
         self.__session = aiohttp.ClientSession()
         self.token = token
-        
+
         try:
             auth_data = await self.request("GET", "/users/@me", headers={"Authorization": "Bot " + self.token})
         except ConnectionError as e:
             raise ConnectionError("The token passed is invalid") from e
-        
-            
+
         return auth_data
 
     async def gateway(self) -> str:
@@ -40,20 +38,20 @@ class Handler:
         return url
 
     async def connect(self, url: str) -> aiohttp.ClientWebSocketResponse:
-        payload = {
-            'timeout': 30.0,
+        kwargs = {
+            'timeout': 100.0,
             'autoclose': False,
             'headers': {
                 'User-Agent': self.user_agent,
             },
             'compress': 0,
         }
-        return await self.__session.ws_connect(url, **payload)
+        return await self.__session.ws_connect(url, **kwargs)
 
     async def close(self) -> None:
         await self.__session.close()
 
-    async def send_message(self, channel_id: int, content: typing.Optional[str]=None):
+    async def send_message(self, channel_id: int, content: typing.Optional[str] = None):
         payload = {
             'content': content,
         }
@@ -66,3 +64,23 @@ class Handler:
                 raise TypeError("Unknown channel")
         except KeyError:
             return data
+
+    async def fetch_channel(self, channel_id: int):
+        data = await self.request("GET", f"/channels/{channel_id}", headers={"Authorization": "Bot " + self.token})
+        return data
+
+    async def edit_guild_text_channel(self, channel_id: int, **options):
+        payload = {k: v for k, v in options.items()}
+        await self.request("PATCH", f"/channels/{channel_id}", headers={"Authorization": "Bot " + self.token, 'Content-Type': 'application/json'}, data=payload)
+
+    async def edit_guild_voice_channel(self, channel_id: int, **options: typing.Any):
+        payload = {
+            'name': options['name'],
+            'position': options['position'],
+            'bitrate': options['bitrate'],
+            'user_limit': options['user_limit'],
+            'permission_overwrites': options['overwrites'],
+            'parent_id': options['category'],
+            'rtc_region': options['region'],
+        }
+        await self.request("PATCH", f"/channels/{channel_id}", headers={"Authorization": "Bot " + self.token}, data=payload)

@@ -1,6 +1,7 @@
 import aiohttp
 import asyncio
 import threading
+import typing
 import time
 import sys
 import json
@@ -9,21 +10,21 @@ import zlib
 from aiohttp.http_websocket import WSMessage, WSMsgType
 
 
-class WebSocket:    
+class WebSocket:
     # websocket opcodes
-    DISPATCH           = 0
-    HEARTBEAT          = 1
-    IDENTIFY           = 2
-    PRESENCE           = 3
-    VOICE_STATE        = 4
-    VOICE_PING         = 5
-    RESUME             = 6
-    RECONNECT          = 7
-    REQUEST_MEMBERS    = 8
+    DISPATCH = 0
+    HEARTBEAT = 1
+    IDENTIFY = 2
+    PRESENCE = 3
+    VOICE_STATE = 4
+    VOICE_PING = 5
+    RESUME = 6
+    RECONNECT = 7
+    REQUEST_MEMBERS = 8
     INVALIDATE_SESSION = 9
-    HELLO              = 10
-    HEARTBEAT_ACK      = 11
-    GUILD_SYNC         = 12
+    HELLO = 10
+    HEARTBEAT_ACK = 11
+    GUILD_SYNC = 12
 
     def __init__(self, client, token: str) -> None:
         self.decompress = zlib.decompressobj()
@@ -31,19 +32,30 @@ class WebSocket:
         self.client = client
         self.token = token
         self.session_id = None
+        self.heartbeat_acked = True
 
-    async def start(self, url: str):
+    async def start(self, url: typing.Optional[str] = None, *, reconnect: typing.Optional[bool] = False):
+        if not url:
+            url = self.client.handler.gateway()
         self.socket = await self.client.handler.connect(url)
         await self.receive_events()
         await self.identify()
-        t = threading.Thread(target=self.keep_alive, daemon=True)
-        t.start()
-        return self
+        if reconnect:
+            await self.resume()
+        else:
+            t = threading.Thread(target=self.keep_alive, daemon=True)
+            t.start()
+            return self
 
     def keep_alive(self) -> None:
         while True:
             time.sleep(self.hb_int)
-            asyncio.run(self.heartbeat())
+            if not self.heartbeat_acked:
+                # We have a zombified connection
+                self.socket.close()
+                asyncio.run(self.start(reconnect=True))
+            else:
+                asyncio.run(self.heartbeat())
 
     def on_websocket_message(self, msg: dict) -> dict:
         # always push the message data to your cache'
@@ -68,13 +80,13 @@ class WebSocket:
             msg = self.on_websocket_message(msg.data)
         elif msg.type in (aiohttp.WSMsgType.CLOSE, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSED):
             raise ConnectionResetError(msg.extra)
-        
+
         msg = json.loads(msg)
 
         op = msg["op"]
         data = msg["d"]
         sequence = msg["s"]
-        
+
         self.sequence = sequence
 
         if op == self.HELLO:
@@ -85,15 +97,16 @@ class WebSocket:
             await self.heartbeat()
 
         elif op == self.DISPATCH:
+            if msg['t'] == 'READY':
+                self.session_id = msg['d']['session_id']
             await self.client.handle_event(msg)
 
-    
     async def heartbeat(self) -> None:
         """Send HB packet"""
         payload = {
             'op': self.HEARTBEAT,
             'd': self.sequence
-            }
+        }
         await self.socket.send_json(payload)
 
     async def identify(self) -> None:
@@ -113,7 +126,7 @@ class WebSocket:
             }
         }
         await self.socket.send_json(payload)
-    
+
     async def resume(self) -> None:
         """Sends the RESUME packet."""
         payload = {

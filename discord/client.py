@@ -34,7 +34,8 @@ class Client:
             async with self.lock:
                 g_url = await self.handler.gateway()
                 if not isinstance(self.intents, intent.Intents):
-                    raise TypeError(f"Intents must be of type Intents, got {self.intents.__class__}")
+                    raise TypeError(
+                        f"Intents must be of type Intents, got {self.intents.__class__}")
                 self.ws = await asyncio.wait_for(socket.start(g_url), timeout=30)
 
             while True:
@@ -55,27 +56,30 @@ class Client:
             try:
                 token = getenv("TOKEN")
                 if not len(token) > 0:
-                    raise ValueError("No token has been passed, or no valid TOKEN entry in a dotenv could be found.")
+                    raise ValueError(
+                        "No token has been passed, or no valid TOKEN entry in a dotenv could be found.")
             except KeyError:
-                	raise ValueError("No token has been passed, or no valid TOKEN entry in a dotenv could be found.")
+                raise ValueError(
+                    "No token has been passed, or no valid TOKEN entry in a dotenv could be found.")
 
         def stop_loop_on_completion(_):
             self.__loop.stop()
 
-        future = asyncio.ensure_future(self.alive_loop(token), loop=self.__loop)
+        future = asyncio.ensure_future(
+            self.alive_loop(token), loop=self.__loop)
         future.add_done_callback(stop_loop_on_completion)
-
 
         self.__loop.run_forever()
 
         if not future.cancelled():
             return future.result()
-    
+
     def add_listener(self, func: typing.Callable, event: typing.Optional[str] = None) -> None:
         event = event or func.__name__
         if not inspect.iscoroutinefunction(func):
-            raise TypeError("The callback is not a valid coroutine function. Did you forget to add async before def?")
-        
+            raise TypeError(
+                "The callback is not a valid coroutine function. Did you forget to add async before def?")
+
         if event in self.events:
             self.events[event].append(func)
         else:
@@ -83,7 +87,7 @@ class Client:
 
     async def handle_event(self, msg):
         event = "on_" + msg['t'].lower()
-        
+
         if event in ("on_message_create", "on_dm_message_create"):
             global_message = deepcopy(msg)
             global_message['t'] = "MESSAGE"
