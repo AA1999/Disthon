@@ -1,5 +1,5 @@
 import datetime
-from typing import Union, Dict
+from typing import Union, Dict, Optional
 
 __all__ = "Embed"
 
@@ -21,11 +21,15 @@ class Embed:
     def _to_dict(self):
         return {key: value for key, value in self.__dict__.items() if value is not None}
 
-    def add_field(self, *, name, value, inline = True):
-        to_dict = {"name": name,
+    def add_field(self, *, name, value, inline = True, index: Optional[int] = None):
+        field = {"name": name,
                  "value": value,
                  "inline": inline}
-        self.fields.append(to_dict)
+        if index:
+            self.fields.insert(__index=index, __object=field)
+        else:
+            self.fields.append(field)
+        return self
 
     def set_author(self, *, name, url = None, icon_url = None):
         self.author = {"name": name}
@@ -33,6 +37,7 @@ class Embed:
             self.author["url"] = url
         if icon_url:
             self.author["icon_url"] = icon_url
+        return self
 
     def set_footer(self, *, text, icon_url = None):
         self.footer = {
@@ -40,6 +45,7 @@ class Embed:
         }
         if icon_url:
             self.footer["icon_url"] = icon_url
+        return self
 
     def set_image(self, *, url, height: int = None, width: int = None):
         self.image = {
@@ -49,6 +55,7 @@ class Embed:
             self.image["height"] = height
         if width:
             self.image["width"] = width
+        return self
 
     def set_thumbnail(self, *, url, height: int = None, width: int = None):
         self.thumbnail = {
@@ -58,6 +65,7 @@ class Embed:
             self.image["height"] = height
         if width:
             self.image["width"] = width
+        return self
 
     def __len__(self):
         length = len(self.title) + len(self.description)
