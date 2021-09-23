@@ -1,16 +1,20 @@
 import datetime
-from typing import Union, Dict, Optional
+from typing import Any, Union, Dict, Optional
 
 __all__ = "Embed"
 
 
 class Embed:
-    def __init__(self, *, title: str = None,
-                 description: str = None,
-                 color: int = 0x000000,
-                 timestamp: Union[datetime.datetime, str] = None,
-                 url:str = None,
-                 type: str = "rich"):
+    def __init__(
+        self,
+        *,
+        title: str = None,
+        description: str = None,
+        color: int = 0x000000,
+        timestamp: Union[datetime.datetime, str] = None,
+        url: str = None,
+        type: str = "rich"
+    ):
         self.title = str(title) if title else None
         self.description = str(description) if description else None
         self.timestamp = str(timestamp) if timestamp else None
@@ -74,7 +78,7 @@ class Embed:
         length += len(self.footer["text"]) + len(self.author["name"]) + len(self.timestamp)
         return length
 
-    def from_dict(self, data: Dict[str, Union[int, str, list, ...]]):
+    def from_dict(self, data: Dict[str, Any]):
         self.fields = data.get("fields", None)
         self.color = data.get("color", None)
         self.description = data.get("description", None)

@@ -19,9 +19,11 @@ __slots__(
     '_banner'
 )
 
+
 class BanEntry(NamedTuple):
   user: User
   reason: Optional[str]
+  
 
 class GuildLimit(NamedTuple):
   filesize: int

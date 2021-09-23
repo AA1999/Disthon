@@ -1,3 +1,3 @@
 from .client import *
-from .intents import Intents
 from .embeds import Embed
+from .intents import Intents

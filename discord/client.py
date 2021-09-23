@@ -1,12 +1,12 @@
-import handler
-import websocket
+import asyncio
 import inspect
 import typing
-import asyncio
-import intents as intent
-
 from copy import deepcopy
 from os import getenv
+
+from . import handler
+from . import intents as intent
+from . import websocket
 
 
 class Client:
