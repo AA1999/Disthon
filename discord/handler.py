@@ -4,7 +4,7 @@ import aiohttp
 
 class Handler:
     def __init__(self):
-        self.base_url: str = 'https://discord.com/api/v8/'
+        self.base_url: str = 'https://discord.com/api/v9/'
         self.user_agent: str = "Disthon test library V0.0.1b. User: sebkuip#3632"
 
     async def request(self, method: str, dest: str, *, headers: typing.Optional[dict] = None, data: typing.Optional[dict] = None) -> typing.Union[str, dict]:
