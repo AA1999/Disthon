@@ -23,7 +23,7 @@ __slots__(
 class BanEntry(NamedTuple):
   user: User
   reason: Optional[str]
-  
+
 
 class GuildLimit(NamedTuple):
   filesize: int
@@ -38,22 +38,22 @@ class GuildLimit(NamedTuple):
 
 class Guild(Hashable):
     """Returns a discord Guild.
-        
-        
+
+
         Often referred to as a server, and is referred to as a server in the official Discord UI
-        
-        
+
+
         represents: x == y:
           Checks if two guilds are equal."""
     def __init__(self, datas: GuildPayload):
       self._members: Dict[int, Member] = {}
       self._channels: Dict[int, GuildChannel] = {}
 
-      
+
 
 
     def _add_channel(self, channel: GuildChannel,/) -> None:
-     self._channels[channel.id] = channel  
+     self._channels[channel.id] = channel
 
 
     def _delete_channel(self, channel: Snowflake) -> None:
