@@ -4,15 +4,13 @@ import typing
 from copy import deepcopy
 
 from . import handler
-from . import intents as intent
+from . import intents
 from . import websocket
 
 
 class Client:
-    def __init__(self, *, intents: typing.Optional[intent.Intents] = None, respond_self: typing.Optional[bool] = False, loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
+    def __init__(self, *, intents: typing.Optional[intents.Intents] = intents.Intents.default(), respond_self: typing.Optional[bool] = False, loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
         self.__loop: asyncio.AbstractEventLoop = loop or asyncio.get_event_loop()
-        if not intents:
-            intents = intent.Intents.default()
         self.intents = intents
         self.respond_self = respond_self
 
@@ -32,7 +30,7 @@ class Client:
             socket = websocket.WebSocket(self, self.token)
             async with self.lock:
                 g_url = await self.handler.gateway()
-                if not isinstance(self.intents, intent.Intents):
+                if not isinstance(self.intents, intents.Intents):
                     raise TypeError(
                         f"Intents must be of type Intents, got {self.intents.__class__}")
                 self.ws = await asyncio.wait_for(socket.start(g_url), timeout=30)
