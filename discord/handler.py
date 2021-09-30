@@ -22,8 +22,8 @@ class Handler:
             return text
 
     async def login(self, token: str) -> dict:
-        self.__session = aiohttp.ClientSession(headers={"Authorization": "Bot " + self.token})
         self.token = token
+        self.__session = aiohttp.ClientSession(headers={"Authorization": "Bot " + self.token})
 
         try:
             auth_data = await self.request("GET", "/users/@me")
