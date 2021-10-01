@@ -73,7 +73,12 @@ class Embed:
         return self
 
     def __len__(self):
-        length = len(self.title) + len(self.description)
+        length = 0
+        if self.title:
+            length += len(self.title)
+        if self.description:
+            length += len(self.description)
+
         for field in self.fields:
             length += len(field["name"]) + len(field["value"])
 
