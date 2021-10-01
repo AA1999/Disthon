@@ -1,6 +1,9 @@
 import typing
 import aiohttp
 
+from typing import Optional, List
+from .embeds import Embed
+
 
 class Handler:
     def __init__(self):
@@ -52,12 +55,21 @@ class Handler:
     async def close(self) -> None:
         await self.__session.close()
 
-    async def send_message(self, channel_id: int, content: typing.Optional[str] = None):
-        payload = {
-            'content': content,
-        }
+    async def send_message(self, channel_id: int, content: typing.Optional[str] = None, embed: Optional[Embed] = None,
+                           embeds: Optional[typing.List[Embed]] = None):
+        if embeds is None:
+            embeds = []
+        if embed:
+            embeds.append(embed)
 
-        data = await self.request("POST", f"/channels/{channel_id}/messages", data=payload)
+        payload = {}
+
+        if content:
+            payload["content"] = content
+        if embeds:
+            payload["embeds"] = list(map(lambda e: e._to_dict(), embeds))
+
+        data = await self.request("POST", f"channels/{channel_id}/messages", data=payload)
         try:
             if data['code'] == 50008:
                 raise TypeError("Invalid channel")
@@ -66,8 +78,21 @@ class Handler:
         except KeyError:
             return data
 
-    async def edit_message(self, channel_id: int, message_id: int, content: str):
-        await self.request("PATCH", f"/channels/{channel_id}/messages/{message_id}", data={"content": content})
+    async def edit_message(self, channel_id: int, message_id: int, content: Optional[str] = None,
+                           embed: Optional[Embed] = None, embeds: Optional[List[Embed]] = None):
+        if embeds is None:
+            embeds = []
+
+        payload = {}
+
+        if content:
+            payload["content"] = content
+        if embed:
+            embeds.append(embed)
+        if embeds:
+            payload["embeds"] = list(map(lambda e: e._to_dict(), embeds))
+
+        return await self.request("PATCH", f"/channels/{channel_id}/messages/{message_id}", data=payload)
 
     async def delete_message(self, channel_id: int, message_id: int):
         await self.request("DELETE", f"/channels/{channel_id}/messages/{message_id}")
@@ -84,7 +109,8 @@ class Handler:
     async def delete_user_reaction(self, channel_id: int, message_id: int, user_id: int, emoji: str):
         await self.request("DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_id}")
 
-    async def fetch_message_reactions(self, channel_id: int, message_id: int, emoji: str, after: int=None, limit: int=None):
+    async def fetch_message_reactions(self, channel_id: int, message_id: int, emoji: str, after: int = None,
+                                      limit: int = None):
         url = f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}"
         params = {"after": after, "limit": limit}
 
