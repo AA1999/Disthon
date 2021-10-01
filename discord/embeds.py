@@ -19,6 +19,7 @@ class Embed:
         self.description = str(description) if description else None
         self.timestamp = str(timestamp) if timestamp else None
         self.color = color
+        self.type = type
         self.url = url
         self.fields = []
 
@@ -75,7 +76,13 @@ class Embed:
         length = len(self.title) + len(self.description)
         for field in self.fields:
             length += len(field["name"]) + len(field["value"])
-        length += len(self.footer["text"]) + len(self.author["name"]) + len(self.timestamp)
+
+        if hasattr(self, "footer"):
+            length += len(self.footer["text"])
+        if hasattr(self, "author"):
+            length += len(self.author["name"])
+        if hasattr(self, "timestamp"):
+            length += len(self.timestamp) if self.timestamp else 0
         return length
 
     def from_dict(self, data: Dict[str, Any]):
