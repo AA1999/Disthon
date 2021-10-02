@@ -78,7 +78,7 @@ class Handler:
         except KeyError:
             return data
 
-    async def edit_message(self, channel_id: int, message_id: int, content: Optional[str] = None,
+    async def edit_message(self, channel_id: int, message_id: int, *, content: Optional[str] = None,
                            embed: Optional[Embed] = None, embeds: Optional[List[Embed]] = None):
         if embeds is None:
             embeds = []
