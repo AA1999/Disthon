@@ -78,6 +78,8 @@ class Embed:
             length += len(self.title)
         if self.description:
             length += len(self.description)
+        if self.timestamp:
+            length += len(self.timestamp)
 
         for field in self.fields:
             length += len(field["name"]) + len(field["value"])
@@ -86,11 +88,11 @@ class Embed:
             length += len(self.footer["text"])
         if hasattr(self, "author"):
             length += len(self.author["name"])
-        if hasattr(self, "timestamp"):
-            length += len(self.timestamp) if self.timestamp else 0
         return length
 
-    def from_dict(self, data: Dict[str, Any]):
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]):
+        self = cls()
         self.fields = data.get("fields", None)
         self.color = data.get("color", None)
         self.description = data.get("description", None)
