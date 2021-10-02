@@ -6,7 +6,9 @@ with open("README.md", "r") as file:
 
 setup(
     name="disthon",
-    packages=["discord",],
+    packages=[
+        "discord",
+    ],
     description="An API wrapper for the discord API written in python",
     version="x.x.x",
     long_description=long_des,
@@ -16,7 +18,7 @@ setup(
     author_email="xxx",
     url="https://github.com/AA1999/Disthon",
     keywords=["API", "discord"],
-    classifiers = [
+    classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",

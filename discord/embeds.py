@@ -25,17 +25,15 @@ class Embed:
     def _to_dict(self):
         return {key: value for key, value in self.__dict__.items() if value is not None}
 
-    def add_field(self, *, name, value, inline = True, index: Optional[int] = None):
-        field = {"name": name,
-                 "value": value,
-                 "inline": inline}
+    def add_field(self, *, name, value, inline=True, index: Optional[int] = None):
+        field = {"name": name, "value": value, "inline": inline}
         if index:
             self.fields.insert(__index=index, __object=field)
         else:
             self.fields.append(field)
         return self
 
-    def set_author(self, *, name, url = None, icon_url = None):
+    def set_author(self, *, name, url=None, icon_url=None):
         self.author = {"name": name}
         if url:
             self.author["url"] = url
@@ -43,18 +41,14 @@ class Embed:
             self.author["icon_url"] = icon_url
         return self
 
-    def set_footer(self, *, text, icon_url = None):
-        self.footer = {
-            "text": text
-        }
+    def set_footer(self, *, text, icon_url=None):
+        self.footer = {"text": text}
         if icon_url:
             self.footer["icon_url"] = icon_url
         return self
 
     def set_image(self, *, url, height: int = None, width: int = None):
-        self.image = {
-            "url": url
-        }
+        self.image = {"url": url}
         if height:
             self.image["height"] = height
         if width:
@@ -62,9 +56,7 @@ class Embed:
         return self
 
     def set_thumbnail(self, *, url, height: int = None, width: int = None):
-        self.thumbnail = {
-            "url": url
-        }
+        self.thumbnail = {"url": url}
         if height:
             self.image["height"] = height
         if width:
@@ -75,7 +67,9 @@ class Embed:
         length = len(self.title) + len(self.description)
         for field in self.fields:
             length += len(field["name"]) + len(field["value"])
-        length += len(self.footer["text"]) + len(self.author["name"]) + len(self.timestamp)
+        length += (
+            len(self.footer["text"]) + len(self.author["name"]) + len(self.timestamp)
+        )
         return length
 
     def from_dict(self, data: Dict[str, Any]):

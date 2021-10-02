@@ -5,21 +5,21 @@ class InvalidIntent(BaseException):
 
 class Intents:
     VALID_INTENTS = {
-        'guilds': 0,
-        'members': 1,
-        'bans': 2,
-        'emojis': 3,
-        'integrations': 4,
-        'webhooks': 5,
-        'invites': 6,
-        'voice': 7,
-        'presence': 8,
-        'message': 9,
-        'reaction': 10,
-        'typing': 11,
-        'dm_message': 12,
-        'dm_reaction': 13,
-        'dm_typing': 14,
+        "guilds": 0,
+        "members": 1,
+        "bans": 2,
+        "emojis": 3,
+        "integrations": 4,
+        "webhooks": 5,
+        "invites": 6,
+        "voice": 7,
+        "presence": 8,
+        "message": 9,
+        "reaction": 10,
+        "typing": 11,
+        "dm_message": 12,
+        "dm_reaction": 13,
+        "dm_typing": 14,
     }
 
     def __init__(self, **kwargs):
@@ -27,7 +27,11 @@ class Intents:
         for arg in kwargs:
             arg = arg.lower()
             try:
-                self.value = self.value + (1 << self.VALID_INTENTS[arg]) if kwargs[arg] else self.value
+                self.value = (
+                    self.value + (1 << self.VALID_INTENTS[arg])
+                    if kwargs[arg]
+                    else self.value
+                )
             except KeyError:
                 raise InvalidIntent(arg)
 
@@ -58,6 +62,6 @@ class Intents:
         kwargs = {}
         for name in Intents.VALID_INTENTS:
             kwargs[name] = True
-        kwargs['members'] = False
-        kwargs['presence'] = False
+        kwargs["members"] = False
+        kwargs["presence"] = False
         return cls(**kwargs)
