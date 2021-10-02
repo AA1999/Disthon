@@ -62,6 +62,12 @@ class Client:
         if not future.cancelled():
             return future.result()
 
+    def event(self, event: str = None):
+        def wrapper(func):
+            self.add_listener(func, event)
+            return func
+        return wrapper
+
     def add_listener(self, func: typing.Callable, event: typing.Optional[str] = None) -> None:
         event = event or func.__name__
         if not inspect.iscoroutinefunction(func):
