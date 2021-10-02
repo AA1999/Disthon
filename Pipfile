@@ -5,6 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 setuptools-pipfile = "==0.5.0"
+nox = "==2020.12.31"
 
 [packages]
 aiohttp = "==3.7.4.post0"
