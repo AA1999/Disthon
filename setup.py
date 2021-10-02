@@ -1,3 +1,4 @@
+#!/bin/env python3
 from setuptools import setup
 
 with open("README.md", "r") as file:
@@ -6,7 +7,6 @@ with open("README.md", "r") as file:
 setup(
     name="disthon",
     packages=["discord",],
-    install_requires=["aiohttp", "yarl"],
     description="An API wrapper for the discord API written in python",
     version="x.x.x",
     long_description=long_des,
@@ -22,5 +22,8 @@ setup(
         "Operating System :: OS Independent",
         "Development Status :: 4 - Beta",
         "Intended Audience :: Developers",
-    ]
+    ],
+    include_package_data=True,
+    setup_requires="setuptools-pipfile",
+    use_pipfile=True,
 )
