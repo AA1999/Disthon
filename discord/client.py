@@ -86,9 +86,6 @@ class Client:
             global_message = deepcopy(msg)
             global_message['t'] = "MESSAGE"
             await self.handle_event(global_message)
-        try:
 
-            for coro in self.events[event]:
-                await coro(msg)
-        except KeyError:
-            return
+        for coro in self.events.get(event, []):
+            await coro(msg)
