@@ -3,6 +3,7 @@ import aiohttp
 
 from typing import Optional, List
 from .embeds import Embed
+from .components import View
 
 
 class Handler:
@@ -10,7 +11,7 @@ class Handler:
         self.base_url: str = 'https://discord.com/api/v9/'
         self.user_agent: str = "Disthon test library V0.0.1b"
 
-    async def request(self, method: str, dest: str, *, headers: typing.Optional[dict] = None,
+    async def request(self, method: str, dest: str, *, headers: Optional[dict] = None,
                       data: typing.Optional[dict] = None) -> typing.Union[str, dict]:
         async with self.__session.request(method, self.base_url + dest, headers=headers, json=data) as r:
             if not 200 <= r.status < 300:
@@ -55,12 +56,17 @@ class Handler:
     async def close(self) -> None:
         await self.__session.close()
 
-    async def send_message(self, channel_id: int, content: typing.Optional[str] = None, embed: Optional[Embed] = None,
-                           embeds: Optional[typing.List[Embed]] = None):
+    async def send_message(self, channel_id: int, content: Optional[str] = None, embed: Optional[Embed] = None,
+                           embeds: Optional[List[Embed]] = None, view: Optional[View] = None,
+                           views: Optional[List[View]] = None):
         if embeds is None:
             embeds = []
         if embed:
             embeds.append(embed)
+        if views is None:
+            views = []
+        if view:
+            views.append(view)
 
         payload = {}
 
@@ -68,6 +74,8 @@ class Handler:
             payload["content"] = content
         if embeds:
             payload["embeds"] = list(map(lambda e: e._to_dict(), embeds))
+        if views:
+            payload["components"] = [view._to_dict() for view in views]
 
         data = await self.request("POST", f"channels/{channel_id}/messages", data=payload)
         try:
@@ -79,9 +87,14 @@ class Handler:
             return data
 
     async def edit_message(self, channel_id: int, message_id: int, *, content: Optional[str] = None,
-                           embed: Optional[Embed] = None, embeds: Optional[List[Embed]] = None):
+                           embed: Optional[Embed] = None, embeds: Optional[List[Embed]] = None,
+                           view: Optional[View] = None, views: Optional[List[View]] = None):
         if embeds is None:
             embeds = []
+        if views is None:
+            views = []
+        if view:
+            views.append(view)
 
         payload = {}
 
@@ -91,6 +104,8 @@ class Handler:
             embeds.append(embed)
         if embeds:
             payload["embeds"] = list(map(lambda e: e._to_dict(), embeds))
+        if views:
+            payload["components"] = [view._to_dict() for view in views]
 
         return await self.request("PATCH", f"/channels/{channel_id}/messages/{message_id}", data=payload)
 
@@ -130,8 +145,8 @@ class Handler:
     async def delete_channel(self, channel_id: int):
         await self.request("DELETE", f"/channels/{channel_id}")
 
-    async def fetch_channel_history(self, channel_id, limit=None, around=None, before=None, after=None):
-        url = "/channels/{channel.id}/messages"
+    async def fetch_channel_history(self, channel_id: int, limit=None, around=None, before=None, after=None):
+        url = f"/channels/{channel_id}/messages"
         params = {"limit": limit, "around": around, "before": before, "after": after}
 
         if any(params.values()):
