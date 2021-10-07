@@ -14,7 +14,10 @@ class Component:
         self.placeholder = placeholder
         self.min_values = min_values
         self.max_values = max_values
-        self.custom_id = custom_id or os.urandom(16).hex()
+        self.custom_id = custom_id
+
+        if self.custom_id is None and self.url is None:
+            self.custom_id = os.urandom(16).hex()
 
     def _to_dict(self):
         return {k: v for k, v in self.__dict__.items() if v is not None}
