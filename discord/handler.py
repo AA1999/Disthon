@@ -1,9 +1,8 @@
-import typing
 import aiohttp
 
-from typing import Optional, List
+from typing import Optional, List, Any, Union, Iterable
 from .embeds import Embed
-from .components import View
+from discord.interactions.components import View
 
 
 class Handler:
@@ -12,7 +11,7 @@ class Handler:
         self.user_agent: str = "Disthon test library V0.0.1b"
 
     async def request(self, method: str, dest: str, *, headers: Optional[dict] = None,
-                      data: typing.Optional[dict] = None) -> typing.Union[str, dict]:
+                      data: Optional[dict] = None) -> Union[str, dict]:
         async with self.__session.request(method, self.base_url + dest, headers=headers, json=data) as r:
             if not 200 <= r.status < 300:
                 if r.status == 401:
@@ -73,7 +72,7 @@ class Handler:
         if content:
             payload["content"] = content
         if embeds:
-            payload["embeds"] = list(map(lambda e: e._to_dict(), embeds))
+            payload["embeds"] = [embed._to_dict() for embed in embeds]
         if views:
             payload["components"] = [view._to_dict() for view in views]
 
@@ -103,7 +102,7 @@ class Handler:
         if embed:
             embeds.append(embed)
         if embeds:
-            payload["embeds"] = list(map(lambda e: e._to_dict(), embeds))
+            payload["embeds"] = [embed._to_dict() for embed in embeds]
         if views:
             payload["components"] = [view._to_dict() for view in views]
 
@@ -112,7 +111,7 @@ class Handler:
     async def delete_message(self, channel_id: int, message_id: int):
         await self.request("DELETE", f"/channels/{channel_id}/messages/{message_id}")
 
-    async def bulk_delete_messages(self, channel_id: int, message_ids: typing.Iterable[int]):
+    async def bulk_delete_messages(self, channel_id: int, message_ids: Iterable[int]):
         await self.request("POST", f"/channels/{channel_id}/messages/bulk-delete", data={"messages": message_ids})
 
     async def add_reaction(self, channel_id: int, message_id: int, emoji: str):
@@ -161,12 +160,12 @@ class Handler:
         data = await self.request("GET", f"/channels/{channel_id}")
         return data
 
-    async def edit_guild_text_channel(self, channel_id: int, **options):
+    async def edit_guild_text_channel(self, channel_id: int, **options: Any):
         payload = {k: v for k, v in options.items()}
         await self.request("PATCH", f"/channels/{channel_id}", headers={'Content-Type': 'application/json'},
                            data=payload)
 
-    async def edit_guild_voice_channel(self, channel_id: int, **options: typing.Any):
+    async def edit_guild_voice_channel(self, channel_id: int, **options: Any):
         payload = {
             'name': options['name'],
             'position': options['position'],
