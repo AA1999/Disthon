@@ -5,22 +5,22 @@ with open("README.md", "r") as file:
 
 setup(
     name="disthon",
-    packages=["discord",],
+    packages=[],
     install_requires=["aiohttp", "yarl"],
     description="An API wrapper for the discord API written in python",
-    version="x.x.x",
+    version="0.0.1",
     long_description=long_des,
     long_description_content_type="text/markdown",
-    license="GPL-3.0",
+    license="MIT",
     author="Arshia",
-    author_email="xxx",
+    author_email="no_mail@temporary.com",
     url="https://github.com/AA1999/Disthon",
     keywords=["API", "discord"],
     classifiers = [
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
-        "Development Status :: 4 - Beta",
+        "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
     ]
 )
