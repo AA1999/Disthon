@@ -65,7 +65,7 @@ class WebSocket:
         # check if the last four bytes are equal to ZLIB_SUFFIX
         if len(msg) < 4 or msg[-4:] != b'\x00\x00\xff\xff':
             self.buffer = bytearray()
-            return msg.decode('utf-8')
+            return
 
         msg = self.decompress.decompress(self.buffer)
         self.buffer = bytearray()
