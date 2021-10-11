@@ -1,10 +1,13 @@
+from typing import ClassVar
+
+
 class InvalidIntent(BaseException):
     def __init__(self, intent):
         self.intent = intent
 
 
 class Intents:
-    VALID_INTENTS = {
+    VALID_INTENTS: ClassVar[dict[str, int]] = {
         'guilds': 0,
         'members': 1,
         'bans': 2,
@@ -48,16 +51,12 @@ class Intents:
 
     @classmethod
     def all(cls):
-        kwargs = {}
-        for name in Intents.VALID_INTENTS:
-            kwargs[name] = True
+        kwargs = {name: True for name in Intents.VALID_INTENTS}
         return cls(**kwargs)
 
     @classmethod
     def default(cls):
-        kwargs = {}
-        for name in Intents.VALID_INTENTS:
-            kwargs[name] = True
+        kwargs = {name: True for name in Intents.VALID_INTENTS}
         kwargs['members'] = False
         kwargs['presence'] = False
         return cls(**kwargs)

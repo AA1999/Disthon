@@ -1,21 +1,20 @@
-from datetime import datetime
-from typing import List, TypeVar
+from __future__ import annotations
 
-from discord.abc.abstarctuser import AbstractUser
+from datetime import datetime
+from discord.abc.abstractuser import AbstractUser
 from discord.color.color import Color
 from discord.internal.cache import GuildCache, UserCache
-from discord.message import Message
+from discord.message.message import Message
 from discord.types.avatar import Avatar
 from discord.types.banner import Banner
 from discord.types.enums.defaultavatar import DefaultAvatar
 from discord.types.enums.userflags import UserFlags
 from discord.types.userpayload import UserPayload
 
-BU = TypeVar('BU', bound='BaseUser')
 
 class BaseUser(AbstractUser):
     __slots__ = ('_id', '_created_at', '_avatar', '_bot', '_username', '_discriminator', '_mention', '_cache',
-                 '_banner', '_default_avatar', '_display_name', '_public_flags', '_cache', '_guilds' '_system')
+                 '_banner', '_default_avatar', '_display_name', '_public_flags', '_cache', '_guilds', '_system')
     _banner: Banner
     _system: bool
     _default_avatar: Avatar
@@ -39,7 +38,7 @@ class BaseUser(AbstractUser):
         self._bot = payload['bot'] or False
     
     @classmethod
-    def _from_user(cls, user: BU) -> BU:
+    def _from_user(cls, user: BaseUser) -> BaseUser:
         self = cls.__new__(cls)
         self._avatar = user.avatar or user.default_avatar
         self._banner = user.banner
@@ -51,6 +50,7 @@ class BaseUser(AbstractUser):
         self._public_flags = user.public_flags
         self._system = user.system
         self._username = user.username
+        return self
 
     async def create_dm(self):
         pass
@@ -58,9 +58,9 @@ class BaseUser(AbstractUser):
     async def fetch_message(self):
         pass
 
-    async def send(self, content: str = None, *, tts = None, embeds: List[Message] = None, files = None, 
-                   stickers = None, delete_after = None, nonce = None, allowed_mentions: bool = None, reference = None, 
-                   mention_author: bool = None, view = None, components = None):
+    async def send(self, content: str = None, *, tts=None, embeds: list[Message] = None, files=None,
+                   stickers=None, delete_after=None, nonce = None, allowed_mentions: bool = None, reference=None,
+                   mention_author: bool = None, view=None, components=None):
         pass
     
     async def edit(self, *, username: str = None, avatar: bytes = None):

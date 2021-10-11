@@ -1,24 +1,24 @@
 from os.path import splitext
 from typing import Optional
 
-from discord.errors.discordinvalidargument import DiscordInvalidArgument
-from discord.internal.cache import LRUCache
+from discord.errors.exceptions import DiscordInvalidArgument
+from discord.internal.cache import LFUCache
 from discord.types.enums.validavatarformat import ValidAvatarFormat, ValidStaticAvatarFormat
 from discord.types.image import Image
 from yarl import URL
 
 
 class Avatar(Image):
-    _cache: LRUCache
+    _cache: LFUCache
     _key: str
 
-    def __init__(self, cache: LRUCache, url: str, key: str):
+    def __init__(self, cache: LFUCache, url: str, key: str):
         self._cache = cache
         self._key = key
         super().__init__(url)
 
     @classmethod
-    def _from_default_avatar(cls, cache: LRUCache, index: int):
+    def _from_default_avatar(cls, cache: LFUCache, index: int):
         return cls(
             cache,
             url=f'{cls.CDN}/embed/avatars/{index}.png',
@@ -26,7 +26,7 @@ class Avatar(Image):
         )
 
     @classmethod
-    def _from_avatar(cls, cache: LRUCache, user_id: int, avatar: str):
+    def _from_avatar(cls, cache: LFUCache, user_id: int, avatar: str):
         avatar_format = '.gif' if cls.animated else '.png'
         return cls(
             cache,
@@ -35,7 +35,7 @@ class Avatar(Image):
         )
 
     @classmethod
-    def _from_guild_avatar(cls, cache: LRUCache, guild_id: int, member_id: int, avatar: str):
+    def _from_guild_avatar(cls, cache: LFUCache, guild_id: int, member_id: int, avatar: str):
         format = 'gif' if cls.animated else 'png'
         return cls(
             cache,
@@ -44,7 +44,7 @@ class Avatar(Image):
         )
 
     @classmethod
-    def _from_icon(cls, cache: LRUCache, object_id: int, icon_hash: str, path: str):
+    def _from_icon(cls, cache: LFUCache, object_id: int, icon_hash: str, path: str):
         return cls(
             cache,
             url=f'{cls.CDN}/{path}-icons/{object_id}/{icon_hash}.png?size=1024',
@@ -52,7 +52,7 @@ class Avatar(Image):
         )
 
     @classmethod
-    def _from_cover_image(cls, cache: LRUCache, object_id: int, cover_image_hash: str):
+    def _from_cover_image(cls, cache: LFUCache, object_id: int, cover_image_hash: str):
         return cls(
             cache,
             url=f'{cls.CDN}/app-assets/{object_id}/store/{cover_image_hash}.png?size=1024',
@@ -60,7 +60,7 @@ class Avatar(Image):
         )
 
     @classmethod
-    def _from_guild_image(cls, cache: LRUCache, guild_id: int, image: str, path: str):
+    def _from_guild_image(cls, cache: LFUCache, guild_id: int, image: str, path: str):
         return cls(
             cache,
             url=f'{cls.CDN}/{path}/{guild_id}/{image}.png?size=1024',
@@ -68,7 +68,7 @@ class Avatar(Image):
         )
 
     @classmethod
-    def _from_guild_icon(cls, cache: LRUCache, guild_id: int, icon_hash: str):
+    def _from_guild_icon(cls, cache: LFUCache, guild_id: int, icon_hash: str):
         format = 'gif' if cls.animated else 'png'
         return cls(
             cache,
@@ -77,7 +77,7 @@ class Avatar(Image):
         )
 
     @classmethod
-    def _from_sticker_banner(cls, cache: LRUCache, banner: int):
+    def _from_sticker_banner(cls, cache: LFUCache, banner: int):
         return cls(
             cache,
             url=f'{cls.CDN}/app-assets/710982414301790216/store/{banner}.png',
@@ -85,7 +85,7 @@ class Avatar(Image):
         )
 
     @classmethod
-    def _from_user_banner(cls, cache: LRUCache, user_id: int, banner_hash: str):
+    def _from_user_banner(cls, cache: LFUCache, user_id: int, banner_hash: str):
         format = 'gif' if cls.animated else 'png'
         return cls(
             cache,

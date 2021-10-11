@@ -2,8 +2,7 @@ from io import BufferedIOBase
 from os import PathLike
 from typing import Optional, Any, Union
 
-from discord.errors.discordexception import DiscordException
-from discord.errors.discordnotfound import DiscordNotFound
+from discord.errors.exceptions import DiscordException, DiscordNotFound
 from discord.types.enums.imagetype import ImageType
 
 

@@ -1,7 +1,7 @@
 from typing import Union, Any
 
 
-class Snowflake():
+class Snowflake:
     __slots__ = ('_id',)
     _id: Union[int, str]
 
@@ -11,11 +11,29 @@ class Snowflake():
         else:
             raise ValueError('Snowflake can only contain digits.')
 
-    def __eq__(self, o: Any) -> bool:
-        return isinstance(o, Snowflake) and self._id == o._id
+    def __eq__(self, other: Any) -> bool:
+        return isinstance(other, Snowflake) and self._id == other._id
 
-    def __ne__(self, o: Any):
-        return not self.__eq__(o)
+    def __lt__(self, other):
+        return isinstance(other, Snowflake) and self.id < other.id
+
+    def __le__(self, other):
+        return isinstance(other, Snowflake) and self.id <= other.id
+
+    def __gt__(self, other):
+        return isinstance(other, Snowflake) and self.id > other.id
+
+    def __ge__(self, other):
+        return isinstance(other, Snowflake) and self.id >= other.id
+
+    def __int__(self):
+        return int(self.id)
+
+    def __str__(self):
+        return str(self.id)
+
+    def __ne__(self, other: Any):
+        return not self.__eq__(other)
 
     def __len__(self) -> int:
         return len(str(self._id))
