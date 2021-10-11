@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import datetime
-from typing import Any, Union, Dict, Optional
+from typing import Any, Union, Optional
 
 __all__ = "Embed"
 
@@ -78,15 +80,17 @@ class Embed:
         length += len(self.footer["text"]) + len(self.author["name"]) + len(self.timestamp)
         return length
 
-    def from_dict(self, data: Dict[str, Any]):
-        self.fields = data.get("fields", None)
-        self.color = data.get("color", None)
-        self.description = data.get("description", None)
-        self.footer = data.get("footer", None)
-        self.image = data.get("image", None)
-        self.title = data.get("title", None)
-        self.timestamp = data.get("timestamp", None)
-        self.author = data.get("author", None)
-        self.url = data.get("url", None)
-        self.thumbnail = data.get("thumbnail", None)
+    @classmethod
+    def from_dict(cls, data: dict[str, Any]):
+        self = cls.__new__(cls)
+        self.fields = data.get("fields")
+        self.color = data.get("color")
+        self.description = data.get("description")
+        self.footer = data.get("footer")
+        self.image = data.get("image")
+        self.title = data.get("title")
+        self.timestamp = data.get("timestamp")
+        self.author = data.get("author")
+        self.url = data.get("url")
+        self.thumbnail = data.get("thumbnail")
         return self

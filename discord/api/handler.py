@@ -1,17 +1,19 @@
 import typing
 import aiohttp
 
+from discord.errors.exceptions import DiscordNotAuthorized
+
 
 class Handler:
     def __init__(self):
         self.base_url: str = 'https://discord.com/api/v9/'
         self.user_agent: str = "Disthon test library V0.0.1b"
 
-    async def request(self, method: str, dest: str, *, headers: typing.Optional[dict] = None, data: typing.Optional[dict] = None) -> typing.Union[str, dict]:
+    async def request(self, method: str, dest: str, *, headers: typing.Optional[dict] = None,
+                      data: typing.Optional[dict] = None) -> typing.Union[str, dict]:
         async with self.__session.request(method, self.base_url + dest, headers=headers, json=data) as r:
-            if not 200 <= r.status < 300:
-                if r.status == 401:
-                    raise ConnectionError("Not authorized")
+            if not 200 <= r.status < 300 and r.status == 401:
+                raise DiscordNotAuthorized
             text = await r.text()
             try:
                 if r.headers['content-type'] == 'application/json':
@@ -34,8 +36,7 @@ class Handler:
 
     async def gateway(self) -> str:
         gw_data = await self.request("GET", "/gateway/bot")
-        url = gw_data['url'] + '?encoding=json&v=9&compress=zlib-stream'
-        return url
+        return gw_data['url'] + '?encoding=json&v=9&compress=zlib-stream'
 
     async def connect(self, url: str) -> aiohttp.ClientWebSocketResponse:
         kwargs = {
@@ -71,7 +72,8 @@ class Handler:
 
     async def edit_guild_text_channel(self, channel_id: int, **options):
         payload = {k: v for k, v in options.items()}
-        await self.request("PATCH", f"/channels/{channel_id}", headers={'Content-Type': 'application/json'}, data=payload)
+        await self.request("PATCH", f"/channels/{channel_id}", headers={'Content-Type': 'application/json'},
+                           data=payload)
 
     async def edit_guild_voice_channel(self, channel_id: int, **options: typing.Any):
         payload = {
