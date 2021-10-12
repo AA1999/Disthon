@@ -1,6 +1,8 @@
 import asyncio
 import inspect
 import typing
+import traceback
+import sys
 from copy import deepcopy
 
 from . import handler
@@ -88,4 +90,8 @@ class Client:
             await self.handle_event(global_message)
 
         for coro in self.events.get(event, []):
-            await coro(msg)
+            try:
+                await coro(msg)
+            except Exception as error:
+                print(f"Ignoring exception in event {coro.__name__}", file=sys.stderr)
+                traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
