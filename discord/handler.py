@@ -55,17 +55,12 @@ class Handler:
     async def close(self) -> None:
         await self.__session.close()
 
-    async def send_message(self, channel_id: int, content: Optional[str] = None, embed: Optional[Embed] = None,
-                           embeds: Optional[List[Embed]] = None, view: Optional[View] = None,
-                           views: Optional[List[View]] = None):
-        if embeds is None:
-            embeds = []
-        if embed:
-            embeds.append(embed)
-        if views is None:
-            views = []
-        if view:
-            views.append(view)
+    async def send_message(self, channel_id: int, content: Optional[str] = None,
+                           embeds: Union[Embed, List[Embed]] = None, views: Union[View, List[View]] = None):
+        if isinstance(embeds, Embed):
+            embeds = [embeds]
+        if isinstance(views, View):
+            views = [views]
 
         payload = {}
 
@@ -86,21 +81,16 @@ class Handler:
             return data
 
     async def edit_message(self, channel_id: int, message_id: int, *, content: Optional[str] = None,
-                           embed: Optional[Embed] = None, embeds: Optional[List[Embed]] = None,
-                           view: Optional[View] = None, views: Optional[List[View]] = None):
-        if embeds is None:
-            embeds = []
-        if views is None:
-            views = []
-        if view:
-            views.append(view)
+                           embeds: Union[Embed, List[Embed]] = None, views: Union[View, List[View]] = None):
+        if isinstance(embeds, Embed):
+            embeds = [embeds]
+        if isinstance(views, View):
+            views = [views]
 
         payload = {}
 
         if content:
             payload["content"] = content
-        if embed:
-            embeds.append(embed)
         if embeds:
             payload["embeds"] = [embed._to_dict() for embed in embeds]
         if views:
