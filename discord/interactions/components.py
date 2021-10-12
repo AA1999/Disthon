@@ -1,9 +1,15 @@
+from typing import Optional
 import os
+
+OptInt = Optional[int]
+OptStr = Optional[str]
 
 
 class Component:
-    def __init__(self, type: int, disabled=None, style=None, label=None, emoji=None, url=None, options=None,
-                 placeholder=None, min_values=None, max_values=None, custom_id=None):
+    def __init__(self, type: int, disabled: bool = None, style: OptInt = None, label: OptStr = None,
+                 emoji: OptStr = None, url: OptStr = None, options: list = None,
+                 placeholder: OptStr = None, min_values: OptInt = None, max_values: OptInt = None,
+                 custom_id: OptStr = None):
         self.type = type
         self.disabled = disabled
         self.style = style
