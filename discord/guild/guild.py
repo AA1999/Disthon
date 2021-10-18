@@ -30,7 +30,7 @@ class GuildLimit(NamedTuple):
 class Guild(DiscordObject):
     __slots__ = (
         'region'
-        'owner.id'
+        'owner_id'
         'mfa.level'
         'name'
         'id'

@@ -1,16 +1,20 @@
-from discord.types.enums.locale import Locale
-from typing import TypedDict, Optional
+from typing import Optional, TypedDict
 
-from discord.types.enums.userflags import UserFlags
-from discord.types.snowflake import Snowflake
+from discord.types.avatar import Avatar
+from discord.types.banner import Banner
+from pydantic.main import BaseModel
+
+from enums.locale import Locale
+from enums.userflags import UserFlags
+from snowflake import Snowflake
 
 
-class UserPayload(TypedDict):
+class UserPayload(BaseModel):
     id: Snowflake
     username: str
     discriminator: str
-    avatar: Optional[str]
-    banner: Optional[str]
+    avatar: Avatar
+    banner: Banner
     bot: bool
     system: bool
     two_factor_enabled: bool

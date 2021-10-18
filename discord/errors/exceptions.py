@@ -1,8 +1,8 @@
 import traceback
 from http.client import HTTPException
-from typing import Optional
-from aiohttp import ClientWebSocketResponse
+from typing import Optional, Union
 
+from aiohttp import ClientWebSocketResponse
 from discord.interaction.interaction import Interaction
 
 
@@ -34,7 +34,7 @@ class DiscordHTTPException(DiscordException, HTTPException):
         return f'Error {self._code}: {self._message}'
 
     def __repr__(self):
-        return f'Error code: {self._code} Message: {self._message}
+        return f'Error code: {self._code} Message: {self._message}'
 
     @property
     def code(self):
@@ -66,7 +66,8 @@ class DiscordConnectionClosed(DiscordClientException):
 
 class DiscordForbidden(DiscordHTTPException):
 
-    def __init__(self, message: str = 'Access forbidden for requested object.'):
+    def __init__(self,
+                 message: str = 'Access forbidden for requested object.'):
         super().__init__(message=message, code=403)
 
 
@@ -135,3 +136,54 @@ class DiscordServerError(DiscordHTTPException):
 
     def __init__(self, message: str = 'Internal server error.'):
         super().__init__(message=message, code=500)
+
+
+class InvalidSnowflakeException(Exception): 
+    _value: str
+    _message: str
+
+    def __init__(self, value: str, message: str):
+        self._value = value
+        self._message = message
+
+class InvalidIntent(ValueError):
+    _message: str
+    _value: str
+    
+    def __init__(self, value: str, message: str):
+        self._value = value
+        self._message = message
+    
+    def __str__(self) -> str:
+        return f'Error message: {self._message} for {self._value}'
+    
+    def __repr__(self) -> str:
+        return f'Message: {self._message}'
+    
+class InvalidColor(ValueError):
+    _message: str
+    _value: Union[int, str]
+    
+    def __init__(self, value: Union[int, str], message: str) -> None:
+        self._value = value
+        self._message = message
+        super().__init__(message)
+        
+class EmptyField(ValueError):
+    _message: str
+    
+    def __init__(self, message: str = 'Given field cannot be empty'):
+        self._message = message
+        super().__init__(message)
+
+
+class DiscordChannelNotFound(DiscordNotFound):
+    
+    def __init__(self, message: str = 'Requested channel not found.'):
+        super().__init__(message=message)
+
+class DiscordChannelForbidden(DiscordForbidden):
+    
+    def __init__(self, message: str = 'Access forbidden for requested channel.'):
+        super().__init__(message=message)
+        

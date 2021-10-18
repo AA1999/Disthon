@@ -1,18 +1,20 @@
 from io import BufferedIOBase
 from os import PathLike
-from typing import Optional, Any, Union
+from typing import ClassVar, Optional, Union
 
 from discord.errors.exceptions import DiscordException, DiscordNotFound
-from discord.types.enums.imagetype import ImageType
+from discord.internal.cache import LFUCache
+from pydantic import BaseModel
+
+from enums.imagetype import ImageType
 
 
-class Image:
-    __slots__ = ('_url', 'state', '_format', '_animated')
-    _url: str
-    _format: ImageType
-    state: Optional[Any]
-    _animated: bool
-    CDN = 'https://cdn.discordapp.com'
+class Image(BaseModel):
+    
+    url: str
+    format: ImageType
+    cache: Optional[LFUCache]
+    CDN: ClassVar[str] = 'https://cdn.discordapp.com'
 
     @staticmethod
     def _is_animated(url: str):
@@ -95,31 +97,23 @@ class Image:
     def __init__(self, url: str):
         self._url = url
         if '.jpg' in url.lower() or '.jpeg' in url.lower():
-            self._format = ImageType.jpeg
+            self.format = ImageType.jpeg
         elif '.png' in url.lower():
-            self._format = ImageType.png
+            self.format = ImageType.png
         elif '.webp' in url.lower():
-            self._format = ImageType.webp
+            self.format = ImageType.webp
         elif '.gif' in url.lower():
-            self._format = ImageType.gif
+            self.format = ImageType.gif
         elif '.json' in url.lower():
-            self._format = ImageType.lottie
+            self.format = ImageType.lottie
         else:
             raise DiscordNotFound
 
-    @property
-    def url(self):
-        return self._url if not self._url.startswith(self.CDN) else f'{self.CDN}/{self._url}'
-
-    @property
-    def format(self):
-        return self._format
 
     async def to_bytes(self):
-        if self.state is not None:
-            return await self.state.handler.get_from_cdn(self.url)
-        raise DiscordException('Invalid state (no ConnectionState provided).')
-
+        if self.cache is not None:
+            return await self.cache.handler.get_from_cdn(self.url)
+        raise DiscordException('No cache provided.')
     async def save(self, fp: Union[str, bytes, PathLike, BufferedIOBase], *, seek_begin: bool = True) -> int:
         data = await self.to_bytes()
         if isinstance(fp, BufferedIOBase):
@@ -130,7 +124,3 @@ class Image:
         else:
             with open(fp, 'wb') as f:
                 return f.write(data)
-
-    @property
-    def animated(self):
-        return self._is_animated(self.url)

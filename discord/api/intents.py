@@ -1,13 +1,11 @@
-from typing import ClassVar
+from typing import ClassVar, Dict
 
-
-class InvalidIntent(BaseException):
-    def __init__(self, intent):
-        self.intent = intent
+from discord.errors.exceptions import InvalidIntent
 
 
 class Intents:
-    VALID_INTENTS: ClassVar[dict[str, int]] = {
+    
+    VALID_INTENTS: ClassVar[Dict[str, int]] = {
         'guilds': 0,
         'members': 1,
         'bans': 2,
@@ -32,12 +30,12 @@ class Intents:
             try:
                 self.value = self.value + (1 << self.VALID_INTENTS[arg]) if kwargs[arg] else self.value
             except KeyError:
-                raise InvalidIntent(arg)
+                raise InvalidIntent(arg, f'Invalid intent {arg}. Please check your spelling.')
 
     def __setattr__(self, name, value):
-        # prevent error when setting attribute from the internals
+
         if name not in self.VALID_INTENTS:
-            return super.__setattr__(self, name, value)
+            raise InvalidIntent(name, 'Specified value is not in the list of valid intents. Please check your spelling')
 
         bit = 1 << self.VALID_INTENTS[name]
         if value:
@@ -60,3 +58,4 @@ class Intents:
         kwargs['members'] = False
         kwargs['presence'] = False
         return cls(**kwargs)
+

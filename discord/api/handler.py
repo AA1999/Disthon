@@ -1,19 +1,33 @@
-import typing
-import aiohttp
+from typing import Optional, Union
 
-from discord.errors.exceptions import DiscordNotAuthorized
+import aiohttp
+from discord.errors.exceptions import (DiscordChannelForbidden,
+                                       DiscordChannelNotFound,
+                                       DiscordForbidden,
+                                       DiscordGatewayNotFound,
+                                       DiscordHTTPException,
+                                       DiscordNotAuthorized, DiscordNotFound,
+                                       DiscordServerError)
 
 
 class Handler:
+    
     def __init__(self):
         self.base_url: str = 'https://discord.com/api/v9/'
-        self.user_agent: str = "Disthon test library V0.0.1b"
+        self.user_agent: str = "Disthon Discord API wrapper V0.0.1b"
 
-    async def request(self, method: str, dest: str, *, headers: typing.Optional[dict] = None,
-                      data: typing.Optional[dict] = None) -> typing.Union[str, dict]:
+    async def request(self, method: str, dest: str, *, headers: Optional[dict] = None,
+                      data: Optional[dict] = None) -> Union[str, dict]:
         async with self.__session.request(method, self.base_url + dest, headers=headers, json=data) as r:
-            if not 200 <= r.status < 300 and r.status == 401:
-                raise DiscordNotAuthorized
+            if not 200 <= r.status < 300:
+                if r.status == 401:
+                    raise DiscordNotAuthorized
+                if r.status == 403:
+                    raise DiscordForbidden
+                if r.status == 404:
+                    raise DiscordGatewayNotFound
+                if r.status == 500:
+                    raise DiscordServerError
             text = await r.text()
             try:
                 if r.headers['content-type'] == 'application/json':
@@ -23,7 +37,7 @@ class Handler:
 
             return text
 
-    async def login(self, token: str) -> dict:
+    async def login(self, token: str) -> Union[str, dict]:
         self.token = token
         self.__session = aiohttp.ClientSession(headers={"Authorization": "Bot " + self.token})
 
@@ -36,7 +50,9 @@ class Handler:
 
     async def gateway(self) -> str:
         gw_data = await self.request("GET", "/gateway/bot")
-        return gw_data['url'] + '?encoding=json&v=9&compress=zlib-stream'
+        if isinstance(gw_data, dict):
+            return gw_data['url'] + '?encoding=json&v=9&compress=zlib-stream'
+        raise NotImplementedError
 
     async def connect(self, url: str) -> aiohttp.ClientWebSocketResponse:
         kwargs = {
@@ -52,17 +68,18 @@ class Handler:
     async def close(self) -> None:
         await self.__session.close()
 
-    async def send_message(self, channel_id: int, content: typing.Optional[str] = None):
+    async def send_message(self, channel_id: int, content: Optional[str] = None):
         payload = {
             'content': content,
         }
 
-        data = await self.request("POST", f"/channels/{channel_id}/messages", data=payload)
+        data = await self.request("POST", f'/channels/{channel_id}/messages', data=payload)
         try:
-            if data['code'] == 50008:
-                raise TypeError("Invalid channel")
-            elif data['code'] == 10003:
-                raise TypeError("Unknown channel")
+            if isinstance(data, dict):
+                if data['code'] == 50008:
+                    raise DiscordChannelNotFound
+                elif data['code'] == 10003:
+                    raise DiscordChannelForbidden
         except KeyError:
             return data
 
@@ -75,7 +92,7 @@ class Handler:
         await self.request("PATCH", f"/channels/{channel_id}", headers={'Content-Type': 'application/json'},
                            data=payload)
 
-    async def edit_guild_voice_channel(self, channel_id: int, **options: typing.Any):
+    async def edit_guild_voice_channel(self, channel_id: int, **options):
         payload = {
             'name': options['name'],
             'position': options['position'],
@@ -86,3 +103,17 @@ class Handler:
             'rtc_region': options['region'],
         }
         await self.request("PATCH", f"/channels/{channel_id}", data=payload)
+        
+    async def get_from_cdn(self, url: str):
+        async with self.__session.get(url) as resp:
+            if resp.status == 200:
+                return await resp.read()
+            if resp.status == 404:
+                raise DiscordNotFound('Requested asset could not be found.')
+            if resp.status == 403:
+                raise DiscordForbidden('Unable to fetch requested asset.')
+            if resp.status == 401:
+                raise DiscordNotAuthorized('Fetching asset failed.')
+            if resp.status == 500:
+                raise DiscordServerError('Internal server error.')
+            raise DiscordHTTPException('Failed to fetch the asset.', resp.status)

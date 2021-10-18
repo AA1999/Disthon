@@ -3,17 +3,18 @@ from typing import Optional
 
 from discord.errors.exceptions import DiscordInvalidArgument
 from discord.internal.cache import LFUCache
-from discord.types.enums.validavatarformat import ValidAvatarFormat, ValidStaticAvatarFormat
-from discord.types.image import Image
 from yarl import URL
+
+from enums.validavatarformat import ValidAvatarFormat, ValidStaticAvatarFormat
+from image import Image
 
 
 class Avatar(Image):
-    _cache: LFUCache
-    _key: str
+    cache: LFUCache
+    key: str
 
     def __init__(self, cache: LFUCache, url: str, key: str):
-        self._cache = cache
+        self.cache = cache
         self._key = key
         super().__init__(url)
 
@@ -108,9 +109,6 @@ class Avatar(Image):
     def __hash__(self):
         return hash(self.url)
 
-    @property
-    def key(self):
-        return self._key
 
     def replace(self, size: Optional[int], format: Optional[ValidAvatarFormat],
                 static_format: Optional[ValidAvatarFormat]):
@@ -123,4 +121,9 @@ class Avatar(Image):
                 raise DiscordInvalidArgument(f'Format must be in one of the {ValidStaticAvatarFormat.values()}')
             url = url.with_path(f'{path}.{format}')
 
-            
+    
+    @property
+    def animated(self):
+        return self._is_animated(self.url)
+    
+    

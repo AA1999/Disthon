@@ -1,7 +1,7 @@
-from enum import IntEnum
+from enum import IntFlag
 
 
-class UserFlags(IntEnum):
+class UserFlags(IntFlag):
     none = 0
     discord_staff = 1 << 0
     partnered_server_owner = 1 << 1

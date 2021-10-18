@@ -1,7 +1,8 @@
 from typing import TypedDict
 
 from discord.color.color import Color
-from discord.types.snowflake import Snowflake
+
+from snowflake import Snowflake
 
 
 class RoleTagsPayload(TypedDict, total=False):

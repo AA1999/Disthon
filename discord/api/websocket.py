@@ -9,8 +9,6 @@ import zlib
 
 from aiohttp.http_websocket import WSMessage, WSMsgType
 
-from discord.client.client import Client
-
 
 class WebSocket:
     # websocket opcodes
@@ -28,7 +26,7 @@ class WebSocket:
     HEARTBEAT_ACK = 11
     GUILD_SYNC = 12
 
-    def __init__(self, client: Client, token: str) -> None:
+    def __init__(self, client, token: str) -> None:
         self.decompress = zlib.decompressobj()
         self.buffer = bytearray()
         self.client = client
@@ -59,7 +57,7 @@ class WebSocket:
             else:
                 asyncio.run(self.heartbeat())
 
-    def on_websocket_message(self, msg: dict) -> dict:
+    def on_websocket_message(self, msg: WSMessage) -> dict:
         # always push the message data to your cache'
         if type(msg) is bytes:
             self.buffer.extend(msg)
@@ -120,8 +118,8 @@ class WebSocket:
                 'intents': self.client.intents.value,
                 'properties': {
                     '$os': sys.platform,
-                    '$browser': 'discord',
-                    '$device': 'discord'
+                    '$browser': 'disthon',
+                    '$device': 'disthon'
                 },
                 'large_threshold': 250,
                 'compress': True

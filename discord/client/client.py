@@ -51,7 +51,7 @@ class Client:
     async def close(self) -> None:
         await self.handler.close()
 
-    def run(self, token: str) -> asyncio.Future.result:
+    def run(self, token: str):
 
         def stop_loop_on_completion(_):
             self.__loop.stop()

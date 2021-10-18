@@ -6,14 +6,14 @@ with open("README.md", "r") as file:
 setup(
     name="disthon",
     packages=[],
-    install_requires=["aiohttp", "yarl"],
+    install_requires=["aiohttp", "yarl", "pydantic", "arrow"],
     description="An API wrapper for the discord API written in python",
     version="0.0.1",
     long_description=long_des,
     long_description_content_type="text/markdown",
     license="MIT",
     author="Arshia",
-    author_email="no_mail@temporary.com",
+    author_email="arshia.aghaei@gmail.com",
     url="https://github.com/AA1999/Disthon",
     keywords=["API", "discord"],
     classifiers = [

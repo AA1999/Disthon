@@ -1,67 +1,56 @@
 import colorsys
 import random
-from typing import Optional, Union
+import re
+from typing import Union
+
+from discord.errors.exceptions import InvalidColor
 
 __all__ = ('Color', 'Colour')
 
+
 class Color:
-    __slots__ = '_value'
+    __slots__ = ('_value', )
 
     _value: int
 
     @staticmethod
     def _is_16_bit(color: Union[int, str]) -> bool:
-        if isinstance(color, str):
-            if color.startswith('#'):
-                if not color[1].isdigit():
-                    return False
-                for c in color[1]:
-                    try:
-                        a = int(c, 16)
-                    except ValueError:
-                        return False
-                return True
-            if color.startswith('0x'):
-                if not color[2].isdigit():
-                    return False
-                for c in color[2]:
-                    try:
-                        a = int(c, 16)
-                    except ValueError:
-                        return False
-                return True
-            return False
-        for digit in str(color):
-            try:
-                temp = int(digit, 16)
-            except ValueError:
-                return False
-            return True
-        return False
+        temp = ''
+        if isinstance(color, int):
+            return 0 <= color < pow(16, 6)
+        if color.startswith('0x'):
+            temp = color.replace('0x', '#')
+        elif color.startswith('#'):
+            temp = color
+        else:
+            raise InvalidColor(color, f'{color} is not a valid 16-bit 6-digit color')
+        hex_regex = r'^#(?:[0-9a-fA-F]{3}){1,2}$'
+        match = re.search(hex_regex, temp)
+        return bool(match)
 
-    def __init__(self, value: Union[int, str]):
+    def __init__(self, value):
         if self._is_16_bit(value):
             self._value = int(value, 16)
         else:
             raise ValueError('Color needs to be 16-bit 6-character value.')
-    
+
     @classmethod
     def _from_rgb(cls, r: int, g: int, b: int):
         return cls((r << 16) + (g << 8) + b)
-    
+
     @classmethod
     def _from_hsv(cls, h: float, s: float, v: float):
         rgb = colorsys.hsv_to_rgb(h, s, v)
         return cls._from_rgb(*(int(c * 255) for c in rgb))
-    
+
     @classmethod
     def default(cls):
         return cls(0)
-    
+
     @classmethod
-    def random(cls, seed: Optional[Union[int, str, float, bytes, bytearray]]):
+    def random(cls, seed: Union[int, str, float, bytes, bytearray, None]):
         return random if seed is None else random.Random(seed)
-    
+
     @classmethod
     def teal(cls):
         return cls(0x1abc9c)
@@ -181,45 +170,46 @@ class Color:
     @classmethod
     def yellow(cls):
         return cls(0xFEE75C)
-    
+
     def _to_byte(self, byte: int) -> int:
         return (self.value >> (8 * byte)) & 0xff
-    
+
     def __eq__(self, o: object) -> bool:
         return isinstance(o, Color) and o.value == self.value
-    
+
     def __ne__(self, o: object) -> bool:
         return not self.__eq__(o)
-    
+
     def __str__(self) -> str:
         return f'#{self.value:0>6x}'
-    
+
     def __repr__(self) -> str:
         return str(self)
-    
+
     def __int__(self):
         return self.value
-    
+
     def __hash__(self) -> int:
         return hash(self.value)
-    
+
     @property
     def r(self):
         return self._to_byte(2)
-    
+
     @property
     def g(self):
         return self._to_byte(1)
-    
+
     @property
     def b(self):
         return self._to_byte(0)
-    
+
     def to_rgb(self):
-        return (self.r, self.g, self.b)
+        return self.r, self.g, self.b
 
     @property
     def value(self):
         return self._value
+
 
 Colour = Color

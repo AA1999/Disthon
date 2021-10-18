@@ -1,41 +1,38 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TypedDict, Optional
+from typing import Optional, TypedDict
 
 from discord.activity.rawactivityassets import RawActivityAssets
-from discord.types.enums.activitytype import ActivityType
-from discord.types.snowflake import Snowflake
+from pydantic import BaseModel
+
+from .enums.activitytype import ActivityType
+from .snowflake import Snowflake
 
 
-class ActivityTimestamps(TypedDict, total=False):
+class ActivityTimestamps(BaseModel):
     start: datetime
     end: datetime
-
-
-class ActivityParty(TypedDict, total=False):
+    
+class ActivityParty(BaseModel):
     id: Snowflake
     size: list[int]
-
-
-class ActivityEmoji(TypedDict, total=False):
+    
+class ActivityEmoji(BaseModel):
     id: Snowflake
     animated: bool
     name: str
 
-
-class ActivitySecrets(TypedDict, total=False):
+class ActivitySecrets(BaseModel):
     join: str
     spectate: str
     match: str
 
-
-class ActivityButton:
+class ActivityButton(BaseModel):
     label: str
     url: str
 
-
-class ActivityPayload(TypedDict, total=False):
+class ActivityPayload(BaseModel):
     url: Optional[str]
     name: str
     type: ActivityType
@@ -52,6 +49,3 @@ class ActivityPayload(TypedDict, total=False):
     session_id: Optional[str]
     instance: bool
     buttons: list[ActivityButton]
-
-
-
