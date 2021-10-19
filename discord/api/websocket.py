@@ -76,11 +76,12 @@ class WebSocket:
 
     async def receive_events(self) -> None:
         msg: WSMessage = await self.socket.receive()
-        if msg.type is aiohttp.WSMsgType.TEXT:
+        # if the message is something we can handle
+        if msg.type is aiohttp.WSMsgType.TEXT or msg.type is aiohttp.WSMsgType.BINARY:
             msg = self.on_websocket_message(msg.data)
-        elif msg.type is aiohttp.WSMsgType.BINARY:
-            msg = self.on_websocket_message(msg.data)
+        # if it's a disconnection
         elif msg.type in (aiohttp.WSMsgType.CLOSE, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSED):
+            await self.socket.close()
             raise ConnectionResetError(msg.extra)
 
         msg = json.loads(msg)
