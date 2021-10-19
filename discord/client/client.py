@@ -82,7 +82,7 @@ class Client:
             self.events[event] = [func]
 
     async def handle_event(self, msg):
-        event = "on_" + msg['t'].lower())
+        event = "on_" + msg['t'].lower()
 
         # don't dispatch when there are no listeners
         if event in self.events:
