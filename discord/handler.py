@@ -1,6 +1,6 @@
 import aiohttp
 
-from typing import Optional, List, Any, Union, Iterable
+import typing
 from .embeds import Embed
 from discord.interactions.components import View
 
@@ -10,8 +10,8 @@ class Handler:
         self.base_url: str = 'https://discord.com/api/v9/'
         self.user_agent: str = "Disthon test library V0.0.1b"
 
-    async def request(self, method: str, dest: str, *, headers: Optional[dict] = None,
-                      data: Optional[dict] = None) -> Union[str, dict]:
+    async def request(self, method: str, dest: str, *, headers: typing.Optional[dict] = None,
+                      data: typing.Optional[dict] = None) -> typing.Union[str, dict]:
         async with self.__session.request(method, self.base_url + dest, headers=headers, json=data) as r:
             if not 200 <= r.status < 300:
                 if r.status == 401:
@@ -55,8 +55,9 @@ class Handler:
     async def close(self) -> None:
         await self.__session.close()
 
-    async def send_message(self, channel_id: int, content: Optional[str] = None,
-                           embeds: Union[Embed, List[Embed]] = None, views: Union[View, List[View]] = None):
+    async def send_message(self, channel_id: int, content: typing.Optional[str] = None,
+                           embeds: typing.Union[Embed, typing.List[Embed]] = None,
+                           views: typing.Union[View, typing.List[View]] = None):
         if isinstance(embeds, Embed):
             embeds = [embeds]
         if isinstance(views, View):
@@ -80,8 +81,9 @@ class Handler:
         except KeyError:
             return data
 
-    async def edit_message(self, channel_id: int, message_id: int, *, content: Optional[str] = None,
-                           embeds: Union[Embed, List[Embed]] = None, views: Union[View, List[View]] = None):
+    async def edit_message(self, channel_id: int, message_id: int, *, content: typing.Optional[str] = None,
+                           embeds: typing.Union[Embed, typing.List[Embed]] = None,
+                           views: typing.Union[View, typing.List[View]] = None):
         if isinstance(embeds, Embed):
             embeds = [embeds]
         if isinstance(views, View):
@@ -101,7 +103,7 @@ class Handler:
     async def delete_message(self, channel_id: int, message_id: int):
         await self.request("DELETE", f"/channels/{channel_id}/messages/{message_id}")
 
-    async def bulk_delete_messages(self, channel_id: int, message_ids: Iterable[int]):
+    async def bulk_delete_messages(self, channel_id: int, message_ids: typing.Iterable[int]):
         await self.request("POST", f"/channels/{channel_id}/messages/bulk-delete", data={"messages": message_ids})
 
     async def add_reaction(self, channel_id: int, message_id: int, emoji: str):
@@ -150,12 +152,12 @@ class Handler:
         data = await self.request("GET", f"/channels/{channel_id}")
         return data
 
-    async def edit_guild_text_channel(self, channel_id: int, **options: Any):
+    async def edit_guild_text_channel(self, channel_id: int, **options: typing.Any):
         payload = {k: v for k, v in options.items()}
         await self.request("PATCH", f"/channels/{channel_id}", headers={'Content-Type': 'application/json'},
                            data=payload)
 
-    async def edit_guild_voice_channel(self, channel_id: int, **options: Any):
+    async def edit_guild_voice_channel(self, channel_id: int, **options: typing.Any):
         payload = {
             'name': options['name'],
             'position': options['position'],
