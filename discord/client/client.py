@@ -1,7 +1,6 @@
 import asyncio
 import inspect
 import typing
-from copy import deepcopy
 
 from discord.api.handler import Handler
 from discord.api.intents import Intents
@@ -85,13 +84,9 @@ class Client:
     async def handle_event(self, msg):
         event = "on_" + msg['t'].lower()
 
-        if event in ("on_message_create", "on_dm_message_create"):
-            global_message = deepcopy(msg)
-            global_message['t'] = "MESSAGE"
-            await self.handle_event(global_message)
-        try:
-
+        # don't dispatch when there are no listeners
+        if event in self.events:
             for coro in self.events[event]:
                 await coro(msg)
-        except KeyError:
+        else:
             return
