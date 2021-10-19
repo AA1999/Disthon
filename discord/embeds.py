@@ -15,13 +15,13 @@ class Embed:
         url: str = None,
         type: str = "rich"
     ):
-        self.title = str(title) if title else None
-        self.description = str(description) if description else None
-        self.timestamp = str(timestamp) if timestamp else None
-        self.color = color
-        self.type = type
-        self.url = url
-        self.fields = []
+        self.title: Optional[str] = str(title) if title else None
+        self.description: Optional[str] = str(description) if description else None
+        self.timestamp: Optional[str] = str(timestamp) if timestamp else None
+        self.color: Optional[int] = color
+        self.type: str = type
+        self.url: Optional[str] = url
+        self.fields: list = []
 
     def _to_dict(self):
         return {key: value for key, value in self.__dict__.items() if value is not None}
