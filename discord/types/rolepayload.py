@@ -1,6 +1,6 @@
 from typing import TypedDict
 
-from discord.color.color import Color
+from ..color.color import Color
 
 from snowflake import Snowflake
 

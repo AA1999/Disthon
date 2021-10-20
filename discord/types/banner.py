@@ -1,7 +1,7 @@
 from typing import Optional
 
-from discord.color.color import Color
-from discord.types.image import Image
+from ..color.color import Color
+from ..types.image import Image
 
 
 class Banner(Image):

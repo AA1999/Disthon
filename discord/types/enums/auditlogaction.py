@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import IntEnum
 from typing import Optional
 
-from discord.types.enums.auditlogactioncategory import AuditLogActionCategory
+from ...types.enums.auditlogactioncategory import AuditLogActionCategory
 
 
 class AuditLogAction(IntEnum):

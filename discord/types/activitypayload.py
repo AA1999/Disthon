@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional, TypedDict
 
-from discord.activity.rawactivityassets import RawActivityAssets
+from ..activity.rawactivityassets import RawActivityAssets
 from pydantic import BaseModel
 
 from .enums.activitytype import ActivityType

@@ -2,9 +2,9 @@ import asyncio
 import inspect
 import typing
 
-from discord.api.handler import Handler
-from discord.api.intents import Intents
-from discord.api.websocket import WebSocket
+from ..api.handler import Handler
+from ..api.websocket import WebSocket
+from ..intents import Intents
 
 
 class Client:

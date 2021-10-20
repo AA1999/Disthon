@@ -1,4 +1,4 @@
-from discord.channels.basechannel import BaseChannel
+from ..channels.basechannel import BaseChannel
 
 
 class GuildChannel(BaseChannel):

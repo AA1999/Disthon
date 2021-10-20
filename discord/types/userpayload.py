@@ -1,7 +1,7 @@
 from typing import Optional, TypedDict
 
-from discord.types.avatar import Avatar
-from discord.types.banner import Banner
+from ..types.avatar import Avatar
+from ..types.banner import Banner
 from pydantic.main import BaseModel
 
 from enums.locale import Locale

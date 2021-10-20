@@ -1,10 +1,10 @@
-from discord.types.enums.locale import Locale
+from ..types.enums.locale import Locale
 from typing import Optional
 
-from discord.internal.cache import UserCache
-from discord.types.enums.userflags import UserFlags
-from discord.types.userpayload import UserPayload
-from discord.user.baseuser import BaseUser
+from ..internal.cache import UserCache
+from ..types.enums.userflags import UserFlags
+from ..types.userpayload import UserPayload
+from ..user.baseuser import BaseUser
 
 
 class ClientUser(BaseUser):

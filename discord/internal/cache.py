@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import Any, OrderedDict
 
-from discord.api.handler import Handler
-from discord.guild.guild import Guild
-from discord.member.member import Member
-from discord.message.message import Message
-from discord.role.role import Role
-from discord.types.snowflake import Snowflake
-from discord.user.user import User
+from ..api.handler import Handler
+from ..guild.guild import Guild
+from ..member.member import Member
+from ..message.message import Message
+from ..role.role import Role
+from ..types.snowflake import Snowflake
+from ..user.user import User
 from pydantic import BaseModel
 
 

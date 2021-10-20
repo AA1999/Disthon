@@ -1,6 +1,6 @@
 from typing import ClassVar, Dict
 
-from discord.errors.exceptions import InvalidIntent
+from ..errors.exceptions import InvalidIntent
 
 
 class Intents:

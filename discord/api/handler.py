@@ -1,7 +1,7 @@
 from typing import Optional, Union
 
 import aiohttp
-from discord.errors.exceptions import (DiscordChannelForbidden,
+from ..errors.exceptions import (DiscordChannelForbidden,
                                        DiscordChannelNotFound,
                                        DiscordForbidden,
                                        DiscordGatewayNotFound,
@@ -22,11 +22,11 @@ class Handler:
             if not 200 <= r.status < 300:
                 if r.status == 401:
                     raise DiscordNotAuthorized
-                if r.status == 403:
+                elif r.status == 403:
                     raise DiscordForbidden
-                if r.status == 404:
+                elif r.status == 404:
                     raise DiscordGatewayNotFound
-                if r.status == 500:
+                elif r.status == 500:
                     raise DiscordServerError
             text = await r.text()
             try:

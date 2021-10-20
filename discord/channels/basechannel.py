@@ -1,5 +1,5 @@
-from discord.abc.discordobject import DiscordObject
-from discord.types.snowflake import Snowflake
+from ..abc.discordobject import DiscordObject
+from ..types.snowflake import Snowflake
 
 
 class BaseChannel(DiscordObject):

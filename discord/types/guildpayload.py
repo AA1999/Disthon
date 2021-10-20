@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from typing import Optional
 
-from discord.channels.guildchannel import GuildChannel
-from discord.member.member import Member
-from discord.role.role import Role
-from discord.user.user import User
+from ..channels.guildchannel import GuildChannel
+from ..member.member import Member
+from ..role.role import Role
+from ..user.user import User
 from pydantic import BaseModel
 
 from .enums.locale import Locale

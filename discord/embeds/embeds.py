@@ -8,10 +8,10 @@ from typing import Any, Final, Mapping, Optional, Type, Union
 
 import arrow
 from arrow import Arrow
-from discord.color.color import Color
-from discord.errors.exceptions import EmptyField, InvalidColor
-from discord.types.enums.embedtype import EmbedType
-from discord.utils.datetime import parse_time, utcnow
+from ..color.color import Color
+from ..errors.exceptions import EmptyField, InvalidColor
+from ..types.enums.embedtype import EmbedType
+from ..utils.datetime import parse_time, utcnow
 from pydantic import BaseModel, validator
 
 __all__ = ('Embed',)

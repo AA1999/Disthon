@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from discord.guild.guild import Guild
-from discord.role.role import Role
-from discord.user.user import User
+from ..guild.guild import Guild
+from ..role.role import Role
+from ..user.user import User
 
 
 class Member(User):

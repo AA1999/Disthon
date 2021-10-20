@@ -1,8 +1,8 @@
 from typing import TypeVar
 
-from discord.internal.cache import GuildCache, UserCache
-from discord.types.userpayload import UserPayload
-from discord.user.baseuser import BaseUser
+from ..internal.cache import GuildCache, UserCache
+from ..types.userpayload import UserPayload
+from ..user.baseuser import BaseUser
 
 BU = TypeVar('BU', bound='User')
 
@@ -44,5 +44,4 @@ class User(BaseUser):
     
     @property
     def mutual_guilds(self):
-        
-    
+        pass

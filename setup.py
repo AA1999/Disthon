@@ -5,7 +5,7 @@ with open("README.md", "r") as file:
 
 setup(
     name="disthon",
-    packages=[],
+    packages=["discord"],
     install_requires=["aiohttp", "yarl", "pydantic", "arrow"],
     description="An API wrapper for the discord API written in python",
     version="0.0.1",
