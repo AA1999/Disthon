@@ -1,3 +1,3 @@
-from . import client as Client
+from .client import Client
 from . import embeds as Embed
-from . import intents as Intents
+from .api import intents as Intents

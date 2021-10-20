@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from ..color.color import Color
+from ..color import Color
 from pydantic import BaseModel
 
 from enums.embedtype import EmbedType

@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from discord.activity.rawactivityassets import RawActivityAssets
-from discord.types.snowflake import Snowflake
-from discord.activity.activity import Activity
+from .rawactivityassets import RawActivityAssets
+from ..types.snowflake import Snowflake
+from .activity import Activity
 
 
 class PresenceAssets(dict[Snowflake, str]):

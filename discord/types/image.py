@@ -2,8 +2,8 @@ from io import BufferedIOBase
 from os import PathLike
 from typing import ClassVar, Optional, Union
 
-from ..errors.exceptions import DiscordException, DiscordNotFound
-from ..internal.cache import LFUCache
+from ..exceptions import DiscordException, DiscordNotFound
+from ..cache import LFUCache
 from pydantic import BaseModel
 
 from enums.imagetype import ImageType

@@ -3,7 +3,7 @@ import random
 import re
 from typing import Union
 
-from discord.errors.exceptions import InvalidColor
+from .exceptions import InvalidColor
 
 __all__ = ('Color', 'Colour')
 

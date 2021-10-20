@@ -1,6 +1,6 @@
 from typing import ClassVar, Dict
 
-from ..errors.exceptions import InvalidIntent
+from ..exceptions import InvalidIntent
 
 
 class Intents:

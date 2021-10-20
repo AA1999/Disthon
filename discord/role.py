@@ -2,16 +2,16 @@ from __future__ import annotations
 
 from typing import TypeVar, Optional
 
-from ..abc.discordobject import DiscordObject
-from ..color.color import Color
-from ..guild.guild import Guild
+from .abc.discordobject import DiscordObject
+from .color import Color
+from .guild import Guild
 
 __all__ = ('RoleTags', 'Role')
 
-from ..internal.cache import RoleCache
+from .cache import RoleCache
 
-from ..types.rolepayload import RoleTagsPayload, RolePayload
-from ..types.snowflake import Snowflake
+from .types.rolepayload import RoleTagsPayload, RolePayload
+from .types.snowflake import Snowflake
 
 
 class RoleTags:

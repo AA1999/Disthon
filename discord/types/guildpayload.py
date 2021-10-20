@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import Optional
 
 from ..channels.guildchannel import GuildChannel
-from ..member.member import Member
-from ..role.role import Role
+from ..user.member import Member
+from ..role import Role
 from ..user.user import User
 from pydantic import BaseModel
 

@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from discord.types.snowflake import Snowflake
+from ..types.snowflake import Snowflake
 from pydantic import BaseModel
 
 

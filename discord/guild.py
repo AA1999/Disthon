@@ -3,13 +3,13 @@ from typing import (
     Optional,
 )
 
-from ..abc.discordobject import DiscordObject
-from ..channels.guildchannel import GuildChannel
-from ..member.member import Member
-from ..role.role import Role
-from ..types.guildpayload import GuildPayload
-from ..types.snowflake import Snowflake
-from ..user.user import User
+from .abc.discordobject import DiscordObject
+from .channels.guildchannel import GuildChannel
+from .user.member import Member
+from .role import Role
+from .types.guildpayload import GuildPayload
+from .types.snowflake import Snowflake
+from .user.user import User
 
 
 class BanEntry(NamedTuple):

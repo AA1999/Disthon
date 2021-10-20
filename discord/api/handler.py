@@ -1,7 +1,7 @@
 from typing import Optional, Union
 
 import aiohttp
-from ..errors.exceptions import (DiscordChannelForbidden,
+from ..exceptions import (DiscordChannelForbidden,
                                        DiscordChannelNotFound,
                                        DiscordForbidden,
                                        DiscordGatewayNotFound,

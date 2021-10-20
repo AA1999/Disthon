@@ -1,8 +1,8 @@
 from os.path import splitext
 from typing import Optional
 
-from ..errors.exceptions import DiscordInvalidArgument
-from ..internal.cache import LFUCache
+from ..exceptions import DiscordInvalidArgument
+from ..cache import LFUCache
 from yarl import URL
 
 from enums.validavatarformat import ValidAvatarFormat, ValidStaticAvatarFormat

@@ -1,6 +1,5 @@
 from typing import TypeVar
 
-from ..internal.cache import GuildCache, UserCache
 from ..types.userpayload import UserPayload
 from ..user.baseuser import BaseUser
 
@@ -13,7 +12,7 @@ class User(BaseUser):
     
     _stored: bool
     
-    def __init__(self, cache: UserCache, payload: UserPayload):
+    def __init__(self, cache, payload: UserPayload):
         super().__init__(cache, payload)
         self._stored = False
     

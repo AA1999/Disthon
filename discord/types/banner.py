@@ -1,6 +1,6 @@
 from typing import Optional
 
-from ..color.color import Color
+from ..color import Color
 from ..types.image import Image
 
 

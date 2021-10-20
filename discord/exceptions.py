@@ -3,7 +3,7 @@ from http.client import HTTPException
 from typing import Optional, Union
 
 from aiohttp import ClientWebSocketResponse
-from ..interaction.interaction import Interaction
+from .interaction import Interaction
 
 
 class DiscordException(Exception):

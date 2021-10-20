@@ -1,4 +1,4 @@
-from ..channels.basechannel import BaseChannel
+from .basechannel import BaseChannel
 
 
 class GuildChannel(BaseChannel):

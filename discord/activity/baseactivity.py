@@ -1,7 +1,7 @@
 from typing import Optional
 from datetime import datetime
 
-from discord.types.activitypayload import ActivityPayload
+from ..types.activitypayload import ActivityPayload
 
 
 class BaseActivity:

@@ -1,6 +1,6 @@
-from discord.activity.presenseassets import PresenceAssets
-from discord.types.snowflake import Snowflake
-from discord.activity.baseactivity import BaseActivity
+from .presenseassets import PresenceAssets
+from ..types.snowflake import Snowflake
+from .baseactivity import BaseActivity
 
 
 class Activity(BaseActivity):

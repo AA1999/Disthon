@@ -1,7 +1,7 @@
 from typing import Optional
 
-from discord.message.message import Message
-from discord.types.avatar import Avatar
+from ..message import Message
+from ..types.avatar import Avatar
 
 from discordobject import DiscordObject
 

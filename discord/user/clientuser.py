@@ -1,7 +1,7 @@
 from ..types.enums.locale import Locale
 from typing import Optional
 
-from ..internal.cache import UserCache
+from ..cache import UserCache
 from ..types.enums.userflags import UserFlags
 from ..types.userpayload import UserPayload
 from ..user.baseuser import BaseUser

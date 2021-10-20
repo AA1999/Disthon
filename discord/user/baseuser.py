@@ -9,9 +9,9 @@ from types.enums.userflags import UserFlags
 from types.userpayload import UserPayload
 from typing import Optional
 
-from ..color.color import Color
-from ..message.message import Message
-from ..internal.cache import GuildCache, UserCache
+from ..color import Color
+from ..message import Message
+from ..cache import GuildCache, UserCache
 
 
 class BaseUser(AbstractUser):

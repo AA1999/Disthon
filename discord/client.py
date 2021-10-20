@@ -2,9 +2,9 @@ import asyncio
 import inspect
 import typing
 
-from ..api.handler import Handler
-from ..api.websocket import WebSocket
-from ..intents import Intents
+from .api.handler import Handler
+from .api.websocket import WebSocket
+from .api.intents import Intents
 
 
 class Client:
