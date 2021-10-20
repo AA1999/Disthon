@@ -8,13 +8,14 @@ from discord.errors.exceptions import (DiscordChannelForbidden,
                                        DiscordHTTPException,
                                        DiscordNotAuthorized, DiscordNotFound,
                                        DiscordServerError)
+from discord import __version__
 
 
 class Handler:
     
     def __init__(self):
         self.base_url: str = 'https://discord.com/api/v9/'
-        self.user_agent: str = "Disthon Discord API wrapper V0.0.1b"
+        self.user_agent: str = f"DiscordBot (https://AA1999/Disthon, {__version__})"
 
     async def request(self, method: str, dest: str, *, headers: Optional[dict] = None,
                       data: Optional[dict] = None) -> Union[str, dict]:
