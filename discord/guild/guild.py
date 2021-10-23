@@ -1,6 +1,7 @@
 from typing import (
     NamedTuple,
     Optional,
+    List
 )
 
 from discord.abc.discordobject import DiscordObject
@@ -44,6 +45,7 @@ class Guild(DiscordObject):
     me: Member
     owner_id: Snowflake
 
+
     def __init__(self, data: GuildPayload):
         self._members: dict[Snowflake, Member] = {}
         self._channels: dict[Snowflake, GuildChannel] = {}
@@ -64,3 +66,27 @@ class Guild(DiscordObject):
             # checks if role is @everyone or not
 
             self._roles[role.id] = role
+    def remove_roles(self, role:Role) -> None:
+        role = self._roles.pop(role.id)
+
+        for p in self._roles.values:
+            p.position -= p.position > role.position
+
+        return role
+    @property
+    async def channels(self) -> List[GuildChannel]:
+        return list(self._channels.values())
+    @property
+    async def roles(self) -> List[Role]:
+        return sorted(self._roles.values())
+    @property
+    async def owner(self) -> Optional[Member]:
+        return self.get_member(self.owner.id)
+    @property
+    async def members(self) -> List[Member]:
+        return list(self._members.values())
+    def get_member(self, member_id: int) -> Optional[Member]:
+        return self._members.get(member_id)
+        
+    
+
