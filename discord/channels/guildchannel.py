@@ -1,6 +1,3 @@
-from typing import Optional
-from Disthon.discord.types.snowflake import Snowflake
-from discord.channels.basechannel import BaseChannel
 from discord.guild.guild import GuildChannel
 import discord.abc
 
