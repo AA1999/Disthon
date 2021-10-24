@@ -1,7 +1,8 @@
 from typing import (
     NamedTuple,
     Optional,
-    List
+    List,
+    MISSING
 )
 
 from discord.abc.discordobject import DiscordObject
@@ -87,6 +88,20 @@ class Guild(DiscordObject):
         return list(self._members.values())
     def get_member(self, member_id: int) -> Optional[Member]:
         return self._members.get(member_id)
+    def get_channel(self, channel_id: int) -> Optional[GuildChannel]:
+        return self._channels(channel_id)
+
+    async def create_channel(
+        self,
+        *,
+        name: str,
+        type: str = None,
+        reason: Optional[str] = None,
+        category: Optional[CategoryChannel] = None,
+        position: int = None,
+        slowmode_delay: int = None
+    ):
+     return
         
     
 
