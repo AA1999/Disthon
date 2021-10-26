@@ -36,6 +36,10 @@ class Intents:
 
     def __setattr__(self, name, value):
 
+        if name == 'value':
+            super().__setattr__(name, value)
+            return
+
         if name not in self.VALID_INTENTS:
             raise InvalidIntent(name, 'Specified value is not in the list of valid intents. Please check your spelling')
 

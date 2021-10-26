@@ -50,8 +50,9 @@ class Color:
         return cls(0)
 
     @classmethod
-    def random(cls, seed: Union[int, str, float, bytes, bytearray, None]):
-        return random if seed is None else random.Random(seed)
+    def random(cls, seed: Union[int, str, float, bytes, bytearray, None] = None):
+        c = random.Random(seed).randint(0x000000, 0xFFFFFF) if seed else random.randint(0x000000, 0xFFFFFF)
+        return cls(c)
 
     @classmethod
     def teal(cls):

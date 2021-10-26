@@ -32,7 +32,7 @@ class EmbedMedia(BaseModel):
     width: Optional[int] = 0
     
     @validator('url')
-    def _validate_url(self, url):
+    def _validate_url(cls, url):
         if url is None:
             return url
         url_regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
@@ -47,7 +47,7 @@ class EmbedVideo(BaseModel):
     width: Optional[int] = 0
     
     @validator('url')
-    def _validate_url(self, url):
+    def _validate_url(cls, url):
         if url is None:
             return url
         url_regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
@@ -61,7 +61,7 @@ class EmbedProvider(BaseModel):
     url: Optional[str] = None
     
     @validator('url')
-    def _validate_url(self, url):
+    def _validate_url(cls, url):
         if url is None:
             return url
         url_regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
@@ -77,7 +77,7 @@ class EmbedAuthor(BaseModel):
     proxy_icon_url: Optional[str] = None
     
     @validator('name')
-    def _validate_name(self, name):
+    def _validate_name(cls, name):
         if name is None:
             return name
         if isinstance(name, str):
@@ -88,7 +88,7 @@ class EmbedAuthor(BaseModel):
         raise ValueError
         
     @validator('url')
-    def _validate_url(self, url):
+    def _validate_url(cls, url):
         if url is None:
             return url
         url_regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
@@ -114,7 +114,7 @@ class Embed(BaseModel):
     
     
     @validator('url')
-    def _validate_url(self, url):
+    def _validate_url(cls, url):
         url_regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"
         match = re.findall(url_regex, url)
         if len(match) != 1:
@@ -125,7 +125,7 @@ class Embed(BaseModel):
     def from_dict(cls: Type[Embed], data: Mapping[str, Any]):
         self: Embed = cls.__new__(cls)
         self.title = data.get('title', None)
-        self.color = data.get('color', Color(Color.random(972)))
+        self.color = data.get('color', Color.random(972))
         self.url = data.get('url', None)
         self.description = data.get('description', None)
         self.author = data.get('author', None)
