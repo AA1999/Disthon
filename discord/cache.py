@@ -1,15 +1,16 @@
 from __future__ import annotations
 
-from typing import Any, OrderedDict
+from typing import Any, OrderedDict, TYPE_CHECKING
 
-from .api.handler import Handler
-from .guild import Guild
-from .user.member import Member
-from .message import Message
-from .role import Role
-from .types.snowflake import Snowflake
-from .user.user import User
-from pydantic import BaseModel
+if TYPE_CHECKING:
+    from .api.handler import Handler
+    from .guild import Guild
+    from .user.member import Member
+    from .message import Message
+    from .role import Role
+    from .types.snowflake import Snowflake
+    from .user.user import User
+    from pydantic import BaseModel
 
 
 class LFUCache(BaseModel):

@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import traceback
 from http.client import HTTPException
 from typing import Optional, Union

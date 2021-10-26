@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 from ..abc.discordobject import DiscordObject
 from ..types.snowflake import Snowflake
 

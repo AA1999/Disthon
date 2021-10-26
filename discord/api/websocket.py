@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import aiohttp
 import asyncio
 import threading
@@ -9,6 +11,9 @@ import zlib
 from copy import deepcopy
 
 from aiohttp.http_websocket import WSMessage, WSMsgType
+
+if typing.TYPE_CHECKING:
+    from ..client import Client
 
 
 class WebSocket:
@@ -30,7 +35,7 @@ class WebSocket:
     def __init__(self, client, token: str) -> None:
         self.decompress = zlib.decompressobj()
         self.buffer = bytearray()
-        self.client = client
+        self.client: Client = client
         self.token = token
         self.session_id = None
         self.heartbeat_acked = True
