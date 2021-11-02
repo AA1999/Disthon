@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, Tuple, Union
 import os
 
 OptInt = Optional[int]
@@ -10,17 +10,17 @@ class Component:
                  emoji: OptStr = None, url: OptStr = None, options: list = None,
                  placeholder: OptStr = None, min_values: OptInt = None, max_values: OptInt = None,
                  custom_id: OptStr = None):
-        self.type = type
-        self.disabled = disabled
-        self.style = style
-        self.label = label
-        self.emoji = emoji
-        self.url = url
-        self.options = options
-        self.placeholder = placeholder
-        self.min_values = min_values
-        self.max_values = max_values
-        self.custom_id = custom_id
+        self.type: int = type
+        self.disabled: bool = disabled
+        self.style: OptInt = style
+        self.label: OptStr = label
+        self.emoji: OptStr = emoji
+        self.url: OptStr = url
+        self.options: list = options
+        self.placeholder: OptStr = placeholder
+        self.min_values: OptInt = min_values
+        self.max_values: OptInt = max_values
+        self.custom_id: Union[str, int] = custom_id
 
         if self.custom_id is None and self.url is None:
             self.custom_id = os.urandom(16).hex()
@@ -31,7 +31,7 @@ class Component:
 
 class View:
     def __init__(self, *components: Component):
-        self.components = components
+        self.components: Tuple[Component] = components
 
     def _to_dict(self):
         return {"type": 1, "components": [component._to_dict() for component in self.components]}
