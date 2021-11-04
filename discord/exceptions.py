@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import traceback
 from http.client import HTTPException
-from typing import Optional, Union
+from typing import Optional, Union, TYPE_CHECKING
 
-from aiohttp import ClientWebSocketResponse
-from .interaction import Interaction
+if TYPE_CHECKING:
+    from aiohttp import ClientWebSocketResponse
+    from .interactions import Interaction
 
 
 class DiscordException(Exception):
