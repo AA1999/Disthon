@@ -3,6 +3,9 @@ from __future__ import annotations
 import asyncio
 import inspect
 import typing
+import traceback
+import sys
+from copy import deepcopy
 
 from .api.handler import Handler
 from .api.websocket import WebSocket
@@ -86,9 +89,14 @@ class Client:
     async def handle_event(self, msg):
         event = "on_" + msg['t'].lower()
 
-        # don't dispatch when there are no listeners
-        if event in self.events:
-            for coro in self.events[event]:
+        if event in ("on_message_create", "on_dm_message_create"):
+            global_message = deepcopy(msg)
+            global_message['t'] = "MESSAGE"
+            await self.handle_event(global_message)
+
+        for coro in self.events.get(event, []):
+            try:
                 await coro(msg)
-        else:
-            return
+            except Exception as error:
+                print(f"Ignoring exception in event {coro.__name__}", file=sys.stderr)
+                traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)

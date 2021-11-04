@@ -227,7 +227,7 @@ class Embed(BaseModel):
             position = len(self.fields) - 1
         self.fields.insert(position, EmbedField(name=name, value=value, inline=inline))
         return self
-    
+        
     def remove_field(self, index: int) -> Embed:
         try:
             self.fields.remove(self.fields[index])
@@ -286,18 +286,16 @@ class Embed(BaseModel):
             "author": self.author.json() if self.author is not None else None,
             "footer": self.footer.json() if self.footer is not None else None
         }
-        
+
     def to_dict(self) -> dict[str, Any]:
         return self.json()
-    
-    
-    
+
     @property
     def hex_color(self) -> str:
         return f'#{Color(self.color).r}{Color(self.color).g}{Color(self.color).b}'
-    
+
     @property
     def created_at(self) -> Arrow:
         if self.timestamp:
-            return self.timestamp 
+            return self.timestamp
         return utcnow()
