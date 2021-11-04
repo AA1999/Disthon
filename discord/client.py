@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import asyncio
 import inspect
 import typing
@@ -5,19 +7,22 @@ import traceback
 import sys
 from copy import deepcopy
 
-from . import handler
-from . import intents
-from . import websocket
+from .api.handler import Handler
+from .api.websocket import WebSocket
+from .api.intents import Intents
 
 
 class Client:
-    def __init__(self, *, intents: typing.Optional[intents.Intents] = intents.Intents.default(), respond_self: typing.Optional[bool] = False, loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
+
+    def __init__(self, *, intents: typing.Optional[Intents] = Intents.default(),
+                 respond_self: typing.Optional[bool] = False,
+                 loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
         self.__loop: asyncio.AbstractEventLoop = loop or asyncio.get_event_loop()
         self.intents = intents
         self.respond_self = respond_self
 
         self.stay_alive = True
-        self.handler = handler.Handler()
+        self.handler = Handler()
         self.lock = asyncio.Lock()
         self.closed = False
         self.events = {}
@@ -29,10 +34,10 @@ class Client:
 
     async def connect(self) -> None:
         while not self.closed:
-            socket = websocket.WebSocket(self, self.token)
+            socket = WebSocket(self, self.token)
             async with self.lock:
                 g_url = await self.handler.gateway()
-                if not isinstance(self.intents, intents.Intents):
+                if not isinstance(self.intents, Intents):
                     raise TypeError(
                         f"Intents must be of type Intents, got {self.intents.__class__}")
                 self.ws = await asyncio.wait_for(socket.start(g_url), timeout=30)
@@ -50,7 +55,7 @@ class Client:
     async def close(self) -> None:
         await self.handler.close()
 
-    def run(self, token: str) -> asyncio.Future.result:
+    def run(self, token: str):
 
         def stop_loop_on_completion(_):
             self.__loop.stop()

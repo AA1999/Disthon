@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import aiohttp
 import asyncio
 import threading
@@ -6,8 +8,12 @@ import time
 import sys
 import json
 import zlib
+from copy import deepcopy
 
 from aiohttp.http_websocket import WSMessage, WSMsgType
+
+if typing.TYPE_CHECKING:
+    from ..client import Client
 
 
 class WebSocket:
@@ -29,7 +35,7 @@ class WebSocket:
     def __init__(self, client, token: str) -> None:
         self.decompress = zlib.decompressobj()
         self.buffer = bytearray()
-        self.client = client
+        self.client: Client = client
         self.token = token
         self.session_id = None
         self.heartbeat_acked = True
@@ -57,28 +63,30 @@ class WebSocket:
             else:
                 asyncio.run(self.heartbeat())
 
-    def on_websocket_message(self, msg: dict) -> dict:
-        # always push the message data to your cache'
+    def on_websocket_message(self, msg: WSMessage) -> dict:
         if type(msg) is bytes:
+            # always push the message data to your cache
             self.buffer.extend(msg)
 
-        # check if the last four bytes are equal to ZLIB_SUFFIX
-        if len(msg) < 4 or msg[-4:] != b'\x00\x00\xff\xff':
+            # check if last 4 bytes are ZLIB_SUFFIX
+            if len(msg) < 4 or msg[-4:] != b'\x00\x00\xff\xff':
+                return
+
+            msg = self.decompress.decompress(self.buffer)
+            msg = msg.decode('utf-8')
             self.buffer = bytearray()
-            return msg.decode('utf-8')
 
-        msg = self.decompress.decompress(self.buffer)
-        self.buffer = bytearray()
 
-        return msg.decode('utf-8')
+        return msg
 
     async def receive_events(self) -> None:
         msg: WSMessage = await self.socket.receive()
-        if msg.type is aiohttp.WSMsgType.TEXT:
+        # if the message is something we can handle
+        if msg.type is aiohttp.WSMsgType.TEXT or msg.type is aiohttp.WSMsgType.BINARY:
             msg = self.on_websocket_message(msg.data)
-        elif msg.type is aiohttp.WSMsgType.BINARY:
-            msg = self.on_websocket_message(msg.data)
+        # if it's a disconnection
         elif msg.type in (aiohttp.WSMsgType.CLOSE, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSED):
+            await self.socket.close()
             raise ConnectionResetError(msg.extra)
 
         msg = json.loads(msg)
@@ -99,6 +107,14 @@ class WebSocket:
         elif op == self.DISPATCH:
             if msg['t'] == 'READY':
                 self.session_id = msg['d']['session_id']
+
+            # create a global on_message event for either guild or dm messages
+            if msg['t'] in ("MESSAGE_CREATE", "DM_MESSAGE_CREATE"):
+                global_message = deepcopy(msg)
+                global_message['t'] = "MESSAGE"
+                await self.handle_event(global_message)
+            
+            # send event to dispatch
             await self.client.handle_event(msg)
 
     async def heartbeat(self) -> None:
