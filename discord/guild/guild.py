@@ -115,7 +115,7 @@ class Guild(DiscordObject):
         *,
         name: Optional[str] = None,
         position: Optional[int] = None,
-        slowmode_delay: ptional[int] = None,
+        slowmode_delay: Optional[int] = None,
         category: Optional[CategoryChannel] = None
     ):
         
