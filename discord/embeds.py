@@ -98,7 +98,7 @@ class EmbedAuthor(BaseModel):
         return url
     
 class Embed(BaseModel):
-    color: Union[Color, int] = Color(Color.random(972))
+    color: Union[Color, int] = Color.random()
     title: Optional[str]
     _type: Final[EmbedType] = EmbedType.rich
     author: Optional[EmbedAuthor]
