@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TypeVar, Optional
+from typing import Optional, TypeVar
 
 from .abc.discordobject import DiscordObject
 from .color import Color
@@ -9,8 +9,7 @@ from .guild import Guild
 __all__ = ("RoleTags", "Role")
 
 from .cache import RoleCache
-
-from .types.rolepayload import RoleTagsPayload, RolePayload
+from .types.rolepayload import RolePayload, RoleTagsPayload
 from .types.snowflake import Snowflake
 
 

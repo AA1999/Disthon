@@ -2,14 +2,14 @@ from __future__ import annotations
 
 import asyncio
 import inspect
-import typing
-import traceback
 import sys
+import traceback
+import typing
 from copy import deepcopy
 
 from .api.handler import Handler
-from .api.websocket import WebSocket
 from .api.intents import Intents
+from .api.websocket import WebSocket
 
 
 class Client:

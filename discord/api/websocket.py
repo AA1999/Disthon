@@ -1,15 +1,15 @@
 from __future__ import annotations
 
-import aiohttp
 import asyncio
-import threading
-import typing
-import time
-import sys
 import json
+import sys
+import threading
+import time
+import typing
 import zlib
 from copy import deepcopy
 
+import aiohttp
 from aiohttp.http_websocket import WSMessage, WSMsgType
 
 if typing.TYPE_CHECKING:

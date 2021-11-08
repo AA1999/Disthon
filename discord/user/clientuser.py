@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from ..types.enums.locale import Locale
 from typing import Optional
 
 from ..cache import UserCache
+from ..types.enums.locale import Locale
 from ..types.enums.userflags import UserFlags
 from ..types.userpayload import UserPayload
 from ..user.baseuser import BaseUser

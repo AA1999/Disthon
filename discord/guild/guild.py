@@ -1,11 +1,13 @@
-from typing import NamedTuple, Optional, List
-from ..abc.discordobject import DiscordObject
-from ..channels.guildchannel import GuildChannel, CategoryChannel
-from ..user.member import Member
-from ..role import Role
+from typing import List, NamedTuple, Optional
+
 from discord.types.guildpayload import GuildPayload
 from discord.types.snowflake import Snowflake
 from discord.user.user import User
+
+from ..abc.discordobject import DiscordObject
+from ..channels.guildchannel import CategoryChannel, GuildChannel
+from ..role import Role
+from ..user.member import Member
 
 
 class BanEntry(NamedTuple):

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from ..color import Color
+from enums.embedtype import EmbedType
 from pydantic import BaseModel
 
-from enums.embedtype import EmbedType
+from ..color import Color
 
 
 class EmbedFooter(BaseModel):

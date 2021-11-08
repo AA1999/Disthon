@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+from user import User
+
 from ..guild import Guild
 from ..role import Role
-from user import User
 
 
 class Member(User):

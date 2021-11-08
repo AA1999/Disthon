@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import Optional
 
-from ..channels.guildchannel import GuildChannel
-from ..user.member import Member
-from ..role import Role
-from ..user.user import User
 from pydantic import BaseModel
 
+from ..channels.guildchannel import GuildChannel
+from ..role import Role
+from ..user.member import Member
+from ..user.user import User
 from .enums.locale import Locale
 from .enums.nsfwlevel import NSFWLevel
 from .enums.verificationlevel import VerificationLevel

@@ -3,9 +3,9 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional, TypedDict
 
-from ..activity.rawactivityassets import RawActivityAssets
 from pydantic import BaseModel
 
+from ..activity.rawactivityassets import RawActivityAssets
 from .enums.activitytype import ActivityType
 from .snowflake import Snowflake
 

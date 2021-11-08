@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from .presenseassets import PresenceAssets
 from ..types.snowflake import Snowflake
 from .baseactivity import BaseActivity
+from .presenseassets import PresenceAssets
 
 
 class Activity(BaseActivity):

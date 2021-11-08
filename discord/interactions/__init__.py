@@ -1,1 +1,1 @@
-from .components import View, Component
+from .components import Component, View

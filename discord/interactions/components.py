@@ -1,5 +1,5 @@
-from typing import Optional, Tuple, Union
 import os
+from typing import Optional, Tuple, Union
 
 OptInt = Optional[int]
 OptStr = Optional[str]

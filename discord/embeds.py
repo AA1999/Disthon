@@ -8,11 +8,12 @@ from typing import Any, Final, Mapping, Optional, Type, Union
 
 import arrow
 from arrow import Arrow
+from pydantic import BaseModel, validator
+
 from .color import Color
 from .exceptions import EmptyField, InvalidColor
 from .types.enums.embedtype import EmbedType
 from .utils.datetime import parse_time, utcnow
-from pydantic import BaseModel, validator
 
 __all__ = ("Embed",)
 

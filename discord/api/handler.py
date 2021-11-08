@@ -1,22 +1,17 @@
 from __future__ import annotations
 
+import typing
 from typing import Optional, Union
 
 import aiohttp
-from ..exceptions import (
-    DiscordChannelForbidden,
-    DiscordChannelNotFound,
-    DiscordForbidden,
-    DiscordGatewayNotFound,
-    DiscordHTTPException,
-    DiscordNotAuthorized,
-    DiscordNotFound,
-    DiscordServerError,
-)
 
-import typing
-from ..embeds import Embed
 from discord.interactions.components import View
+
+from ..embeds import Embed
+from ..exceptions import (DiscordChannelForbidden, DiscordChannelNotFound,
+                          DiscordForbidden, DiscordGatewayNotFound,
+                          DiscordHTTPException, DiscordNotAuthorized,
+                          DiscordNotFound, DiscordServerError)
 
 
 class Handler:

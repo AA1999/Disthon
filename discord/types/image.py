@@ -4,11 +4,11 @@ from io import BufferedIOBase
 from os import PathLike
 from typing import ClassVar, Optional, Union
 
-from ..exceptions import DiscordException, DiscordNotFound
-from ..cache import LFUCache
+from enums.imagetype import ImageType
 from pydantic import BaseModel
 
-from enums.imagetype import ImageType
+from ..cache import LFUCache
+from ..exceptions import DiscordException, DiscordNotFound
 
 
 class Image(BaseModel):

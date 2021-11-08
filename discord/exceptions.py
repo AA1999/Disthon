@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import traceback
 from http.client import HTTPException
-from typing import Optional, Union, TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Union
 
 if TYPE_CHECKING:
     from aiohttp import ClientWebSocketResponse
+
     from .interactions import Interaction
 
 
