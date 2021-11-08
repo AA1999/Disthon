@@ -23,6 +23,7 @@ class LFUCache:
     def __init__(self, capacity: int) -> None:
         self.capacity = capacity
         self._frequency = {}
+        self.length = 0
 
     @classmethod
     def _from_lfu(cls, lfu: LFUCache):
@@ -43,12 +44,14 @@ class LFUCache:
         return not self.__eq__(other)
 
     def __setitem__(self, key: Snowflake, value: Any) -> None:
+        if key not in self._cache:
+            self.length += 1
         self._cache[key] = value
         if self._frequency[key]:
             self._frequency[key] += 1
         else:
             self._frequency[key] = 0
-        if len(self._cache) > self.capacity:
+        if self.length > self.capacity:
             snowflake: Snowflake
             min_freq = float("inf")
             for k in self._frequency.keys():
@@ -66,6 +69,7 @@ class LFUCache:
     def __delitem__(self, key: Snowflake):
         del self._cache[key]
         del self._frequency[key]
+        self.length -= 1
 
 
 class UserCache(LFUCache):
