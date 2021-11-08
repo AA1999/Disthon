@@ -17,12 +17,11 @@ class AbstractUser(DiscordObject):
 
     @property
     def tag(self):
-        return f'{self.username}#{self.discriminator}'
-    
+        return f"{self.username}#{self.discriminator}"
 
     @property
     def mention(self):
-        return f'<@!{self.id}>'
+        return f"<@!{self.id}>"
 
     def mentioned_in(self, message: Message):
         if message.mention_everyone:

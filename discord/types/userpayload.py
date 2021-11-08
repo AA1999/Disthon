@@ -25,4 +25,3 @@ class UserPayload(BaseModel):
     flags: UserFlags
     verified: bool
     locale: Locale
-    

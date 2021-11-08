@@ -13,24 +13,29 @@ from .snowflake import Snowflake
 class ActivityTimestamps(BaseModel):
     start: datetime
     end: datetime
-    
+
+
 class ActivityParty(BaseModel):
     id: Snowflake
     size: list[int]
-    
+
+
 class ActivityEmoji(BaseModel):
     id: Snowflake
     animated: bool
     name: str
+
 
 class ActivitySecrets(BaseModel):
     join: str
     spectate: str
     match: str
 
+
 class ActivityButton(BaseModel):
     label: str
     url: str
+
 
 class ActivityPayload(BaseModel):
     url: Optional[str]

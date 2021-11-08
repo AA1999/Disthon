@@ -33,11 +33,14 @@ class LFUCache(BaseModel):
         return self
 
     def __eq__(self, other) -> bool:
-        return isinstance(other, LFUCache) and other._cache == self._cache and self.capacity == other.capacity
+        return (
+            isinstance(other, LFUCache)
+            and other._cache == self._cache
+            and self.capacity == other.capacity
+        )
 
     def __ne__(self, other) -> bool:
         return not self.__eq__(other)
-    
 
     def __setitem__(self, key: Snowflake, value: Any) -> None:
         self._cache[key] = value
@@ -47,13 +50,12 @@ class LFUCache(BaseModel):
             self._frequency[key] = 0
         if len(self._cache) > self.capacity:
             snowflake: Snowflake
-            min_freq = float('inf')
+            min_freq = float("inf")
             for k in self._frequency.keys():
                 if self._frequency[k] < min_freq:
                     min_freq = self._frequency[k]
                     snowflake = k
             del self._cache[snowflake]
-    
 
     def __getitem__(self, key: Snowflake):
         if self._cache[key]:

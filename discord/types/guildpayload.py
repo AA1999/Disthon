@@ -18,6 +18,7 @@ class UnavailableGuild(BaseModel):
     id: Snowflake
     unavaliable: bool
 
+
 class BanPayload(BaseModel):
     reason: Optional[str]
     user: User

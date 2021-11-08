@@ -21,4 +21,3 @@ class Member(User):
     @property
     def guild(self):
         return self._guild
-

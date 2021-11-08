@@ -6,10 +6,20 @@ OptStr = Optional[str]
 
 
 class Component:
-    def __init__(self, type: int, disabled: bool = None, style: OptInt = None, label: OptStr = None,
-                 emoji: OptStr = None, url: OptStr = None, options: list = None,
-                 placeholder: OptStr = None, min_values: OptInt = None, max_values: OptInt = None,
-                 custom_id: OptStr = None):
+    def __init__(
+        self,
+        type: int,
+        disabled: bool = None,
+        style: OptInt = None,
+        label: OptStr = None,
+        emoji: OptStr = None,
+        url: OptStr = None,
+        options: list = None,
+        placeholder: OptStr = None,
+        min_values: OptInt = None,
+        max_values: OptInt = None,
+        custom_id: OptStr = None,
+    ):
         self.type: int = type
         self.disabled: bool = disabled
         self.style: OptInt = style
@@ -34,4 +44,7 @@ class View:
         self.components: Tuple[Component] = components
 
     def _to_dict(self):
-        return {"type": 1, "components": [component._to_dict() for component in self.components]}
+        return {
+            "type": 1,
+            "components": [component._to_dict() for component in self.components],
+        }

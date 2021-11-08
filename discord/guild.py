@@ -31,15 +31,15 @@ class GuildLimit(NamedTuple):
 
 class Guild(DiscordObject):
     __slots__ = (
-        'region'
-        'owner_id'
-        'mfa.level'
-        'name'
-        'id'
-        '_members'
-        '_channels'
-        '_vanity'
-        '_banner'
+        "region"
+        "owner_id"
+        "mfa.level"
+        "name"
+        "id"
+        "_members"
+        "_channels"
+        "_vanity"
+        "_banner"
     )
 
     _roles: set[Role]
