@@ -3,7 +3,6 @@ from __future__ import annotations
 from typing import TYPE_CHECKING, Any, OrderedDict
 
 if TYPE_CHECKING:
-    from pydantic import BaseModel
 
     from .api.handler import Handler
     from .guild import Guild
@@ -14,7 +13,7 @@ if TYPE_CHECKING:
     from .user.user import User
 
 
-class LFUCache(BaseModel):
+class LFUCache:
 
     capacity: int
     _cache: OrderedDict[Snowflake, Any]
