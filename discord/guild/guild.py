@@ -102,6 +102,22 @@ class Guild(DiscordObject):
         slowmode_delay: int = None
     ):
      return
+    
+    async def delete_channel(
+        self, 
+        *,
+        channel: GuildChannel
+        reason: Optional[str] = None
+    ):
+        
+    async def edit_channel(
+        self,
+        *,
+        name: Optional[str] = None,
+        position: Optional[int] = None,
+        slowmode_delay: Optional[int] = None,
+        category: Optional[CategoryChannel] = None
+    ):
         
     
 

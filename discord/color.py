@@ -3,11 +3,14 @@ from __future__ import annotations
 import colorsys
 import random
 import re
-from typing import Union
+from typing import Union, Optional
 
 from .exceptions import InvalidColor
 
-__all__ = ('Color', 'Colour')
+__all__ = (
+    'Color',
+    'Colour'
+)
 
 
 class Color:
@@ -15,24 +18,24 @@ class Color:
 
     _value: int
 
-    @staticmethod
-    def _is_16_bit(color: Union[int, str]) -> bool:
-        temp = ''
-        if isinstance(color, int):
-            return 0 <= color < pow(16, 6)
-        if color.startswith('0x'):
-            temp = color.replace('0x', '#')
+    def validate_color(self, color: Optional[Union[int, str]]=None) -> bool:
+        if color is None:
+            return isinstance(self._value, int) and 0 <= self._value < 16**6 # test if color is in valid range
+        elif isinstance(color, int):
+            return 0 <= color < 16**6 # test if color is in valid range
         elif color.startswith('#'):
-            temp = color
-        else:
-            raise InvalidColor(color, f'{color} is not a valid 16-bit 6-digit color')
-        hex_regex = r'^#(?:[0-9a-fA-F]{3}){1,2}$'
-        match = re.search(hex_regex, temp)
+            color = color.replace('#', '0x') # convert # to 0x for regex match
+        
+        match = re.search(r'^0x(?:[0-9a-fA-F]{3}){1,2}$', color)
         return bool(match)
 
-    def __init__(self, value):
-        if self._is_16_bit(value):
-            self._value = int(value, 16)
+
+    def __init__(self, value: Union[int, str]):
+        if self.validate_color(value):
+            if type(value) is str:
+                self._value = int(value, 16)
+            else:
+                self._value = value
         else:
             raise ValueError('Color needs to be 16-bit 6-character value.')
 
@@ -51,8 +54,11 @@ class Color:
 
     @classmethod
     def random(cls, seed: Union[int, str, float, bytes, bytearray, None] = None):
-        c = random.Random(seed).randint(0x000000, 0xFFFFFF) if seed else random.randint(0x000000, 0xFFFFFF)
-        return cls(c)
+        if seed:
+            h = random.Random(seed).random()
+        else:
+            h = random.random()
+        return cls._from_hsv(h, 1.0, 1.0)
 
     @classmethod
     def teal(cls):
