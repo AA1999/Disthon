@@ -1,18 +1,19 @@
 from __future__ import annotations
 
-from typing import Any, OrderedDict
+from typing import TYPE_CHECKING, Any, OrderedDict
 
-from discord.api.handler import Handler
-from discord.guild.guild import Guild
-from discord.member.member import Member
-from discord.message.message import Message
-from discord.role.role import Role
-from discord.types.snowflake import Snowflake
-from discord.user.user import User
-from pydantic import BaseModel
+if TYPE_CHECKING:
+
+    from .api.handler import Handler
+    from .guild import Guild
+    from .message import Message
+    from .role import Role
+    from .types.snowflake import Snowflake
+    from .user.member import Member
+    from .user.user import User
 
 
-class LFUCache(BaseModel):
+class LFUCache:
 
     capacity: int
     _cache: OrderedDict[Snowflake, Any]
@@ -22,6 +23,7 @@ class LFUCache(BaseModel):
     def __init__(self, capacity: int) -> None:
         self.capacity = capacity
         self._frequency = {}
+        self.length = 0
 
     @classmethod
     def _from_lfu(cls, lfu: LFUCache):
@@ -32,27 +34,31 @@ class LFUCache(BaseModel):
         return self
 
     def __eq__(self, other) -> bool:
-        return isinstance(other, LFUCache) and other._cache == self._cache and self.capacity == other.capacity
+        return (
+            isinstance(other, LFUCache)
+            and other._cache == self._cache
+            and self.capacity == other.capacity
+        )
 
     def __ne__(self, other) -> bool:
         return not self.__eq__(other)
-    
 
     def __setitem__(self, key: Snowflake, value: Any) -> None:
+        if key not in self._cache:
+            self.length += 1
         self._cache[key] = value
         if self._frequency[key]:
             self._frequency[key] += 1
         else:
             self._frequency[key] = 0
-        if len(self._cache) > self.capacity:
+        if self.length > self.capacity:
             snowflake: Snowflake
-            min_freq = float('inf')
+            min_freq = float("inf")
             for k in self._frequency.keys():
                 if self._frequency[k] < min_freq:
                     min_freq = self._frequency[k]
                     snowflake = k
             del self._cache[snowflake]
-    
 
     def __getitem__(self, key: Snowflake):
         if self._cache[key]:
@@ -63,6 +69,7 @@ class LFUCache(BaseModel):
     def __delitem__(self, key: Snowflake):
         del self._cache[key]
         del self._frequency[key]
+        self.length -= 1
 
 
 class UserCache(LFUCache):

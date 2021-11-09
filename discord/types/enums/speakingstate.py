@@ -12,4 +12,3 @@ class SpeakingState(IntEnum):
 
     def __int__(self):
         return self.value
-
