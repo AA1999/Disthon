@@ -1,8 +1,11 @@
-from discord.guild.guild import GuildChannel
-import discord.abc
+from __future__ import annotations
 
+from ..guild.guild import GuildChannel
+import ..abc
 
-class TextChannel(discord.abc.GuildChannel):
+from .basechannel import BaseChannel
+
+class TextChannel(GuildChannel):
     __slots__ = (
         "name",
         "id",
@@ -11,5 +14,4 @@ class TextChannel(discord.abc.GuildChannel):
         "category_id",
         "position"
     )
-
-  
+    

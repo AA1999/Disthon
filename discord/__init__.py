@@ -1,3 +1,7 @@
-from discord.client.client import Client
-from discord.embeds.embeds import Embed
-from discord.api.intents import Intents
+"""
+A work in progress discord wrapper built from scratch
+"""
+
+from .api.intents import Intents as Intents
+from .client import Client as Client
+from .embeds import Embed as Embed

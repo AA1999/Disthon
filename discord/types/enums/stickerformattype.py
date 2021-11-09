@@ -11,9 +11,8 @@ class StickerFormatType(IntEnum):
     @property
     def file_extension(self) -> str:
         lookup: dict[StickerFormatType, str] = {
-            StickerFormatType.png: 'png',
-            StickerFormatType.apng: 'png',
-            StickerFormatType.lottie: 'json',
+            StickerFormatType.png: "png",
+            StickerFormatType.apng: "png",
+            StickerFormatType.lottie: "json",
         }
         return lookup[self]
-

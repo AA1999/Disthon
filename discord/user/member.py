@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from discord.guild.guild import Guild
-from discord.role.role import Role
-from discord.user.user import User
+from user import User
+
+from ..guild import Guild
+from ..role import Role
 
 
 class Member(User):
@@ -21,4 +22,3 @@ class Member(User):
     @property
     def guild(self):
         return self._guild
-

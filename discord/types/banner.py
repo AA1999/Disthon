@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 from typing import Optional
 
-from discord.color.color import Color
-from discord.types.image import Image
+from ..color import Color
+from ..types.image import Image
 
 
 class Banner(Image):
-    __slots__ = ('_url', '_format', '_color')
+    __slots__ = ("_url", "_format", "_color")
     _color: Optional[Color]
 
     def __init__(self, url: str, color: Optional[Color]):

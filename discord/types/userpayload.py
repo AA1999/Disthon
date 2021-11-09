@@ -1,12 +1,14 @@
-from typing import Optional, TypedDict
+from __future__ import annotations
 
-from discord.types.avatar import Avatar
-from discord.types.banner import Banner
-from pydantic.main import BaseModel
+from typing import Optional, TypedDict
 
 from enums.locale import Locale
 from enums.userflags import UserFlags
+from pydantic.main import BaseModel
 from snowflake import Snowflake
+
+from ..types.avatar import Avatar
+from ..types.banner import Banner
 
 
 class UserPayload(BaseModel):
@@ -23,4 +25,3 @@ class UserPayload(BaseModel):
     flags: UserFlags
     verified: bool
     locale: Locale
-    
