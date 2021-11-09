@@ -1,19 +1,14 @@
-from __future__ import annotations
-
+import aiohttp
 import asyncio
-import json
-import sys
 import threading
-import time
 import typing
+import time
+import sys
+import json
 import zlib
 from copy import deepcopy
 
-import aiohttp
 from aiohttp.http_websocket import WSMessage, WSMsgType
-
-if typing.TYPE_CHECKING:
-    from ..client import Client
 
 
 class WebSocket:
@@ -35,17 +30,12 @@ class WebSocket:
     def __init__(self, client, token: str) -> None:
         self.decompress = zlib.decompressobj()
         self.buffer = bytearray()
-        self.client: Client = client
+        self.client = client
         self.token = token
         self.session_id = None
         self.heartbeat_acked = True
 
-    async def start(
-        self,
-        url: typing.Optional[str] = None,
-        *,
-        reconnect: typing.Optional[bool] = False
-    ):
+    async def start(self, url: typing.Optional[str] = None, *, reconnect: typing.Optional[bool] = False):
         if not url:
             url = self.client.handler.gateway()
         self.socket = await self.client.handler.connect(url)
@@ -74,12 +64,13 @@ class WebSocket:
             self.buffer.extend(msg)
 
             # check if last 4 bytes are ZLIB_SUFFIX
-            if len(msg) < 4 or msg[-4:] != b"\x00\x00\xff\xff":
+            if len(msg) < 4 or msg[-4:] != b'\x00\x00\xff\xff':
                 return
 
             msg = self.decompress.decompress(self.buffer)
-            msg = msg.decode("utf-8")
+            msg = msg.decode('utf-8')
             self.buffer = bytearray()
+
 
         return msg
 
@@ -89,11 +80,7 @@ class WebSocket:
         if msg.type is aiohttp.WSMsgType.TEXT or msg.type is aiohttp.WSMsgType.BINARY:
             msg = self.on_websocket_message(msg.data)
         # if it's a disconnection
-        elif msg.type in (
-            aiohttp.WSMsgType.CLOSE,
-            aiohttp.WSMsgType.CLOSING,
-            aiohttp.WSMsgType.CLOSED,
-        ):
+        elif msg.type in (aiohttp.WSMsgType.CLOSE, aiohttp.WSMsgType.CLOSING, aiohttp.WSMsgType.CLOSED):
             await self.socket.close()
             raise ConnectionResetError(msg.extra)
 
@@ -106,57 +93,60 @@ class WebSocket:
         self.sequence = sequence
 
         if op == self.HELLO:
-            self.hb_int = msg["d"]["heartbeat_interval"] // 1000
+            self.hb_int = msg['d']['heartbeat_interval'] // 1000
             await self.heartbeat()
 
         elif op == self.HEARTBEAT:
             await self.heartbeat()
 
         elif op == self.DISPATCH:
-            if msg["t"] == "READY":
-                self.session_id = msg["d"]["session_id"]
+            if msg['t'] == 'READY':
+                self.session_id = msg['d']['session_id']
 
             # create a global on_message event for either guild or dm messages
-            if msg["t"] in ("MESSAGE_CREATE", "DM_MESSAGE_CREATE"):
+            if msg['t'] in ("MESSAGE_CREATE", "DM_MESSAGE_CREATE"):
                 global_message = deepcopy(msg)
-                global_message["t"] = "MESSAGE"
+                global_message['t'] = "MESSAGE"
                 await self.handle_event(global_message)
-
+            
             # send event to dispatch
             await self.client.handle_event(msg)
 
     async def heartbeat(self) -> None:
         """Send HB packet"""
-        payload = {"op": self.HEARTBEAT, "d": self.sequence}
+        payload = {
+            'op': self.HEARTBEAT,
+            'd': self.sequence
+        }
         await self.socket.send_json(payload)
 
     async def identify(self) -> None:
         """Sends the IDENTIFY packet"""
         payload = {
-            "op": self.IDENTIFY,
-            "d": {
-                "token": self.token,
-                "intents": self.client.intents.value,
-                "properties": {
-                    "$os": sys.platform,
-                    "$browser": "disthon",
-                    "$device": "disthon",
+            'op': self.IDENTIFY,
+            'd': {
+                'token': self.token,
+                'intents': self.client.intents.value,
+                'properties': {
+                    '$os': sys.platform,
+                    '$browser': 'disthon',
+                    '$device': 'disthon'
                 },
-                "large_threshold": 250,
-                "compress": True,
-            },
+                'large_threshold': 250,
+                'compress': True
+            }
         }
         await self.socket.send_json(payload)
 
     async def resume(self) -> None:
         """Sends the RESUME packet."""
         payload = {
-            "op": self.RESUME,
-            "d": {
-                "seq": self.sequence,
-                "session_id": self.session_id,
-                "token": self.token,
-            },
+            'op': self.RESUME,
+            'd': {
+                'seq': self.sequence,
+                'session_id': self.session_id,
+                'token': self.token
+            }
         }
 
         await self.socket.send_json(payload)

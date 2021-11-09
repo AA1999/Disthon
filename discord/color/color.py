@@ -1,42 +1,38 @@
-from __future__ import annotations
-
 import colorsys
 import random
 import re
-from typing import Optional, Union
-from pydantic import BaseModel
+from typing import Union
 
-from .exceptions import InvalidColor
+from discord.errors.exceptions import InvalidColor
 
-__all__ = ("Color", "Colour")
+__all__ = ('Color', 'Colour')
 
 
-class Color(BaseModel):
-    __slots__ = ("_value",)
+class Color:
+    __slots__ = ('_value', )
 
-    value: int
+    _value: int
 
-    def validate_color(self, color: Optional[Union[int, str]] = None) -> bool:
-        if color is None:
-            return (
-                isinstance(self.value, int) and 0 <= self.value < 16 ** 6
-            )  # test if color is in valid range
-        elif isinstance(color, int):
-            return 0 <= color < 16 ** 6  # test if color is in valid range
-        elif color.startswith("#"):
-            color = color.replace("#", "0x")  # convert # to 0x for regex match
-
-        match = re.search(r"^0x(?:[0-9a-fA-F]{3}){1,2}$", color)
+    @staticmethod
+    def _is_16_bit(color: Union[int, str]) -> bool:
+        temp = ''
+        if isinstance(color, int):
+            return 0 <= color < pow(16, 6)
+        if color.startswith('0x'):
+            temp = color.replace('0x', '#')
+        elif color.startswith('#'):
+            temp = color
+        else:
+            raise InvalidColor(color, f'{color} is not a valid 16-bit 6-digit color')
+        hex_regex = r'^#(?:[0-9a-fA-F]{3}){1,2}$'
+        match = re.search(hex_regex, temp)
         return bool(match)
 
-    def __init__(self, value: Union[int, str]):
-        if self.validate_color(value):
-            if type(value) is str:
-                self.value = int(value, 16)
-            else:
-                self.value = value
+    def __init__(self, value):
+        if self._is_16_bit(value):
+            self._value = int(value, 16)
         else:
-            raise ValueError("Color needs to be 16-bit 6-character value.")
+            raise ValueError('Color needs to be 16-bit 6-character value.')
 
     @classmethod
     def _from_rgb(cls, r: int, g: int, b: int):
@@ -52,20 +48,16 @@ class Color(BaseModel):
         return cls(0)
 
     @classmethod
-    def random(cls, seed: Union[int, str, float, bytes, bytearray, None] = None):
-        if seed:
-            h = random.Random(seed).random()
-        else:
-            h = random.random()
-        return cls._from_hsv(h, 1.0, 1.0)
+    def random(cls, seed: Union[int, str, float, bytes, bytearray, None]):
+        return random if seed is None else random.Random(seed)
 
     @classmethod
     def teal(cls):
-        return cls(0x1ABC9C)
+        return cls(0x1abc9c)
 
     @classmethod
     def dark_teal(cls):
-        return cls(0x11806A)
+        return cls(0x11806a)
 
     @classmethod
     def brand_green(cls):
@@ -73,15 +65,15 @@ class Color(BaseModel):
 
     @classmethod
     def green(cls):
-        return cls(0x2ECC71)
+        return cls(0x2ecc71)
 
     @classmethod
     def dark_green(cls):
-        return cls(0x1F8B4C)
+        return cls(0x1f8b4c)
 
     @classmethod
     def blue(cls):
-        return cls(0x3498DB)
+        return cls(0x3498db)
 
     @classmethod
     def dark_blue(cls):
@@ -89,35 +81,35 @@ class Color(BaseModel):
 
     @classmethod
     def purple(cls):
-        return cls(0x9B59B6)
+        return cls(0x9b59b6)
 
     @classmethod
     def dark_purple(cls):
-        return cls(0x71368A)
+        return cls(0x71368a)
 
     @classmethod
     def magenta(cls):
-        return cls(0xE91E63)
+        return cls(0xe91e63)
 
     @classmethod
     def dark_magenta(cls):
-        return cls(0xAD1457)
+        return cls(0xad1457)
 
     @classmethod
     def gold(cls):
-        return cls(0xF1C40F)
+        return cls(0xf1c40f)
 
     @classmethod
     def dark_gold(cls):
-        return cls(0xC27C0E)
+        return cls(0xc27c0e)
 
     @classmethod
     def orange(cls):
-        return cls(0xE67E22)
+        return cls(0xe67e22)
 
     @classmethod
     def dark_orange(cls):
-        return cls(0xA84300)
+        return cls(0xa84300)
 
     @classmethod
     def brand_red(cls):
@@ -125,39 +117,39 @@ class Color(BaseModel):
 
     @classmethod
     def red(cls):
-        return cls(0xE74C3C)
+        return cls(0xe74c3c)
 
     @classmethod
     def dark_red(cls):
-        return cls(0x992D22)
+        return cls(0x992d22)
 
     @classmethod
     def lighter_grey(cls):
-        return cls(0x95A5A6)
+        return cls(0x95a5a6)
 
     lighter_gray = lighter_grey
 
     @classmethod
     def dark_grey(cls):
-        return cls(0x607D8B)
+        return cls(0x607d8b)
 
     dark_gray = dark_grey
 
     @classmethod
     def light_grey(cls):
-        return cls(0x979C9F)
+        return cls(0x979c9f)
 
     light_gray = light_grey
 
     @classmethod
     def darker_grey(cls):
-        return cls(0x546E7A)
+        return cls(0x546e7a)
 
     darker_gray = darker_grey
 
     @classmethod
     def og_blurple(cls):
-        return cls(0x7289DA)
+        return cls(0x7289da)
 
     @classmethod
     def blurple(cls):
@@ -165,7 +157,7 @@ class Color(BaseModel):
 
     @classmethod
     def greyple(cls):
-        return cls(0x99AAB5)
+        return cls(0x99aab5)
 
     @classmethod
     def dark_theme(cls):
@@ -180,7 +172,7 @@ class Color(BaseModel):
         return cls(0xFEE75C)
 
     def _to_byte(self, byte: int) -> int:
-        return (self.value >> (8 * byte)) & 0xFF
+        return (self.value >> (8 * byte)) & 0xff
 
     def __eq__(self, o: object) -> bool:
         return isinstance(o, Color) and o.value == self.value
@@ -189,7 +181,7 @@ class Color(BaseModel):
         return not self.__eq__(o)
 
     def __str__(self) -> str:
-        return f"#{self.value:0>6x}"
+        return f'#{self.value:0>6x}'
 
     def __repr__(self) -> str:
         return str(self)
@@ -217,7 +209,7 @@ class Color(BaseModel):
 
     @property
     def value(self):
-        return self.value
+        return self._value
 
 
 Colour = Color

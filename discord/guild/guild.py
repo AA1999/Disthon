@@ -13,11 +13,6 @@ from discord.types.guildpayload import GuildPayload
 from discord.types.snowflake import Snowflake
 from discord.user.user import User
 
-from ..abc.discordobject import DiscordObject
-from ..channels.guildchannel import CategoryChannel, GuildChannel
-from ..role import Role
-from ..user.member import Member
-
 
 class BanEntry(NamedTuple):
     user: User
@@ -36,19 +31,20 @@ class GuildLimit(NamedTuple):
 
 class Guild(DiscordObject):
     __slots__ = (
-        "region"
-        "owner_id"
-        "mfa.level"
-        "name"
-        "id"
-        "_members"
-        "_channels"
-        "_vanity"
-        "_banner"
+        'region'
+        'owner_id'
+        'mfa.level'
+        'name'
+        'id'
+        '_members'
+        '_channels'
+        '_vanity'
+        '_banner'
     )
 
     _roles: set[Role]
     me: Member
+    owner_id: Snowflake
 
 
     def __init__(self, data: GuildPayload):
@@ -72,34 +68,26 @@ class Guild(DiscordObject):
 
             self._roles[role.id] = role
     def remove_roles(self, role:Role) -> None:
-
-    def remove_roles(self, role: Role) -> None:
         role = self._roles.pop(role.id)
 
         for p in self._roles.values:
             p.position -= p.position > role.position
 
         return role
-
     @property
     async def channels(self) -> List[GuildChannel]:
         return list(self._channels.values())
-
     @property
     async def roles(self) -> List[Role]:
         return sorted(self._roles.values())
-
     @property
     async def owner(self) -> Optional[Member]:
         return self.get_member(self.owner.id)
-
     @property
     async def members(self) -> List[Member]:
         return list(self._members.values())
-
     def get_member(self, member_id: int) -> Optional[Member]:
         return self._members.get(member_id)
-
     def get_channel(self, channel_id: int) -> Optional[GuildChannel]:
         return self._channels(channel_id)
 
@@ -111,22 +99,9 @@ class Guild(DiscordObject):
         reason: Optional[str] = None,
         category: Optional[CategoryChannel] = None,
         position: int = None,
-        slowmode_delay: int = None,
+        slowmode_delay: int = None
     ):
-        return
+     return
+        
+    
 
-    async def delete_channel(
-        self, *, channel: GuildChannel, reason: Optional[str] = None
-    ):
-        pass
-
-    async def edit_channel(
-        self,
-        *,
-        name: Optional[str] = None,
-        position: Optional[int] = None,
-        slowmode_delay: Optional[int] = None,
-        category: Optional[CategoryChannel] = None,
-    ):
-        pass
-      

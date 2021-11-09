@@ -9,3 +9,4 @@ class ActivityType(IntEnum):
     watching = 3
     custom = 4
     competing = 5
+

@@ -1,11 +1,9 @@
-from __future__ import annotations
-
 from typing import Optional
 
-from discordobject import DiscordObject
+from discord.message.message import Message
+from discord.types.avatar import Avatar
 
-from ..message import Message
-from ..types.avatar import Avatar
+from discordobject import DiscordObject
 
 
 class AbstractUser(DiscordObject):
@@ -14,27 +12,15 @@ class AbstractUser(DiscordObject):
     bot: bool
     username: str
     discriminator: str
-    id: int
 
     @property
     def tag(self):
-        return f"{self.username}#{self.discriminator}"
+        return f'{self.username}#{self.discriminator}'
     
-    @property
-    def discriminator(self):
-        return self.discriminator
 
     @property
     def mention(self):
-        return f"<@!{self.id}>"
-    
-    @propery
-    def name(self):
-        return self.username
-    
-    @property
-    def id(self):
-        return self.id
+        return f'<@!{self.id}>'
 
     def mentioned_in(self, message: Message):
         if message.mention_everyone:

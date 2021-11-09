@@ -1,10 +1,8 @@
-from __future__ import annotations
-
 from typing import TypedDict
 
-from snowflake import Snowflake
+from discord.color.color import Color
 
-from ..color import Color
+from snowflake import Snowflake
 
 
 class RoleTagsPayload(TypedDict, total=False):

@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from enums.embedtype import EmbedType
+from discord.color.color import Color
 from pydantic import BaseModel
 
-from ..color import Color
+from enums.embedtype import EmbedType
 
 
 class EmbedFooter(BaseModel):
@@ -11,12 +11,10 @@ class EmbedFooter(BaseModel):
     proxy_icon_url: str
     text: str
 
-
 class EmbedField(BaseModel):
     inline: bool
     name: str
     value: str
-
 
 class EmbedThumbnail(BaseModel):
     url: str
@@ -24,13 +22,11 @@ class EmbedThumbnail(BaseModel):
     height: int
     width: int
 
-
 class EmbedVideo(BaseModel):
     url: str
     proxy_url: str
     height: str
     width: str
-
 
 class EmbedImage(BaseModel):
     url: str
@@ -45,11 +41,9 @@ class EmbedAuthor(BaseModel):
     icon_url: str
     proxy_icon_url: str
 
-
 class EmbedProvider(BaseModel):
     name: str
     url: str
-
 
 class EmbedPayload(BaseModel):
     title: str
