@@ -7,8 +7,7 @@ from discord.errors.exceptions import InvalidColor
 
 __all__ = ('Color', 'Colour')
 
-
-class Color:
+class Color(BaseModel):
     __slots__ = ('_value', )
 
     _value: int
@@ -28,9 +27,12 @@ class Color:
         match = re.search(hex_regex, temp)
         return bool(match)
 
-    def __init__(self, value):
-        if self._is_16_bit(value):
-            self._value = int(value, 16)
+    def __init__(self, value: Union[int, str]):
+        if self.validate_color(value):
+            if type(value) is str:
+                super().__init__(value=int(value, 16))
+            else:
+                super().__init__(value=value)
         else:
             raise ValueError('Color needs to be 16-bit 6-character value.')
 

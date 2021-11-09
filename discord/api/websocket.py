@@ -103,12 +103,6 @@ class WebSocket:
             if msg['t'] == 'READY':
                 self.session_id = msg['d']['session_id']
 
-            # create a global on_message event for either guild or dm messages
-            if msg['t'] in ("MESSAGE_CREATE", "DM_MESSAGE_CREATE"):
-                global_message = deepcopy(msg)
-                global_message['t'] = "MESSAGE"
-                await self.handle_event(global_message)
-            
             # send event to dispatch
             await self.client.handle_event(msg)
 
