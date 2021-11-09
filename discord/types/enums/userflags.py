@@ -16,3 +16,5 @@ class UserFlags(IntFlag):
     verified_bot = 1 << 16
     early_verified_bot_developer = 1 << 17
     discord_certified_moderator = 1 << 18
+
+

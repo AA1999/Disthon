@@ -1,22 +1,20 @@
-from __future__ import annotations
-
 from io import BufferedIOBase
 from os import PathLike
 from typing import ClassVar, Optional, Union
 
-from enums.imagetype import ImageType
+from discord.errors.exceptions import DiscordException, DiscordNotFound
+from discord.internal.cache import LFUCache
 from pydantic import BaseModel
 
-from ..cache import LFUCache
-from ..exceptions import DiscordException, DiscordNotFound
+from enums.imagetype import ImageType
 
 
 class Image(BaseModel):
-
+    
     url: str
     format: ImageType
     cache: Optional[LFUCache]
-    CDN: ClassVar[str] = "https://cdn.discordapp.com"
+    CDN: ClassVar[str] = 'https://cdn.discordapp.com'
 
     @staticmethod
     def _is_animated(url: str):
@@ -98,30 +96,25 @@ class Image(BaseModel):
 
     def __init__(self, url: str):
         self._url = url
-        if ".jpg" in url.lower() or ".jpeg" in url.lower():
+        if '.jpg' in url.lower() or '.jpeg' in url.lower():
             self.format = ImageType.jpeg
-        elif ".png" in url.lower():
+        elif '.png' in url.lower():
             self.format = ImageType.png
-        elif ".webp" in url.lower():
+        elif '.webp' in url.lower():
             self.format = ImageType.webp
-        elif ".gif" in url.lower():
+        elif '.gif' in url.lower():
             self.format = ImageType.gif
-        elif ".json" in url.lower():
+        elif '.json' in url.lower():
             self.format = ImageType.lottie
         else:
             raise DiscordNotFound
 
+
     async def to_bytes(self):
         if self.cache is not None:
             return await self.cache.handler.get_from_cdn(self.url)
-        raise DiscordException("No cache provided.")
-
-    async def save(
-        self,
-        fp: Union[str, bytes, PathLike, BufferedIOBase],
-        *,
-        seek_begin: bool = True
-    ) -> int:
+        raise DiscordException('No cache provided.')
+    async def save(self, fp: Union[str, bytes, PathLike, BufferedIOBase], *, seek_begin: bool = True) -> int:
         data = await self.to_bytes()
         if isinstance(fp, BufferedIOBase):
             written = fp.write(data)
@@ -129,5 +122,5 @@ class Image(BaseModel):
                 fp.seek(0)
             return written
         else:
-            with open(fp, "wb") as f:
+            with open(fp, 'wb') as f:
                 return f.write(data)

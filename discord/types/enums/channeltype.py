@@ -13,3 +13,4 @@ class ChannelType(IntEnum):
     public_thread = 11
     private_thread = 12
     stage_voice = 13
+    

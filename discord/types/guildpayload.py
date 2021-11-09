@@ -2,12 +2,12 @@ from __future__ import annotations
 
 from typing import Optional
 
+from discord.channels.guildchannel import GuildChannel
+from discord.member.member import Member
+from discord.role.role import Role
+from discord.user.user import User
 from pydantic import BaseModel
 
-from ..channels.guildchannel import GuildChannel
-from ..role import Role
-from ..user.member import Member
-from ..user.user import User
 from .enums.locale import Locale
 from .enums.nsfwlevel import NSFWLevel
 from .enums.verificationlevel import VerificationLevel
@@ -17,7 +17,6 @@ from .snowflake import Snowflake
 class UnavailableGuild(BaseModel):
     id: Snowflake
     unavaliable: bool
-
 
 class BanPayload(BaseModel):
     reason: Optional[str]

@@ -1,8 +1,6 @@
-from __future__ import annotations
-
 from typing import TypedDict
 
-from ..types.snowflake import Snowflake
+from discord.types.snowflake import Snowflake
 
 
 class RawActivityAssets(TypedDict):
