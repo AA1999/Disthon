@@ -1,5 +1,14 @@
-from typing import List, NamedTuple, Optional
+from typing import (
+    NamedTuple,
+    Optional,
+    List,
+    MISSING
+)
 
+from discord.abc.discordobject import DiscordObject
+from discord.channels.guildchannel import GuildChannel
+from discord.member.member import Member
+from discord.role.role import Role
 from discord.types.guildpayload import GuildPayload
 from discord.types.snowflake import Snowflake
 from discord.user.user import User
@@ -41,6 +50,7 @@ class Guild(DiscordObject):
     _roles: set[Role]
     me: Member
 
+
     def __init__(self, data: GuildPayload):
         self._members: dict[Snowflake, Member] = {}
         self._channels: dict[Snowflake, GuildChannel] = {}
@@ -61,6 +71,7 @@ class Guild(DiscordObject):
             # checks if role is @everyone or not
 
             self._roles[role.id] = role
+    def remove_roles(self, role:Role) -> None:
 
     def remove_roles(self, role: Role) -> None:
         role = self._roles.pop(role.id)
@@ -118,3 +129,4 @@ class Guild(DiscordObject):
         category: Optional[CategoryChannel] = None,
     ):
         pass
+      
