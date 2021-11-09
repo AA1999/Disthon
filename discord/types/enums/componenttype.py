@@ -8,4 +8,3 @@ class ComponentType(IntEnum):
 
     def __int__(self):
         return self.value
-

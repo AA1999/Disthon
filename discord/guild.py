@@ -1,16 +1,13 @@
 from __future__ import annotations
 
-from typing import (
-    NamedTuple,
-    Optional,
-)
+from typing import NamedTuple, Optional
 
 from .abc.discordobject import DiscordObject
 from .channels.guildchannel import GuildChannel
-from .user.member import Member
 from .role import Role
 from .types.guildpayload import GuildPayload
 from .types.snowflake import Snowflake
+from .user.member import Member
 from .user.user import User
 
 
@@ -31,15 +28,15 @@ class GuildLimit(NamedTuple):
 
 class Guild(DiscordObject):
     __slots__ = (
-        'region'
-        'owner_id'
-        'mfa.level'
-        'name'
-        'id'
-        '_members'
-        '_channels'
-        '_vanity'
-        '_banner'
+        "region"
+        "owner_id"
+        "mfa.level"
+        "name"
+        "id"
+        "_members"
+        "_channels"
+        "_vanity"
+        "_banner"
     )
 
     _roles: set[Role]

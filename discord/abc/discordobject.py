@@ -2,8 +2,9 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from ..types.snowflake import Snowflake
 from pydantic import BaseModel
+
+from ..types.snowflake import Snowflake
 
 
 class DiscordObject(BaseModel):

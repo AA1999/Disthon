@@ -1,30 +1,35 @@
 from __future__ import annotations
 
+import typing
 from typing import Optional, Union
 
 import aiohttp
-from ..exceptions import (DiscordChannelForbidden,
-                                       DiscordChannelNotFound,
-                                       DiscordForbidden,
-                                       DiscordGatewayNotFound,
-                                       DiscordHTTPException,
-                                       DiscordNotAuthorized, DiscordNotFound,
-                                       DiscordServerError)
 
-import typing
-from ..embeds import Embed
 from discord.interactions.components import View
+
+from ..embeds import Embed
+from ..exceptions import (DiscordChannelForbidden, DiscordChannelNotFound,
+                          DiscordForbidden, DiscordGatewayNotFound,
+                          DiscordHTTPException, DiscordNotAuthorized,
+                          DiscordNotFound, DiscordServerError)
 
 
 class Handler:
-    
     def __init__(self):
-        self.base_url: str = 'https://discord.com/api/v9/'
+        self.base_url: str = "https://discord.com/api/v9/"
         self.user_agent: str = "Disthon Discord API wrapper V0.0.1b"
 
-    async def request(self, method: str, dest: str, *, headers: Optional[dict] = None,
-                      data: Optional[dict] = None) -> Union[str, dict]:
-        async with self.__session.request(method, self.base_url + dest, headers=headers, json=data) as r:
+    async def request(
+        self,
+        method: str,
+        dest: str,
+        *,
+        headers: Optional[dict] = None,
+        data: Optional[dict] = None,
+    ) -> Union[str, dict]:
+        async with self.__session.request(
+            method, self.base_url + dest, headers=headers, json=data
+        ) as r:
             if not 200 <= r.status < 300:
                 if r.status == 401:
                     raise DiscordNotAuthorized
@@ -36,7 +41,7 @@ class Handler:
                     raise DiscordServerError
             text = await r.text()
             try:
-                if r.headers['content-type'] == 'application/json':
+                if r.headers["content-type"] == "application/json":
                     return await r.json()
             except KeyError:
                 pass
@@ -45,7 +50,9 @@ class Handler:
 
     async def login(self, token: str) -> Union[str, dict]:
         self.token = token
-        self.__session = aiohttp.ClientSession(headers={"Authorization": "Bot " + self.token})
+        self.__session = aiohttp.ClientSession(
+            headers={"Authorization": "Bot " + self.token}
+        )
 
         try:
             auth_data = await self.request("GET", "/users/@me")
@@ -57,26 +64,30 @@ class Handler:
     async def gateway(self) -> str:
         gw_data = await self.request("GET", "/gateway/bot")
         if isinstance(gw_data, dict):
-            return gw_data['url'] + '?encoding=json&v=9&compress=zlib-stream'
+            return gw_data["url"] + "?encoding=json&v=9&compress=zlib-stream"
         raise NotImplementedError
 
     async def connect(self, url: str) -> aiohttp.ClientWebSocketResponse:
         kwargs = {
-            'timeout': 100.0,
-            'autoclose': False,
-            'headers': {
-                'User-Agent': self.user_agent,
+            "timeout": 100.0,
+            "autoclose": False,
+            "headers": {
+                "User-Agent": self.user_agent,
             },
-            'compress': 0,
+            "compress": 0,
         }
         return await self.__session.ws_connect(url, **kwargs)
 
     async def close(self) -> None:
         await self.__session.close()
 
-    async def send_message(self, channel_id: int, content: typing.Optional[str] = None,
-                           embeds: typing.Union[Embed, typing.List[Embed]] = None,
-                           views: typing.Union[View, typing.List[View]] = None):
+    async def send_message(
+        self,
+        channel_id: int,
+        content: typing.Optional[str] = None,
+        embeds: typing.Union[Embed, typing.List[Embed]] = None,
+        views: typing.Union[View, typing.List[View]] = None,
+    ):
         if isinstance(embeds, Embed):
             embeds = [embeds]
         if isinstance(views, View):
@@ -91,19 +102,27 @@ class Handler:
         if views:
             payload["components"] = [view._to_dict() for view in views]
 
-        data = await self.request("POST", f"channels/{channel_id}/messages", data=payload)
+        data = await self.request(
+            "POST", f"channels/{channel_id}/messages", data=payload
+        )
         try:
             if isinstance(data, dict):
-                if data['code'] == 50008:
+                if data["code"] == 50008:
                     raise DiscordChannelNotFound
-                elif data['code'] == 10003:
+                elif data["code"] == 10003:
                     raise DiscordChannelForbidden
         except KeyError:
             return data
 
-    async def edit_message(self, channel_id: int, message_id: int, *, content: typing.Optional[str] = None,
-                           embeds: typing.Union[Embed, typing.List[Embed]] = None,
-                           views: typing.Union[View, typing.List[View]] = None):
+    async def edit_message(
+        self,
+        channel_id: int,
+        message_id: int,
+        *,
+        content: typing.Optional[str] = None,
+        embeds: typing.Union[Embed, typing.List[Embed]] = None,
+        views: typing.Union[View, typing.List[View]] = None,
+    ):
         if isinstance(embeds, Embed):
             embeds = [embeds]
         if isinstance(views, View):
@@ -118,25 +137,49 @@ class Handler:
         if views:
             payload["components"] = [view._to_dict() for view in views]
 
-        return await self.request("PATCH", f"/channels/{channel_id}/messages/{message_id}", data=payload)
+        return await self.request(
+            "PATCH", f"/channels/{channel_id}/messages/{message_id}", data=payload
+        )
 
     async def delete_message(self, channel_id: int, message_id: int):
         await self.request("DELETE", f"/channels/{channel_id}/messages/{message_id}")
 
-    async def bulk_delete_messages(self, channel_id: int, message_ids: typing.Iterable[int]):
-        await self.request("POST", f"/channels/{channel_id}/messages/bulk-delete", data={"messages": message_ids})
+    async def bulk_delete_messages(
+        self, channel_id: int, message_ids: typing.Iterable[int]
+    ):
+        await self.request(
+            "POST",
+            f"/channels/{channel_id}/messages/bulk-delete",
+            data={"messages": message_ids},
+        )
 
     async def add_reaction(self, channel_id: int, message_id: int, emoji: str):
-        await self.request("PUT", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me")
+        await self.request(
+            "PUT", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me"
+        )
 
     async def delete_own_reaction(self, channel_id: int, message_id: int, emoji: str):
-        await self.request("DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me")
+        await self.request(
+            "DELETE",
+            f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/@me",
+        )
 
-    async def delete_user_reaction(self, channel_id: int, message_id: int, user_id: int, emoji: str):
-        await self.request("DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_id}")
+    async def delete_user_reaction(
+        self, channel_id: int, message_id: int, user_id: int, emoji: str
+    ):
+        await self.request(
+            "DELETE",
+            f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}/{user_id}",
+        )
 
-    async def fetch_message_reactions(self, channel_id: int, message_id: int, emoji: str, after: int = None,
-                                      limit: int = None):
+    async def fetch_message_reactions(
+        self,
+        channel_id: int,
+        message_id: int,
+        emoji: str,
+        after: int = None,
+        limit: int = None,
+    ):
         url = f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}"
         params = {"after": after, "limit": limit}
 
@@ -148,15 +191,23 @@ class Handler:
         await self.request("GET", url)
 
     async def delete_all_reactions(self, channel_id: int, message_id: int):
-        await self.request("DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions")
+        await self.request(
+            "DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions"
+        )
 
-    async def delete_all_reactions_for_emoji(self, channel_id: int, message_id: int, emoji: str):
-        await self.request("DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}")
+    async def delete_all_reactions_for_emoji(
+        self, channel_id: int, message_id: int, emoji: str
+    ):
+        await self.request(
+            "DELETE", f"/channels/{channel_id}/messages/{message_id}/reactions/{emoji}"
+        )
 
     async def delete_channel(self, channel_id: int):
         await self.request("DELETE", f"/channels/{channel_id}")
 
-    async def fetch_channel_history(self, channel_id: int, limit=None, around=None, before=None, after=None):
+    async def fetch_channel_history(
+        self, channel_id: int, limit=None, around=None, before=None, after=None
+    ):
         url = f"/channels/{channel_id}/messages"
         params = {"limit": limit, "around": around, "before": before, "after": after}
 
@@ -174,31 +225,35 @@ class Handler:
 
     async def edit_guild_text_channel(self, channel_id: int, **options: typing.Any):
         payload = {k: v for k, v in options.items()}
-        await self.request("PATCH", f"/channels/{channel_id}", headers={'Content-Type': 'application/json'},
-                           data=payload)
+        await self.request(
+            "PATCH",
+            f"/channels/{channel_id}",
+            headers={"Content-Type": "application/json"},
+            data=payload,
+        )
 
     async def edit_guild_voice_channel(self, channel_id: int, **options):
         payload = {
-            'name': options['name'],
-            'position': options['position'],
-            'bitrate': options['bitrate'],
-            'user_limit': options['user_limit'],
-            'permission_overwrites': options['overwrites'],
-            'parent_id': options['category'],
-            'rtc_region': options['region'],
+            "name": options["name"],
+            "position": options["position"],
+            "bitrate": options["bitrate"],
+            "user_limit": options["user_limit"],
+            "permission_overwrites": options["overwrites"],
+            "parent_id": options["category"],
+            "rtc_region": options["region"],
         }
         await self.request("PATCH", f"/channels/{channel_id}", data=payload)
-        
+
     async def get_from_cdn(self, url: str):
         async with self.__session.get(url) as resp:
             if resp.status == 200:
                 return await resp.read()
             if resp.status == 404:
-                raise DiscordNotFound('Requested asset could not be found.')
+                raise DiscordNotFound("Requested asset could not be found.")
             if resp.status == 403:
-                raise DiscordForbidden('Unable to fetch requested asset.')
+                raise DiscordForbidden("Unable to fetch requested asset.")
             if resp.status == 401:
-                raise DiscordNotAuthorized('Fetching asset failed.')
+                raise DiscordNotAuthorized("Fetching asset failed.")
             if resp.status == 500:
-                raise DiscordServerError('Internal server error.')
-            raise DiscordHTTPException('Failed to fetch the asset.', resp.status)
+                raise DiscordServerError("Internal server error.")
+            raise DiscordHTTPException("Failed to fetch the asset.", resp.status)

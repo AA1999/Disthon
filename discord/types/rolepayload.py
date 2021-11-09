@@ -2,9 +2,9 @@ from __future__ import annotations
 
 from typing import TypedDict
 
-from ..color import Color
-
 from snowflake import Snowflake
+
+from ..color import Color
 
 
 class RoleTagsPayload(TypedDict, total=False):

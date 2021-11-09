@@ -1,29 +1,28 @@
 from __future__ import annotations
 
-from typing import TypeVar, Optional
+from typing import Optional, TypeVar
 
 from .abc.discordobject import DiscordObject
 from .color import Color
 from .guild import Guild
 
-__all__ = ('RoleTags', 'Role')
+__all__ = ("RoleTags", "Role")
 
 from .cache import RoleCache
-
-from .types.rolepayload import RoleTagsPayload, RolePayload
+from .types.rolepayload import RolePayload, RoleTagsPayload
 from .types.snowflake import Snowflake
 
 
 class RoleTags:
-    __slots__ = ('_bot_id', '_integration_id', '_premium_subscriber')
+    __slots__ = ("_bot_id", "_integration_id", "_premium_subscriber")
     _bot_id: Snowflake
     _integration_id: Snowflake
     _premium_subscriber: bool
 
     def __init__(self, payload: RoleTagsPayload):
-        self._bot_id = payload['bot_id']
-        self._integration_id = payload['integration_id']
-        self._premium_subscriber = payload['premium_subscriber']
+        self._bot_id = payload["bot_id"]
+        self._integration_id = payload["integration_id"]
+        self._premium_subscriber = payload["premium_subscriber"]
 
     def is_bot_managed(self) -> bool:
         return self._bot_id is not None
@@ -35,12 +34,23 @@ class RoleTags:
         return self._integration_id is not None
 
     def __repr__(self):
-        return f'bot id: {self._bot_id}, integration id: {self._integration_id} premium subscriber: {self.is_premium_subscriber()}'
+        return f"bot id: {self._bot_id}, integration id: {self._integration_id} premium subscriber: {self.is_premium_subscriber()}"
 
 
 class Role(DiscordObject):
-    __slots__ = ('_guild', '_cache', '_id', '_name', '_color', '_hoist', '_position', '_permissions', '_managed',
-                 '_mentionable', '_tags')
+    __slots__ = (
+        "_guild",
+        "_cache",
+        "_id",
+        "_name",
+        "_color",
+        "_hoist",
+        "_position",
+        "_permissions",
+        "_managed",
+        "_mentionable",
+        "_tags",
+    )
 
     _guild: Guild
     _cache: RoleCache
@@ -57,31 +67,35 @@ class Role(DiscordObject):
     def __init__(self, guild: Guild, cache: RoleCache, payload: RolePayload):
         self._guild = guild
         self._cache = cache
-        self._id = payload['id']
-        self._name = payload['name']
-        self._color = payload['color']
-        self._hoist = payload['hoist']
-        self._position = payload['position']
-        self._permissions = payload['permissions']
-        self._managed = payload['managed']
-        self._mentionable = payload['mentionable']
-        self._tags = RoleTags(payload['tags'])
+        self._id = payload["id"]
+        self._name = payload["name"]
+        self._color = payload["color"]
+        self._hoist = payload["hoist"]
+        self._position = payload["position"]
+        self._permissions = payload["permissions"]
+        self._managed = payload["managed"]
+        self._mentionable = payload["mentionable"]
+        self._tags = RoleTags(payload["tags"])
 
     def __str__(self):
         return self._name
 
     def __repr__(self):
-        return f'Role {self._name} with id {self._id}'
+        return f"Role {self._name} with id {self._id}"
 
     def __eq__(self, other):
-        return isinstance(other, Role) and self.id == other.id and self.guild == other.guild
+        return (
+            isinstance(other, Role)
+            and self.id == other.id
+            and self.guild == other.guild
+        )
 
     def __lt__(self, other):
         if not isinstance(other, Role):
             raise NotImplementedError
 
         if self.guild != other.guild:
-            raise RuntimeError('Cannot compare roles from different guilds.')
+            raise RuntimeError("Cannot compare roles from different guilds.")
 
         if self.id == self.guild.id:
             return other.id != self.guild.id
@@ -113,8 +127,11 @@ class Role(DiscordObject):
 
     def is_assignable(self):
         me = self.guild.me
-        return not self.is_everyone() and not self.managed and (me.top_role > self or me.id == self.guild.owner_id)
-
+        return (
+            not self.is_everyone()
+            and not self.managed
+            and (me.top_role > self or me.id == self.guild.owner_id)
+        )
 
     @property
     def id(self) -> Snowflake:
@@ -155,4 +172,3 @@ class Role(DiscordObject):
     @property
     def tags(self) -> RoleTags:
         return self._tags
-

@@ -2,21 +2,24 @@ from __future__ import annotations
 
 import asyncio
 import inspect
-import typing
-import traceback
 import sys
+import traceback
+import typing
 from copy import deepcopy
 
 from .api.handler import Handler
-from .api.websocket import WebSocket
 from .api.intents import Intents
+from .api.websocket import WebSocket
 
 
 class Client:
-
-    def __init__(self, *, intents: typing.Optional[Intents] = Intents.default(),
-                 respond_self: typing.Optional[bool] = False,
-                 loop: typing.Optional[asyncio.AbstractEventLoop] = None) -> None:
+    def __init__(
+        self,
+        *,
+        intents: typing.Optional[Intents] = Intents.default(),
+        respond_self: typing.Optional[bool] = False,
+        loop: typing.Optional[asyncio.AbstractEventLoop] = None,
+    ) -> None:
         self.__loop: asyncio.AbstractEventLoop = loop or asyncio.get_event_loop()
         self.intents = intents
         self.respond_self = respond_self
@@ -39,7 +42,8 @@ class Client:
                 g_url = await self.handler.gateway()
                 if not isinstance(self.intents, Intents):
                     raise TypeError(
-                        f"Intents must be of type Intents, got {self.intents.__class__}")
+                        f"Intents must be of type Intents, got {self.intents.__class__}"
+                    )
                 self.ws = await asyncio.wait_for(socket.start(g_url), timeout=30)
 
             while True:
@@ -56,12 +60,10 @@ class Client:
         await self.handler.close()
 
     def run(self, token: str):
-
         def stop_loop_on_completion(_):
             self.__loop.stop()
 
-        future = asyncio.ensure_future(
-            self.alive_loop(token), loop=self.__loop)
+        future = asyncio.ensure_future(self.alive_loop(token), loop=self.__loop)
         future.add_done_callback(stop_loop_on_completion)
 
         self.__loop.run_forever()
@@ -73,13 +75,17 @@ class Client:
         def wrapper(func):
             self.add_listener(func, event)
             return func
+
         return wrapper
 
-    def add_listener(self, func: typing.Callable, event: typing.Optional[str] = None) -> None:
+    def add_listener(
+        self, func: typing.Callable, event: typing.Optional[str] = None
+    ) -> None:
         event = event or func.__name__
         if not inspect.iscoroutinefunction(func):
             raise TypeError(
-                "The callback is not a valid coroutine function. Did you forget to add async before def?")
+                "The callback is not a valid coroutine function. Did you forget to add async before def?"
+            )
 
         if event in self.events:
             self.events[event].append(func)
@@ -87,11 +93,11 @@ class Client:
             self.events[event] = [func]
 
     async def handle_event(self, msg):
-        event = "on_" + msg['t'].lower()
+        event = "on_" + msg["t"].lower()
 
         if event in ("on_message_create", "on_dm_message_create"):
             global_message = deepcopy(msg)
-            global_message['t'] = "MESSAGE"
+            global_message["t"] = "MESSAGE"
             await self.handle_event(global_message)
 
         for coro in self.events.get(event, []):
@@ -99,4 +105,6 @@ class Client:
                 await coro(msg)
             except Exception as error:
                 print(f"Ignoring exception in event {coro.__name__}", file=sys.stderr)
-                traceback.print_exception(type(error), error, error.__traceback__, file=sys.stderr)
+                traceback.print_exception(
+                    type(error), error, error.__traceback__, file=sys.stderr
+                )

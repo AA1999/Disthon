@@ -9,9 +9,9 @@ from types.enums.userflags import UserFlags
 from types.userpayload import UserPayload
 from typing import Optional
 
+from ..cache import GuildCache, UserCache
 from ..color import Color
 from ..message import Message
-from ..cache import GuildCache, UserCache
 
 
 class BaseUser(AbstractUser):
@@ -35,7 +35,7 @@ class BaseUser(AbstractUser):
         self.public_flags = payload.flags
         self.system = payload.system or False
         self.bot = payload.bot or False
-    
+
     @classmethod
     def _from_user(cls, user: BaseUser) -> BaseUser:
         self = cls.__new__(cls)
@@ -57,11 +57,24 @@ class BaseUser(AbstractUser):
     async def fetch_message(self):
         pass
 
-    async def send(self, content: str = None, *, tts=None, embeds: list[Message] = None, files=None,
-                   stickers=None, delete_after=None, nonce = None, allowed_mentions: bool = None, reference=None,
-                   mention_author: bool = None, view=None, components=None):
+    async def send(
+        self,
+        content: str = None,
+        *,
+        tts=None,
+        embeds: list[Message] = None,
+        files=None,
+        stickers=None,
+        delete_after=None,
+        nonce=None,
+        allowed_mentions: bool = None,
+        reference=None,
+        mention_author: bool = None,
+        view=None,
+        components=None
+    ):
         pass
-    
+
     async def edit(self, *, username: str = None, avatar: bytes = None):
         pass
 
@@ -70,12 +83,14 @@ class BaseUser(AbstractUser):
 
     @property
     def default_avatar(self):
-        return self.avatar._from_default_avatar(self._cache, int(self.discriminator) % len(DefaultAvatar))
-    
+        return self.avatar._from_default_avatar(
+            self._cache, int(self.discriminator) % len(DefaultAvatar)
+        )
+
     @property
     def color(self):
         return Color.default()
-    
+
     @property
     def colour(self):
         return self.color
@@ -94,5 +109,5 @@ class BaseUser(AbstractUser):
             "system": self.system,
             "public_flags": self.public_flags,
             "display_name": self.display_name,
-            "banner": self.banner
+            "banner": self.banner,
         }

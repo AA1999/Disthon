@@ -7,5 +7,3 @@ class ImageType(IntEnum):
     webp = 2
     gif = 3
     lottie = 4
-
-
