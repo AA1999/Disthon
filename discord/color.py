@@ -4,21 +4,22 @@ import colorsys
 import random
 import re
 from typing import Optional, Union
+from pydantic import BaseModel
 
 from .exceptions import InvalidColor
 
 __all__ = ("Color", "Colour")
 
 
-class Color:
+class Color(BaseModel):
     __slots__ = ("_value",)
 
-    _value: int
+    value: int
 
     def validate_color(self, color: Optional[Union[int, str]] = None) -> bool:
         if color is None:
             return (
-                isinstance(self._value, int) and 0 <= self._value < 16 ** 6
+                isinstance(self.value, int) and 0 <= self.value < 16 ** 6
             )  # test if color is in valid range
         elif isinstance(color, int):
             return 0 <= color < 16 ** 6  # test if color is in valid range
@@ -31,9 +32,9 @@ class Color:
     def __init__(self, value: Union[int, str]):
         if self.validate_color(value):
             if type(value) is str:
-                self._value = int(value, 16)
+                self.value = int(value, 16)
             else:
-                self._value = value
+                self.value = value
         else:
             raise ValueError("Color needs to be 16-bit 6-character value.")
 
@@ -216,7 +217,7 @@ class Color:
 
     @property
     def value(self):
-        return self._value
+        return self.value
 
 
 Colour = Color
