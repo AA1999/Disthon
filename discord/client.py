@@ -93,8 +93,9 @@ class Client:
             self.events[event] = [func]
 
     async def handle_event(self, msg):
-        event = "on_" + msg["t"].lower()
+        event: str = "on_" + msg["t"].lower()
 
+        # create a global on_message event for either guild or dm messages
         if event in ("on_message_create", "on_dm_message_create"):
             global_message = deepcopy(msg)
             global_message["t"] = "MESSAGE"
