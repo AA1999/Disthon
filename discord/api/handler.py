@@ -27,7 +27,7 @@ class Handler:
         headers: Optional[dict] = None,
         data: Optional[dict] = None,
     ) -> Union[str, dict]:
-        async with self.__session.request(
+        async with self._session.request(
             method, self.base_url + dest, headers=headers, json=data
         ) as r:
             if not 200 <= r.status < 300:
@@ -50,7 +50,7 @@ class Handler:
 
     async def login(self, token: str) -> Union[str, dict]:
         self.token = token
-        self.__session = aiohttp.ClientSession(
+        self._session = aiohttp.ClientSession(
             headers={"Authorization": "Bot " + self.token}
         )
 
@@ -76,10 +76,10 @@ class Handler:
             },
             "compress": 0,
         }
-        return await self.__session.ws_connect(url, **kwargs)
+        return await self._session.ws_connect(url, **kwargs)
 
     async def close(self) -> None:
-        await self.__session.close()
+        await self._session.close()
 
     async def send_message(
         self,
@@ -245,7 +245,7 @@ class Handler:
         await self.request("PATCH", f"/channels/{channel_id}", data=payload)
 
     async def get_from_cdn(self, url: str):
-        async with self.__session.get(url) as resp:
+        async with self._session.get(url) as resp:
             if resp.status == 200:
                 return await resp.read()
             if resp.status == 404:
