@@ -9,5 +9,3 @@ class MessageFlags(IntEnum):
     urgent = 16
     has_thread = 32
     ephermal = 64
-
-    

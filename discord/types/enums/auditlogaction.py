@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import IntEnum
 from typing import Optional
 
-from discord.types.enums.auditlogactioncategory import AuditLogActionCategory
+from ...types.enums.auditlogactioncategory import AuditLogActionCategory
 
 
 class AuditLogAction(IntEnum):
@@ -108,30 +108,30 @@ class AuditLogAction(IntEnum):
     def target_type(self) -> Optional[str]:
         v = self.value
         if v == -1:
-            return 'all'
+            return "all"
         elif v < 10:
-            return 'guild'
+            return "guild"
         elif v < 20:
-            return 'channel'
+            return "channel"
         elif v < 30:
-            return 'user'
+            return "user"
         elif v < 40:
-            return 'role'
+            return "role"
         elif v < 50:
-            return 'invite'
+            return "invite"
         elif v < 60:
-            return 'webhook'
+            return "webhook"
         elif v < 70:
-            return 'emoji'
+            return "emoji"
         elif v == 73:
-            return 'channel'
+            return "channel"
         elif v < 80:
-            return 'message'
+            return "message"
         elif v < 83:
-            return 'integration'
+            return "integration"
         elif v < 90:
-            return 'stage_instance'
+            return "stage_instance"
         elif v < 93:
-            return 'sticker'
+            return "sticker"
         elif v < 113:
-            return 'thread'
+            return "thread"
