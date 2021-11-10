@@ -120,6 +120,9 @@ class Embed(BaseModel):
     video: Optional[EmbedVideo] = None
     provider: Optional[EmbedProvider] = None
 
+    class Config:
+        arbitrary_types_allowed = True
+
     @validator("url")
     def _validate_url(cls, url):
         url_regex = r"(?i)\b((?:https?://|www\d{0,3}[.]|[a-z0-9.\-]+[.][a-z]{2,4}/)(?:[^\s()<>]+|\(([^\s()<>]+|(\([^\s()<>]+\)))*\))+(?:\(([^\s()<>]+|(\([^\s()<>]+\)))*\)|[^\s`!()\[\]{};:'\".,<>?«»“”‘’]))"

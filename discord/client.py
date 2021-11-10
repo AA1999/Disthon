@@ -20,7 +20,7 @@ class Client:
         respond_self: typing.Optional[bool] = False,
         loop: typing.Optional[asyncio.AbstractEventLoop] = None,
     ) -> None:
-        self.__loop: asyncio.AbstractEventLoop = loop or asyncio.get_event_loop()
+        self._loop: asyncio.AbstractEventLoop = loop or asyncio.get_event_loop()
         self.intents = intents
         self.respond_self = respond_self
 
@@ -61,12 +61,12 @@ class Client:
 
     def run(self, token: str):
         def stop_loop_on_completion(_):
-            self.__loop.stop()
+            self._loop.stop()
 
-        future = asyncio.ensure_future(self.alive_loop(token), loop=self.__loop)
+        future = asyncio.ensure_future(self.alive_loop(token), loop=self._loop)
         future.add_done_callback(stop_loop_on_completion)
 
-        self.__loop.run_forever()
+        self._loop.run_forever()
 
         if not future.cancelled():
             return future.result()
@@ -93,8 +93,9 @@ class Client:
             self.events[event] = [func]
 
     async def handle_event(self, msg):
-        event = "on_" + msg["t"].lower()
+        event: str = "on_" + msg["t"].lower()
 
+        # create a global on_message event for either guild or dm messages
         if event in ("on_message_create", "on_dm_message_create"):
             global_message = deepcopy(msg)
             global_message["t"] = "MESSAGE"

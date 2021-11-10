@@ -12,7 +12,6 @@ __all__ = ("Color", "Colour")
 
 
 class Color(BaseModel):
-    __slots__ = ("_value",)
 
     value: int
 
@@ -32,9 +31,9 @@ class Color(BaseModel):
     def __init__(self, value: Union[int, str]):
         if self.validate_color(value):
             if type(value) is str:
-                self.value = int(value, 16)
+                super().__init__(value=int(value, 16))
             else:
-                self.value = value
+                super().__init__(value=value)
         else:
             raise ValueError("Color needs to be 16-bit 6-character value.")
 
