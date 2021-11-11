@@ -1,11 +1,10 @@
 from __future__ import annotations
 
-from ..guild.guild import GuildChannel
 import ..abc
 
 from .basechannel import BaseChannel
 
-class TextChannel(GuildChannel):
+class TextChannel(BaseChannel):
     __slots__ = (
         "name",
         "id",
@@ -14,4 +13,14 @@ class TextChannel(GuildChannel):
         "category_id",
         "position"
     )
-    
+
+class VoiceChannel(BaseChannel):
+    __slots__ = (
+        "name",
+        "id",
+        "guild",
+        "bitrate",
+        "user_limit",
+        "category_id",
+        "position"
+    )
