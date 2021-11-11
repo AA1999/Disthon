@@ -73,15 +73,15 @@ class Client:
         if not future.cancelled():
             return future.result()
 
-    def event(self, event: str = None):
+    def event(self, event: str = None, *, overwrite: bool = False):
         def wrapper(func):
-            self.add_listener(func, event)
+            self.add_listener(func, event, overwrite)
             return func
 
         return wrapper
 
     def add_listener(
-        self, func: typing.Callable, event: typing.Optional[str] = None
+        self, func: typing.Callable, event: typing.Optional[str] = None, overwrite: bool = False
     ) -> None:
         event = event or func.__name__
         if not inspect.iscoroutinefunction(func):
@@ -89,17 +89,13 @@ class Client:
                 "The callback is not a valid coroutine function. Did you forget to add async before def?"
             )
 
-        if event in self.events:
+        if event in self.events and not overwrite:
             self.events[event].append(func)
         else:
             self.events[event] = [func]
 
     async def handle_event(self, msg):
         event: str = "on_" + msg["t"].lower()
-
-        # Convert all messages types to single message event
-        if event in ("on_message_create", "on_dm_message_create"):
-            event = "on_message"
 
         args = self.converter.convert(event, msg['d'])
 
