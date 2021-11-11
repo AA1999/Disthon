@@ -7,9 +7,10 @@ import traceback
 import typing
 from copy import deepcopy
 
-from .api.handler import Handler
+from .api.httphandler import HTTPHandler
 from .api.intents import Intents
 from .api.websocket import WebSocket
+from .api.dataConverters import DataConverter
 
 
 class Client:
@@ -25,21 +26,22 @@ class Client:
         self.respond_self = respond_self
 
         self.stay_alive = True
-        self.handler = Handler()
+        self.httphandler = HTTPHandler()
         self.lock = asyncio.Lock()
         self.closed = False
         self.events = {}
+        self.converter = DataConverter(self)
 
     async def login(self, token: str) -> None:
         self.token = token
         async with self.lock:
-            self.info = await self.handler.login(token)
+            self.info = await self.httphandler.login(token)
 
     async def connect(self) -> None:
         while not self.closed:
             socket = WebSocket(self, self.token)
             async with self.lock:
-                g_url = await self.handler.gateway()
+                g_url = await self.httphandler.gateway()
                 if not isinstance(self.intents, Intents):
                     raise TypeError(
                         f"Intents must be of type Intents, got {self.intents.__class__}"
@@ -57,7 +59,7 @@ class Client:
             await self.close()
 
     async def close(self) -> None:
-        await self.handler.close()
+        await self.httphandler.close()
 
     def run(self, token: str):
         def stop_loop_on_completion(_):
@@ -93,6 +95,7 @@ class Client:
             self.events[event] = [func]
 
     async def handle_event(self, msg):
+        print("got event")
         event: str = "on_" + msg["t"].lower()
 
         # create a global on_message event for either guild or dm messages
@@ -100,10 +103,14 @@ class Client:
             global_message = deepcopy(msg)
             global_message["t"] = "MESSAGE"
             await self.handle_event(global_message)
+        
+        print("converting")
+        args = self.converter.convert(msg)
+        print(args)
 
         for coro in self.events.get(event, []):
             try:
-                await coro(msg)
+                await coro(*args)
             except Exception as error:
                 print(f"Ignoring exception in event {coro.__name__}", file=sys.stderr)
                 traceback.print_exception(

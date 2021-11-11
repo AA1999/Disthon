@@ -1,7 +1,7 @@
 from enum import IntEnum
 
 
-class NSFWLevel(IntEnum, comparable=True):
+class NSFWLevel(IntEnum):
     default = 0
     explicit = 1
     safe = 2

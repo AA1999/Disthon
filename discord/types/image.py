@@ -4,7 +4,7 @@ from io import BufferedIOBase
 from os import PathLike
 from typing import ClassVar, Optional, Union
 
-from enums.imagetype import ImageType
+from .enums.imagetype import ImageType
 from pydantic import BaseModel
 
 from ..cache import LFUCache
@@ -13,6 +13,9 @@ from ..exceptions import DiscordException, DiscordNotFound
 
 class Image(BaseModel):
 
+    class Config:
+        arbitrary_types_allowed = True
+    
     url: str
     format: ImageType
     cache: Optional[LFUCache]

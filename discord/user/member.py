@@ -1,9 +1,11 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
 
-from user import User
+from .user import User
 
-from ..guild import Guild
-from ..role import Role
+if TYPE_CHECKING:
+    from ..guild import Guild
+    from ..role import Role
 
 
 class Member(User):

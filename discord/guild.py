@@ -1,14 +1,16 @@
 from __future__ import annotations
 
-from typing import NamedTuple, Optional
+from typing import TYPE_CHECKING, NamedTuple, Optional, Text, Union
 
 from .abc.discordobject import DiscordObject
-from .channels.guildchannel import GuildChannel
-from .role import Role
+from .channels.guildchannel import TextChannel, VoiceChannel
 from .types.guildpayload import GuildPayload
 from .types.snowflake import Snowflake
 from .user.member import Member
 from .user.user import User
+
+if TYPE_CHECKING:
+    from .role import Role
 
 
 class BanEntry(NamedTuple):
@@ -28,14 +30,14 @@ class GuildLimit(NamedTuple):
 
 class Guild(DiscordObject):
     __slots__ = (
-        "region"
-        "owner_id"
-        "mfa.level"
-        "name"
-        "id"
-        "_members"
-        "_channels"
-        "_vanity"
+        "region",
+        "owner_id",
+        "mfa_level",
+        "name",
+        "id",
+        "_members",
+        "_channels",
+        "_vanity",
         "_banner"
     )
 
@@ -45,10 +47,10 @@ class Guild(DiscordObject):
 
     def __init__(self, data: GuildPayload):
         self._members: dict[Snowflake, Member] = {}
-        self._channels: dict[Snowflake, GuildChannel] = {}
+        self._channels: dict[Snowflake, Union[TextChannel, VoiceChannel]] = {}
         self._roles = set()
 
-    def _add_channel(self, channel: GuildChannel, /) -> None:
+    def _add_channel(self, channel: Union[TextChannel, VoiceChannel], /) -> None:
         self._channels[channel.id] = channel
 
     def _delete_channel(self, channel: DiscordObject) -> None:

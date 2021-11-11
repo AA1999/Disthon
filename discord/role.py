@@ -1,10 +1,12 @@
 from __future__ import annotations
 
-from typing import Optional, TypeVar
+from typing import TYPE_CHECKING, Optional, TypeVar
 
 from .abc.discordobject import DiscordObject
 from .color import Color
-from .guild import Guild
+
+if TYPE_CHECKING:
+    from .guild import Guild
 
 __all__ = ("RoleTags", "Role")
 

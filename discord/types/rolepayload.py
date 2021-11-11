@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TypedDict
 
-from snowflake import Snowflake
+from .snowflake import Snowflake
 
 from ..color import Color
 

@@ -14,7 +14,7 @@ from ..exceptions import (DiscordChannelForbidden, DiscordChannelNotFound,
                           DiscordNotFound, DiscordServerError)
 
 
-class Handler:
+class HTTPHandler:
     def __init__(self):
         self.base_url: str = "https://discord.com/api/v9/"
         self.user_agent: str = "Disthon Discord API wrapper V0.0.1b"

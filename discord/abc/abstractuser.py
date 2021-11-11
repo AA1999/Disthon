@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Optional
 
-from discordobject import DiscordObject
+from .discordobject import DiscordObject
 
 from ..message import Message
 from ..types.avatar import Avatar
@@ -28,7 +28,7 @@ class AbstractUser(DiscordObject):
     def mention(self):
         return f"<@!{self.id}>"
     
-    @propery
+    @property
     def name(self):
         return self.username
     
