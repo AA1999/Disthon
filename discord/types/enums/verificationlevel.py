@@ -1,7 +1,7 @@
 from enum import IntEnum
 
 
-class VerificationLevel(IntEnum, comparable=True):
+class VerificationLevel(IntEnum):
     none = 0
     low = 1
     medium = 2

@@ -95,6 +95,7 @@ class Client:
             self.events[event] = [func]
 
     async def handle_event(self, msg):
+        print("got event")
         event: str = "on_" + msg["t"].lower()
 
         # create a global on_message event for either guild or dm messages
@@ -103,7 +104,9 @@ class Client:
             global_message["t"] = "MESSAGE"
             await self.handle_event(global_message)
         
+        print("converting")
         args = self.converter.convert(msg)
+        print(args)
 
         for coro in self.events.get(event, []):
             try:

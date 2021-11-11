@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import ..abc
-
 from .basechannel import BaseChannel
 
 class TextChannel(BaseChannel):
@@ -11,7 +9,20 @@ class TextChannel(BaseChannel):
         "guild",
         "nsfw",
         "category_id",
-        "position"
+        "position",
+        "topic"
+    )
+
+class ThreadChannel(BaseChannel):
+    __slots__ = (
+        "name",
+        "id",
+        "guild",
+        "nsfw",
+        "category_id",
+        "position",
+        "topic",
+        "parent"
     )
 
 class VoiceChannel(BaseChannel):

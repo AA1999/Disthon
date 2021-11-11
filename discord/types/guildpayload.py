@@ -1,10 +1,10 @@
 from __future__ import annotations
 
-from typing import Optional
+from typing import Optional, Union
 
 from pydantic import BaseModel
 
-from ..channels.guildchannel import GuildChannel
+from ..channels.guildchannel import TextChannel, VoiceChannel, ThreadChannel
 from ..role import Role
 from ..user.member import Member
 from ..user.user import User
@@ -35,9 +35,9 @@ class GuildPayload(BaseModel):
     member_count: int
     voice_states: list[GuildVoiceState]
     members: list[Member]
-    channels: list[GuildChannel]
+    channels: list[Union[TextChannel, VoiceChannel]]
     presences: list[PartialPresenceUpdate]
-    threads: list[Thread]
+    threads: list[ThreadChannel]
     max_presences: Optional[int]
     max_members: int
     premium_subscription_count: int

@@ -19,13 +19,19 @@ class DataConverter:
         self.converters = {}
         for name, func in inspect.getmembers(self):
             if name.startswith('convert_'):
-                self.converters[name[6:]] = func
+                self.converters[name[8:]] = func
+
+    def convert_message(self, data):
+        return Message(self.client, data)
+    
+    def convert_ready(self, data):
+        return None
+    
+    def convert_guild_create(self, data):
+        return data
 
     def convert(self, data):
-        func: typing.Callable = self.converters.get('convert_' + data['t'])
+        func: typing.Callable = self.converters.get(data['t'].lower())
         if not func:
             raise NotImplementedError(f"No converter has been implemented for {data['t']}")
         return func(data)
-
-    def convert_message_create(self, data):
-        return Message(self.client, data)

@@ -1,11 +1,11 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 with open("README.md", "r") as file:
     long_des = file.read()
 
 setup(
     name="disthon",
-    packages=[],
+    packages=find_packages(),
     install_requires=["aiohttp", "yarl", "pydantic", "arrow"],
     description="An API wrapper for the discord API written in python",
     version="0.0.1",

@@ -47,8 +47,8 @@ class WebSocket:
         reconnect: typing.Optional[bool] = False
     ):
         if not url:
-            url = self.client.handler.gateway()
-        self.socket = await self.client.handler.connect(url)
+            url = self.client.httphandler.gateway()
+        self.socket = await self.client.httphandler.connect(url)
         await self.receive_events()
         await self.identify()
         if reconnect:
