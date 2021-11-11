@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Any, OrderedDict
 
 if TYPE_CHECKING:
 
-    from .api.handler import Handler
+    from .api.httphandler import HTTPHandler
     from .guild import Guild
     from .message import Message
     from .role import Role
@@ -18,7 +18,7 @@ class LFUCache:
     capacity: int
     _cache: OrderedDict[Snowflake, Any]
     _frequency: dict[Snowflake, int]
-    handler: Handler
+    httphandler: HTTPHandler
 
     def __init__(self, capacity: int) -> None:
         self.capacity = capacity

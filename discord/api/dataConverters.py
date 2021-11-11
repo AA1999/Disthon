@@ -21,17 +21,26 @@ class DataConverter:
             if name.startswith('convert_'):
                 self.converters[name[8:]] = func
 
+    def _get_channel(self, id):
+        return None # TODO: get channel from cache
+
     def convert_message(self, data):
-        return Message(self.client, data)
+        return [Message(self.client, data)]
     
     def convert_ready(self, data):
-        return None
+        return []
     
     def convert_guild_create(self, data):
-        return data
+        return [data]
 
-    def convert(self, data):
-        func: typing.Callable = self.converters.get(data['t'].lower())
+    def convert_presence_update(self, data):
+        return [data]
+
+    def convert_typing_start(self, data):
+        return [data]
+    
+    def convert(self, event, data):
+        func: typing.Callable = self.converters.get(event.removeprefix('on_'))
         if not func:
-            raise NotImplementedError(f"No converter has been implemented for {data['t']}")
+            raise NotImplementedError(f"No converter has been implemented for {event}")
         return func(data)
