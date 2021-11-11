@@ -1,23 +1,23 @@
 from __future__ import annotations
 
-from ..abc.abstractuser import AbstractUser
 from datetime import datetime
+from typing import Optional
+
+from ..abc.abstractuser import AbstractUser
+from ..cache import GuildCache, UserCache
+from ..color import Color
+from ..message import Message
 from ..types.avatar import Avatar
 from ..types.banner import Banner
 from ..types.enums.defaultavatar import DefaultAvatar
 from ..types.enums.userflags import UserFlags
 from ..types.userpayload import UserPayload
-from typing import Optional
-
-from ..cache import GuildCache, UserCache
-from ..color import Color
-from ..message import Message
 
 
 class BaseUser(AbstractUser):
     class Config:
         arbitrary_types_allowed = True
-    
+
     banner: Banner
     system: bool
     display_avatar: Avatar

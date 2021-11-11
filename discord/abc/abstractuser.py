@@ -2,10 +2,9 @@ from __future__ import annotations
 
 from typing import Optional
 
-from .discordobject import DiscordObject
-
 from ..message import Message
 from ..types.avatar import Avatar
+from .discordobject import DiscordObject
 
 
 class AbstractUser(DiscordObject):
@@ -19,7 +18,7 @@ class AbstractUser(DiscordObject):
     @property
     def tag(self):
         return f"{self.username}#{self.discriminator}"
-    
+
     @property
     def discriminator(self):
         return self.discriminator
@@ -27,11 +26,11 @@ class AbstractUser(DiscordObject):
     @property
     def mention(self):
         return f"<@!{self.id}>"
-    
+
     @property
     def name(self):
         return self.username
-    
+
     @property
     def id(self):
         return self.id

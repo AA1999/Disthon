@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 from pydantic import BaseModel
 
-from ..channels.guildchannel import TextChannel, VoiceChannel, ThreadChannel
+from ..channels.guildchannel import TextChannel, ThreadChannel, VoiceChannel
 from ..role import Role
 from ..user.member import Member
 from ..user.user import User

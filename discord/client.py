@@ -7,10 +7,10 @@ import traceback
 import typing
 from copy import deepcopy
 
+from .api.dataConverters import DataConverter
 from .api.httphandler import HTTPHandler
 from .api.intents import Intents
 from .api.websocket import WebSocket
-from .api.dataConverters import DataConverter
 
 
 class Client:
@@ -81,7 +81,10 @@ class Client:
         return wrapper
 
     def add_listener(
-        self, func: typing.Callable, event: typing.Optional[str] = None, overwrite: bool = False
+        self,
+        func: typing.Callable,
+        event: typing.Optional[str] = None,
+        overwrite: bool = False,
     ) -> None:
         event = event or func.__name__
         if not inspect.iscoroutinefunction(func):
@@ -97,7 +100,7 @@ class Client:
     async def handle_event(self, msg):
         event: str = "on_" + msg["t"].lower()
 
-        args = self.converter.convert(event, msg['d'])
+        args = self.converter.convert(event, msg["d"])
 
         for coro in self.events.get(event, []):
             try:

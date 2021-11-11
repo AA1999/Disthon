@@ -1,6 +1,8 @@
 from __future__ import annotations
+
+from typing import TYPE_CHECKING, Optional
+
 from pydantic import BaseModel
-from typing import Optional, TYPE_CHECKING
 
 if TYPE_CHECKING:
     from .client import Client
@@ -12,9 +14,9 @@ class Message(BaseModel):
     content: str
 
     _client: Client
-    
+
     def __init__(self, client, data):
-        super().__init__(_client = client, **data)
+        super().__init__(_client=client, **data)
 
     def __str__(self):
         return self.content
