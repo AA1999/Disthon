@@ -98,7 +98,7 @@ class Handler:
         if content:
             payload["content"] = content
         if embeds:
-            payload["embeds"] = [embed._to_dict() for embed in embeds]
+            payload["embeds"] = [embed.to_dict() for embed in embeds]
         if views:
             payload["components"] = [view._to_dict() for view in views]
 
@@ -133,7 +133,7 @@ class Handler:
         if content:
             payload["content"] = content
         if embeds:
-            payload["embeds"] = [embed._to_dict() for embed in embeds]
+            payload["embeds"] = [embed.to_dict() for embed in embeds]
         if views:
             payload["components"] = [view._to_dict() for view in views]
 
