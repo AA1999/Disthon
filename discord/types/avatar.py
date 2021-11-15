@@ -3,12 +3,12 @@ from __future__ import annotations
 from os.path import splitext
 from typing import Optional
 
-from .enums.validavatarformat import ValidAvatarFormat, ValidStaticAvatarFormat
-from .image import Image
 from yarl import URL
 
 from ..cache import LFUCache
 from ..exceptions import DiscordInvalidArgument
+from .enums.validavatarformat import ValidAvatarFormat, ValidStaticAvatarFormat
+from .image import Image
 
 
 class Avatar(Image):

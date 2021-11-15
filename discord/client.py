@@ -7,10 +7,10 @@ import traceback
 import typing
 from copy import deepcopy
 
+from .api.dataConverters import DataConverter
 from .api.httphandler import HTTPHandler
 from .api.intents import Intents
 from .api.websocket import WebSocket
-from .api.dataConverters import DataConverter
 
 
 class Client:
@@ -30,6 +30,7 @@ class Client:
         self.lock = asyncio.Lock()
         self.closed = False
         self.events = {}
+        self.once_events = {}
         self.converter = DataConverter(self)
 
     async def login(self, token: str) -> None:
@@ -73,15 +74,27 @@ class Client:
         if not future.cancelled():
             return future.result()
 
-    def event(self, event: str = None):
+    def on(self, event: str = None, *, overwrite: bool = False):
         def wrapper(func):
-            self.add_listener(func, event)
+            self.add_listener(func, event, overwrite, once=False)
+            return func
+
+        return wrapper
+
+    def once(self, event: str = None, *, overwrite: bool = False):
+        def wrapper(func):
+            self.add_listener(func, event, overwrite, once=True)
             return func
 
         return wrapper
 
     def add_listener(
-        self, func: typing.Callable, event: typing.Optional[str] = None
+        self,
+        func: typing.Callable,
+        event: typing.Optional[str] = None,
+        *,
+        overwrite: bool = False,
+        once: bool = False,
     ) -> None:
         event = event or func.__name__
         if not inspect.iscoroutinefunction(func):
@@ -89,24 +102,21 @@ class Client:
                 "The callback is not a valid coroutine function. Did you forget to add async before def?"
             )
 
-        if event in self.events:
-            self.events[event].append(func)
-        else:
-            self.events[event] = [func]
+        if once: # if it's a once event
+            if event in self.once_events and not overwrite:
+                self.once_events[event].append(func)
+            else:
+                self.once_events[event] = [func]
+        else: # if it's a regular event
+            if event in self.events and not overwrite:
+                self.events[event].append(func)
+            else:
+                self.events[event] = [func]
 
     async def handle_event(self, msg):
-        print("got event")
-        event: str = "on_" + msg["t"].lower()
+        event: str = msg["t"].lower()
 
-        # create a global on_message event for either guild or dm messages
-        if event in ("on_message_create", "on_dm_message_create"):
-            global_message = deepcopy(msg)
-            global_message["t"] = "MESSAGE"
-            await self.handle_event(global_message)
-        
-        print("converting")
-        args = self.converter.convert(msg)
-        print(args)
+        args = self.converter.convert(event, msg["d"])
 
         for coro in self.events.get(event, []):
             try:
@@ -116,3 +126,14 @@ class Client:
                 traceback.print_exception(
                     type(error), error, error.__traceback__, file=sys.stderr
                 )
+        
+        for coro in self.once_events.get(event, []):
+            try:
+                await coro(*args)
+            except Exception as error:
+                print(f"Ignoring exception in event {coro.__name__}", file=sys.stderr)
+                traceback.print_exception(
+                    type(error), error, error.__traceback__, file=sys.stderr
+                )
+            finally:
+                del self.once_events[coro]

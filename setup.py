@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 with open("README.md", "r") as file:
     long_des = file.read()
@@ -16,11 +16,11 @@ setup(
     author_email="arshia.aghaei@gmail.com",
     url="https://github.com/AA1999/Disthon",
     keywords=["API", "discord"],
-    classifiers = [
+    classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
         "Operating System :: OS Independent",
         "Development Status :: 2 - Pre-Alpha",
         "Intended Audience :: Developers",
-    ]
+    ],
 )

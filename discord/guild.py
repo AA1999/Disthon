@@ -38,7 +38,7 @@ class Guild(DiscordObject):
         "_members",
         "_channels",
         "_vanity",
-        "_banner"
+        "_banner",
     )
 
     _roles: set[Role]

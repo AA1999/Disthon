@@ -2,13 +2,13 @@ from __future__ import annotations
 
 from typing import Optional, TypedDict
 
-from .enums.locale import Locale
-from .enums.userflags import UserFlags
 from pydantic.main import BaseModel
-from .snowflake import Snowflake
 
 from ..types.avatar import Avatar
 from ..types.banner import Banner
+from .enums.locale import Locale
+from .enums.userflags import UserFlags
+from .snowflake import Snowflake
 
 
 class UserPayload(BaseModel):
