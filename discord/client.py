@@ -126,10 +126,12 @@ class Client:
                 traceback.print_exception(
                     type(error), error, error.__traceback__, file=sys.stderr
                 )
-        
-        if hasattr(self, once_events):
-            try:
-                for coro in self.once_events.get(event, []):
+                
+        if hasattr(self, "once_events"):
+            if len(self.once_events) == 0:
+                delattr(self, "once_events")
+            else:
+                for coro in self.once_events.pop(event, []):
                     try:
                         await coro(*args)
                     except Exception as error:
@@ -137,5 +139,3 @@ class Client:
                         traceback.print_exception(
                             type(error), error, error.__traceback__, file=sys.stderr
                         )
-            finally:
-                delattr(self, once_events)
