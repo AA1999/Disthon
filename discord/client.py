@@ -127,13 +127,15 @@ class Client:
                     type(error), error, error.__traceback__, file=sys.stderr
                 )
         
-        for coro in self.once_events.get(event, []):
+        if hasattr(self, once_events):
             try:
-                await coro(*args)
-            except Exception as error:
-                print(f"Ignoring exception in event {coro.__name__}", file=sys.stderr)
-                traceback.print_exception(
-                    type(error), error, error.__traceback__, file=sys.stderr
-                )
+                for coro in self.once_events.get(event, []):
+                    try:
+                        await coro(*args)
+                    except Exception as error:
+                        print(f"Ignoring exception in event {coro.__name__}", file=sys.stderr)
+                        traceback.print_exception(
+                            type(error), error, error.__traceback__, file=sys.stderr
+                        )
             finally:
-                del self.once_events[coro]
+                delattr(self, once_events)
