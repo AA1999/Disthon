@@ -41,7 +41,7 @@ class DataConverter:
         return [data]
 
     def convert(self, event, data):
-        func: typing.Callable = self.converters.get(event.removeprefix("on_"))
+        func: typing.Callable = self.converters.get(event)
         if not func:
             raise NotImplementedError(f"No converter has been implemented for {event}")
         return func(data)

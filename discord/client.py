@@ -30,6 +30,7 @@ class Client:
         self.lock = asyncio.Lock()
         self.closed = False
         self.events = {}
+        self.once_events = {}
         self.converter = DataConverter(self)
 
     async def login(self, token: str) -> None:
@@ -73,9 +74,16 @@ class Client:
         if not future.cancelled():
             return future.result()
 
-    def event(self, event: str = None, *, overwrite: bool = False):
+    def on(self, event: str = None, *, overwrite: bool = False):
         def wrapper(func):
-            self.add_listener(func, event, overwrite)
+            self.add_listener(func, event, overwrite, once=False)
+            return func
+
+        return wrapper
+
+    def once(self, event: str = None, *, overwrite: bool = False):
+        def wrapper(func):
+            self.add_listener(func, event, overwrite, once=True)
             return func
 
         return wrapper
@@ -84,7 +92,9 @@ class Client:
         self,
         func: typing.Callable,
         event: typing.Optional[str] = None,
+        *,
         overwrite: bool = False,
+        once: bool = False,
     ) -> None:
         event = event or func.__name__
         if not inspect.iscoroutinefunction(func):
@@ -92,13 +102,19 @@ class Client:
                 "The callback is not a valid coroutine function. Did you forget to add async before def?"
             )
 
-        if event in self.events and not overwrite:
-            self.events[event].append(func)
-        else:
-            self.events[event] = [func]
+        if once: # if it's a once event
+            if event in self.once_events and not overwrite:
+                self.once_events[event].append(func)
+            else:
+                self.once_events[event] = [func]
+        else: # if it's a regular event
+            if event in self.events and not overwrite:
+                self.events[event].append(func)
+            else:
+                self.events[event] = [func]
 
     async def handle_event(self, msg):
-        event: str = "on_" + msg["t"].lower()
+        event: str = msg["t"].lower()
 
         args = self.converter.convert(event, msg["d"])
 
