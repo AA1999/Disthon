@@ -21,7 +21,7 @@ class Client:
         respond_self: typing.Optional[bool] = False,
         loop: typing.Optional[asyncio.AbstractEventLoop] = None,
     ) -> None:
-        self._loop: asyncio.AbstractEventLoop = loop or asyncio.get_event_loop()
+        self._loop: asyncio.AbstractEventLoop = None # create the event loop when we run our client
         self.intents = intents
         self.respond_self = respond_self
 
@@ -63,16 +63,7 @@ class Client:
         await self.httphandler.close()
 
     def run(self, token: str):
-        def stop_loop_on_completion(_):
-            self._loop.stop()
-
-        future = asyncio.ensure_future(self.alive_loop(token), loop=self._loop)
-        future.add_done_callback(stop_loop_on_completion)
-
-        self._loop.run_forever()
-
-        if not future.cancelled():
-            return future.result()
+        asyncio.run(self.alive_loop(token))
 
     def on(self, event: str = None, *, overwrite: bool = False):
         def wrapper(func):
