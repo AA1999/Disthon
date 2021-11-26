@@ -14,6 +14,13 @@ from .api.websocket import WebSocket
 
 
 class Client:
+
+    async def handle_event_error(self, error):
+        print(f"Ignoring exception in event {error.event.__name__}", file=sys.stderr)
+        traceback.print_exception(
+            type(error), error, error.__traceback__, file=sys.stderr
+        )
+
     def __init__(
         self,
         *,
@@ -29,7 +36,7 @@ class Client:
         self.httphandler = HTTPHandler()
         self.lock = asyncio.Lock()
         self.closed = False
-        self.events = {}
+        self.events = {"event_error": [self.handle_event_error]}
         self.once_events = {}
         self.converter = DataConverter(self)
 
@@ -49,7 +56,7 @@ class Client:
                     )
                 self.ws = await asyncio.wait_for(socket.start(g_url), timeout=30)
 
-            while True:
+            while not self.closed:
                 await self.ws.receive_events()
 
     async def alive_loop(self, token: str) -> None:
@@ -127,10 +134,3 @@ class Client:
             except Exception as error:
                 error.event = coro
                 await self.handle_event({"d": error, "t": "event_error"})
-
-    @on("event_error")
-    async def handle_event_error(self, error):
-        print(f"Ignoring exception in event {error.event.__name__}", file=sys.stderr)
-        traceback.print_exception(
-            type(error), error, error.__traceback__, file=sys.stderr
-        )

@@ -25,6 +25,9 @@ class DataConverter:
     def _get_channel(self, id):
         return None  # TODO: get channel from cache
 
+    def convert_event_error(self, data):
+        return [data]
+
     def convert_message_create(self, data):
         return [Message(self.client, data)]
 
