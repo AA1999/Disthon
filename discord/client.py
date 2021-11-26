@@ -60,8 +60,8 @@ class Client:
             await self.close()
 
     async def close(self) -> None:
-        await self.httphandler.close()
         await self.ws.close()
+        await self.httphandler.close()
         self.loop.close()
 
     def run(self, token: str):

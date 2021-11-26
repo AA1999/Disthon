@@ -23,7 +23,7 @@ class LFUCache:
     def __init__(self, capacity: int) -> None:
         self.capacity = capacity
         self._frequency = {}
-        self.length = 0 
+        self.length = 0
 
     @classmethod
     def _from_lfu(cls, lfu: LFUCache):
