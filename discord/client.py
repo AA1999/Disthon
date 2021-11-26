@@ -21,7 +21,7 @@ class Client:
         respond_self: typing.Optional[bool] = False,
         loop: typing.Optional[asyncio.AbstractEventLoop] = None,
     ) -> None:
-        self._loop: asyncio.AbstractEventLoop = loop or asyncio.get_event_loop()
+        self._loop: asyncio.AbstractEventLoop = None # create the event loop when we run our client
         self.intents = intents
         self.respond_self = respond_self
 
@@ -53,6 +53,7 @@ class Client:
                 await self.ws.receive_events()
 
     async def alive_loop(self, token: str) -> None:
+        self._loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
         await self.login(token)
         try:
             await self.connect()
@@ -60,30 +61,23 @@ class Client:
             await self.close()
 
     async def close(self) -> None:
+        self.closed = True
+        await self.ws.close()
         await self.httphandler.close()
 
     def run(self, token: str):
-        def stop_loop_on_completion(_):
-            self._loop.stop()
-
-        future = asyncio.ensure_future(self.alive_loop(token), loop=self._loop)
-        future.add_done_callback(stop_loop_on_completion)
-
-        self._loop.run_forever()
-
-        if not future.cancelled():
-            return future.result()
+        asyncio.run(self.alive_loop(token))
 
     def on(self, event: str = None, *, overwrite: bool = False):
         def wrapper(func):
-            self.add_listener(func, event, overwrite, once=False)
+            self.add_listener(func, event, overwrite=overwrite, once=False)
             return func
 
         return wrapper
 
     def once(self, event: str = None, *, overwrite: bool = False):
         def wrapper(func):
-            self.add_listener(func, event, overwrite, once=True)
+            self.add_listener(func, event, overwrite=overwrite, once=True)
             return func
 
         return wrapper
@@ -120,20 +114,20 @@ class Client:
 
         for coro in self.events.get(event, []):
             try:
-                await coro(*args)
+                task = self._loop.create_task(coro(*args))
+                await task
             except Exception as error:
                 print(f"Ignoring exception in event {coro.__name__}", file=sys.stderr)
                 traceback.print_exception(
                     type(error), error, error.__traceback__, file=sys.stderr
                 )
         
-        for coro in self.once_events.get(event, []):
+        for coro in self.once_events.pop(event, []):
             try:
-                await coro(*args)
+                task = self._loop.create_task(coro(*args))
+                await task
             except Exception as error:
                 print(f"Ignoring exception in event {coro.__name__}", file=sys.stderr)
                 traceback.print_exception(
                     type(error), error, error.__traceback__, file=sys.stderr
                 )
-            finally:
-                del self.once_events[coro]

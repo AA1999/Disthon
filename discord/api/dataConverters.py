@@ -25,7 +25,7 @@ class DataConverter:
     def _get_channel(self, id):
         return None  # TODO: get channel from cache
 
-    def convert_message(self, data):
+    def convert_message_create(self, data):
         return [Message(self.client, data)]
 
     def convert_ready(self, data):
@@ -38,6 +38,9 @@ class DataConverter:
         return [data]
 
     def convert_typing_start(self, data):
+        return [data]
+
+    def convert_guild_member_update(self, data):
         return [data]
 
     def convert(self, event, data):
