@@ -14,6 +14,13 @@ from .api.websocket import WebSocket
 
 
 class Client:
+
+    async def handle_event_error(self, error):
+        print(f"Ignoring exception in event {error.event.__name__}", file=sys.stderr)
+        traceback.print_exception(
+            type(error), error, error.__traceback__, file=sys.stderr
+        )
+
     def __init__(
         self,
         *,
@@ -29,7 +36,7 @@ class Client:
         self.httphandler = HTTPHandler()
         self.lock = asyncio.Lock()
         self.closed = False
-        self.events = {}
+        self.events = {"event_error": [self.handle_event_error]}
         self.once_events = {}
         self.converter = DataConverter(self)
 
@@ -49,7 +56,7 @@ class Client:
                     )
                 self.ws = await asyncio.wait_for(socket.start(g_url), timeout=30)
 
-            while True:
+            while not self.closed:
                 await self.ws.receive_events()
 
     async def alive_loop(self, token: str) -> None:
@@ -66,7 +73,11 @@ class Client:
         await self.httphandler.close()
 
     def run(self, token: str):
-        asyncio.run(self.alive_loop(token))
+        if not self._loop:
+            asyncio.run(self.alive_loop(token))
+        else:
+            self._loop.run_forever(self.alive_loop(token))
+
 
     def on(self, event: str = None, *, overwrite: bool = False):
         def wrapper(func):
@@ -117,17 +128,13 @@ class Client:
                 task = self._loop.create_task(coro(*args))
                 await task
             except Exception as error:
-                print(f"Ignoring exception in event {coro.__name__}", file=sys.stderr)
-                traceback.print_exception(
-                    type(error), error, error.__traceback__, file=sys.stderr
-                )
+                error.event = coro
+                await self.handle_event({"d": error, "t": "event_error"})
         
         for coro in self.once_events.pop(event, []):
             try:
                 task = self._loop.create_task(coro(*args))
                 await task
             except Exception as error:
-                print(f"Ignoring exception in event {coro.__name__}", file=sys.stderr)
-                traceback.print_exception(
-                    type(error), error, error.__traceback__, file=sys.stderr
-                )
+                error.event = coro
+                await self.handle_event({"d": error, "t": "event_error"})

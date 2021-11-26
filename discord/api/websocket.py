@@ -62,11 +62,8 @@ class WebSocket:
         
     async def close(self) -> None:
         """Closes the websocket"""
-        print("setting closed ws")
         self.closed = True
-        print("ws closing")
         await self.socket.close()
-        print("hb closing")
         self.hb_stop.set()
 
     def keep_alive(self) -> None:
