@@ -79,7 +79,8 @@ class HTTPHandler:
         return await self._session.ws_connect(url, **kwargs)
 
     async def close(self) -> None:
-        await self._session.close()
+        if self._session:
+            await self._session.close()
 
     async def send_message(
         self,

@@ -61,9 +61,15 @@ class Client:
 
     async def close(self) -> None:
         await self.httphandler.close()
+        await self.ws.close()
+        self.loop.close()
 
     def run(self, token: str):
         asyncio.run(self.alive_loop(token))
+
+    def close(self):
+        self.closed = True
+        self.loop.close()
 
     def on(self, event: str = None, *, overwrite: bool = False):
         def wrapper(func):

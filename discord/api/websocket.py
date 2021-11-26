@@ -54,16 +54,21 @@ class WebSocket:
         if reconnect:
             await self.resume()
         else:
-            t = threading.Thread(target=self.keep_alive, daemon=True)
-            t.start()
+            self.hb_t: threading.Thread = threading.Thread(target=self.keep_alive, daemon=True)
+            self.hb_t.start()
             return self
+        
+    async def close(self) -> None:
+        """Closes the websocket"""
+        await self.socket.close()
+        self.hb_t.cancel()
 
     def keep_alive(self) -> None:
         while True:
             time.sleep(self.hb_int)
             if not self.heartbeat_acked:
                 # We have a zombified connection
-                self.socket.close()
+                self.socket.close(code=1000)
                 asyncio.run(self.start(reconnect=True))
             else:
                 asyncio.run(self.heartbeat())
@@ -77,7 +82,7 @@ class WebSocket:
             if len(msg) < 4 or msg[-4:] != b"\x00\x00\xff\xff":
                 return
 
-            msg = self.decompress.decompress(self.buffer)
+            msg: bytes = self.decompress.decompress(self.buffer)
             msg = msg.decode("utf-8")
             self.buffer = bytearray()
 
