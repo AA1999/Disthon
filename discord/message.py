@@ -22,7 +22,7 @@ class Message(BaseModel):
         return self.content
 
     def __repr__(self):
-        return f"<Message id={self.id} Channel id ={self.channel_id} Content={self.content}>"
+        return f"<Message id={self.id} Channel id={self.channel_id} Content={self.content}>"
 
     @property
     def channel(self):
