@@ -80,6 +80,7 @@ class HTTPHandler:
 
     async def close(self) -> None:
         if self._session:
+            print("closing httpsession")
             await self._session.close()
 
     async def send_message(

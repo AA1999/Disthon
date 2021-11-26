@@ -39,6 +39,7 @@ class WebSocket:
         self.token = token
         self.session_id = None
         self.heartbeat_acked = True
+        self.closed: bool = False
 
     async def start(
         self,
@@ -55,17 +56,21 @@ class WebSocket:
             await self.resume()
         else:
             self.hb_t: threading.Thread = threading.Thread(target=self.keep_alive, daemon=True)
+            self.hb_stop: threading.Event = threading.Event()
             self.hb_t.start()
             return self
         
     async def close(self) -> None:
         """Closes the websocket"""
+        print("setting closed ws")
+        self.closed = True
+        print("ws closing")
         await self.socket.close()
-        self.hb_t.cancel()
+        print("hb closing")
+        self.hb_stop.set()
 
     def keep_alive(self) -> None:
-        while True:
-            time.sleep(self.hb_int)
+        while not self.hb_stop.wait(self.hb_int):
             if not self.heartbeat_acked:
                 # We have a zombified connection
                 self.socket.close(code=1000)
@@ -73,14 +78,14 @@ class WebSocket:
             else:
                 asyncio.run(self.heartbeat())
 
-    def on_websocket_message(self, msg: WSMessage) -> dict:
+    def on_websocket_message(self, msg: WSMessage) -> dict: 
         if type(msg) is bytes:
             # always push the message data to your cache
             self.buffer.extend(msg)
 
             # check if last 4 bytes are ZLIB_SUFFIX
             if len(msg) < 4 or msg[-4:] != b"\x00\x00\xff\xff":
-                return
+                return msg
 
             msg: bytes = self.decompress.decompress(self.buffer)
             msg = msg.decode("utf-8")
@@ -99,8 +104,11 @@ class WebSocket:
             aiohttp.WSMsgType.CLOSING,
             aiohttp.WSMsgType.CLOSED,
         ):
-            await self.socket.close()
-            raise ConnectionResetError(msg.extra)
+            if not self.closed:
+                await self.socket.close()
+                raise ConnectionResetError(msg.extra)
+            else:
+                return
 
         msg = json.loads(msg)
 

@@ -53,6 +53,7 @@ class Client:
                 await self.ws.receive_events()
 
     async def alive_loop(self, token: str) -> None:
+        self._loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
         await self.login(token)
         try:
             await self.connect()
@@ -60,16 +61,12 @@ class Client:
             await self.close()
 
     async def close(self) -> None:
+        self.closed = True
         await self.ws.close()
         await self.httphandler.close()
-        self.loop.close()
 
     def run(self, token: str):
         asyncio.run(self.alive_loop(token))
-
-    def close(self):
-        self.closed = True
-        self.loop.close()
 
     def on(self, event: str = None, *, overwrite: bool = False):
         def wrapper(func):
