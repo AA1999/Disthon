@@ -117,17 +117,20 @@ class Client:
                 task = self._loop.create_task(coro(*args))
                 await task
             except Exception as error:
-                print(f"Ignoring exception in event {coro.__name__}", file=sys.stderr)
-                traceback.print_exception(
-                    type(error), error, error.__traceback__, file=sys.stderr
-                )
+                error.event = coro
+                await self.handle_event({"d": error, "t": "event_error"})
         
         for coro in self.once_events.pop(event, []):
             try:
                 task = self._loop.create_task(coro(*args))
                 await task
             except Exception as error:
-                print(f"Ignoring exception in event {coro.__name__}", file=sys.stderr)
-                traceback.print_exception(
-                    type(error), error, error.__traceback__, file=sys.stderr
-                )
+                error.event = coro
+                await self.handle_event({"d": error, "t": "event_error"})
+
+    @on("event_error")
+    async def handle_event_error(self, error):
+        print(f"Ignoring exception in event {error.event.__name__}", file=sys.stderr)
+        traceback.print_exception(
+            type(error), error, error.__traceback__, file=sys.stderr
+        )
