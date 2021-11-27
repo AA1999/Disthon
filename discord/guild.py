@@ -9,6 +9,7 @@ from .types.snowflake import Snowflake
 from .user.member import Member
 from .user.user import User
 
+
 if TYPE_CHECKING:
     from .role import Role
 
@@ -41,6 +42,7 @@ class Guild(DiscordObject):
         "_banner",
     )
 
+    id: Snowflake
     _roles: set[Role]
     me: Member
     owner_id: Snowflake
