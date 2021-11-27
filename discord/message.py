@@ -1,19 +1,25 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
+
+from .types.snowflake import Snowflake
 
 if TYPE_CHECKING:
     from .client import Client
 
 
 class Message(BaseModel):
-    id: int
-    channel_id: int
+    id: Snowflake
+    channel_id: Snowflake
+    guild_id: Snowflake
     content: str
 
     _client: Client
+
+    class Config:
+        arbitrary_types_allowed = True
 
     def __init__(self, client, data):
         super().__init__(_client=client, **data)
@@ -27,3 +33,5 @@ class Message(BaseModel):
     @property
     def channel(self):
         return self._client.converter._get_channel(self.channel_id)
+
+
