@@ -55,11 +55,13 @@ class WebSocket:
         if reconnect:
             await self.resume()
         else:
-            self.hb_t: threading.Thread = threading.Thread(target=self.keep_alive, daemon=True)
+            self.hb_t: threading.Thread = threading.Thread(
+                target=self.keep_alive, daemon=True
+            )
             self.hb_stop: threading.Event = threading.Event()
             self.hb_t.start()
             return self
-        
+
     async def close(self) -> None:
         """Closes the websocket"""
         self.closed = True
@@ -75,7 +77,7 @@ class WebSocket:
             else:
                 asyncio.run(self.heartbeat())
 
-    def on_websocket_message(self, msg: WSMessage) -> dict: 
+    def on_websocket_message(self, msg: WSMessage) -> dict:
         if type(msg) is bytes:
             # always push the message data to your cache
             self.buffer.extend(msg)
