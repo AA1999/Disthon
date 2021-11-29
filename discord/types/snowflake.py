@@ -23,7 +23,7 @@ class Snowflake(BaseModel):
             return self.id < int(other)
         if isinstance(other, Snowflake):
             return self.id < other.id
-        raise NotImplementedError
+        return NotImplemented
 
     def __le__(self, other: object):
         return self.__eq__(other) or self.__lt__(other)
