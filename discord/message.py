@@ -18,9 +18,6 @@ class Message(BaseModel):
 
     _client: Client
 
-    class Config:
-        arbitrary_types_allowed = True
-
     def __init__(self, client, data):
         super().__init__(_client=client, **data)
 
@@ -28,10 +25,8 @@ class Message(BaseModel):
         return self.content
 
     def __repr__(self):
-        return f"<Message id={self.id} Channel id ={self.channel_id} Content={self.content}>"
+        return f"<Message id={self.id} content={self.content} channel_id ={self.channel_id} guild_id={self.guild_id}>"
 
     @property
     def channel(self):
         return self._client.converter._get_channel(self.channel_id)
-
-
