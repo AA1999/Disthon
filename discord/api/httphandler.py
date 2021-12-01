@@ -97,7 +97,7 @@ class HTTPHandler:
         payload = {}
 
         if content:
-            payload["content"] = content
+            payload["content"] = str(content)
         if embeds:
             payload["embeds"] = [embed._to_dict() for embed in embeds]
         if views:
