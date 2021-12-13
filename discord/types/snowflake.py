@@ -22,7 +22,7 @@ class Snowflake(int):
     
     @property
     def created_at(self):
-        return datetime.datetime.fromtimestamp(self.timestamp)  # TODO: Fix this
+        return datetime.datetime.fromtimestamp(self.timestamp / 1000)
 
     @classmethod
     def __get_validators__(cls):
