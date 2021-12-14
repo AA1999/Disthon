@@ -6,7 +6,7 @@ __all__ = ("Snowflake",)
 class Snowflake(int):
     @property
     def timestamp(self):
-        return (self >> 22) + 1420070400000
+        return ((self >> 22) + 1420070400000) / 1000
 
     @property
     def worker_id(self):
@@ -22,7 +22,7 @@ class Snowflake(int):
     
     @property
     def created_at(self):
-        return datetime.datetime.fromtimestamp(self.timestamp / 1000)
+        return datetime.datetime.fromtimestamp(self.timestamp)
 
     @classmethod
     def __get_validators__(cls):
