@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 __all__ = ("RoleTags", "Role")
 
-from .cache import RoleCache
+from .cache import LFUCache
 from .types.rolepayload import RolePayload, RoleTagsPayload
 from .types.snowflake import Snowflake
 
@@ -55,7 +55,7 @@ class Role(DiscordObject):
     )
 
     _guild: Guild
-    _cache: RoleCache
+    _cache: LFUCache
     _id: Snowflake
     _name: str
     _color: Color
@@ -66,7 +66,7 @@ class Role(DiscordObject):
     _mentionable: bool
     _tags: Optional[RoleTags]
 
-    def __init__(self, guild: Guild, cache: RoleCache, payload: RolePayload):
+    def __init__(self, guild: Guild, cache: LFUCache, payload: RolePayload):
         self._guild = guild
         self._cache = cache
         self._id = payload["id"]
