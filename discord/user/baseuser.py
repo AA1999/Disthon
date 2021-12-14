@@ -4,7 +4,7 @@ from datetime import datetime
 from typing import Optional
 
 from ..abc.abstractuser import AbstractUser
-from ..cache import GuildCache, UserCache
+from ..cache import LFUCache
 from ..color import Color
 from ..message import Message
 from ..types.avatar import Avatar
@@ -23,10 +23,10 @@ class BaseUser(AbstractUser):
     display_avatar: Avatar
     display_name: str
     public_flags: UserFlags
-    _cache: UserCache
-    guilds: GuildCache
+    _cache: LFUCache
+    guilds: LFUCache
 
-    def __init__(self, cache: UserCache, guilds: GuildCache, payload: UserPayload):
+    def __init__(self, cache: LFUCache, guilds: LFUCache, payload: UserPayload):
         self._cache = cache
         self.guilds = guilds
         self._id = payload.id
