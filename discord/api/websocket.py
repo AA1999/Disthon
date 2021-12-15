@@ -12,6 +12,10 @@ from copy import deepcopy
 import aiohttp
 from aiohttp.http_websocket import WSMessage, WSMsgType
 
+from ..cache import LFUCache
+from ..guild import Guild
+from ..types.snowflake import Snowflake
+
 if typing.TYPE_CHECKING:
     from ..client import Client
 
@@ -40,6 +44,10 @@ class WebSocket:
         self.session_id = None
         self.heartbeat_acked = True
         self.closed: bool = False
+
+        self.guild_cache = LFUCache[Snowflake, Guild](1000)
+        self.member_cache = LFUCache[Snowflake, dict](5000)
+        self.user_cache = LFUCache[Snowflake, dict](5000)
 
     async def start(
         self,
