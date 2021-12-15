@@ -23,36 +23,6 @@ class BaseUser(AbstractUser):
     display_avatar: Avatar
     display_name: str
     public_flags: UserFlags
-    _cache: LFUCache
-    guilds: LFUCache
-
-    def __init__(self, cache: LFUCache, guilds: LFUCache, payload: UserPayload):
-        self._cache = cache
-        self.guilds = guilds
-        self._id = payload.id
-        self._created_at = datetime.utcnow()
-        self.avatar = payload.avatar
-        self.username = payload.username
-        self.discriminator = payload.discriminator
-        self.banner = payload.banner
-        self.public_flags = payload.flags
-        self.system = payload.system or False
-        self.bot = payload.bot or False
-
-    @classmethod
-    def _from_user(cls, user: BaseUser) -> BaseUser:
-        self = cls.__new__(cls)
-        self.avatar = user.avatar or user.default_avatar
-        self.banner = user.banner
-        self._cache = user._cache
-        self._created_at = user.created_at
-        self.discriminator = user.discriminator
-        self.display_name = user.display_name
-        self._id = user.id
-        self.public_flags = user.public_flags
-        self.system = user.system
-        self.username = user.username
-        return self
 
     async def create_dm(self):
         pass
