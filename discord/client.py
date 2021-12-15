@@ -138,3 +138,9 @@ class Client:
             except Exception as error:
                 error.event = coro
                 await self.handle_event({"d": error, "t": "event_error"})
+
+    def get_guild(self, id: int):
+        return self.ws.guild_cache.get(id)
+
+    def get_user(self, id: int):
+        return self.ws.user_cache.get(id)
