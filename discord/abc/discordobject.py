@@ -10,7 +10,6 @@ from ..types.snowflake import Snowflake
 class DiscordObject(BaseModel):
 
     id: Snowflake
-    created_at: datetime
 
     def __ne__(self, other):
         return not self.__eq__(other)
