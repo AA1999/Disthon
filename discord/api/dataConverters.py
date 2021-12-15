@@ -1,18 +1,10 @@
 import inspect
 import typing
 
-from ..activity.activity import Activity
-from ..channels.dmchannel import DMChannel
-from ..channels.guildchannel import TextChannel, VoiceChannel
-from ..color import Color
-from ..embeds import Embed
-from ..guild import Guild
-from ..interactions.components import Component, View
-from ..message import Message
-from ..role import Role
-from ..user.member import Member
-from ..user.user import User
+from discord.types.snowflake import Snowflake
 
+from ..guild import Guild
+from ..message import Message
 
 class DataConverter:
     def __init__(self, client):
@@ -35,7 +27,15 @@ class DataConverter:
         return []
 
     def convert_guild_create(self, data):
-        return [data]
+        members = data["members"]
+        guild = Guild(**data)
+        self.client.ws.guild_cache[Snowflake(data["id"])] = guild
+        
+        for member in members:
+            self.client.ws.member_cache[Snowflake(member["user"]["id"])] = member
+            self.client.ws.user_cache[Snowflake(member["user"]["id"])] = member["user"]
+
+        return [guild]
 
     def convert_presence_update(self, data):
         return [data]
@@ -49,5 +49,5 @@ class DataConverter:
     def convert(self, event, data):
         func: typing.Callable = self.converters.get(event)
         if not func:
-            raise NotImplementedError(f"No converter has been implemented for {event}")
+            return data
         return func(data)
