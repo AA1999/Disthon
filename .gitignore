@@ -132,3 +132,5 @@ dmypy.json
 #pycharm and vscode folders
 .vscode
 .idea
+
+.DS_Store
