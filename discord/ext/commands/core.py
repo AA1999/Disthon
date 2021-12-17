@@ -6,6 +6,11 @@ from typing import Optional, Any, Callable, Iterable
 from discord.message import Message
 
 
+NOT_ASYNC_FUNCTION_MESSAGE = (
+    "{0} must be coroutine.\nMaybe you forgot to add the 'async' keyword?."
+)
+
+
 class Command:
     def __init__(
         self,
@@ -19,9 +24,7 @@ class Command:
         **kwargs
     ):
         if not asyncio.iscoroutinefunction(callback):
-            raise ValueError(
-                "Callback must be coroutine.\nMaybe you forgot to add the 'async' keyword?."
-            )
+            raise ValueError(NOT_ASYNC_FUNCTION_MESSAGE.format("Command callback"))
 
         self._callback = callback
         self.name = name or self._callback.__name__
@@ -43,14 +46,39 @@ class Command:
     def callback(self):
         return self._callback
 
-    async def __call__(self, message: Message, *args, **kwargs):
-        await self.callback(message, *args, **kwargs)
+    def add_check(self, function: Callable[[Message], bool]):
+        if not asyncio.iscoroutinefunction(function):
+           raise ValueError(NOT_ASYNC_FUNCTION_MESSAGE.format("Command error handler"))
+
+        self.checks.append(function)
 
     def error(self, function):
         if not asyncio.iscoroutinefunction(function):
-            raise ValueError(
-                "Command error handler must be coroutine.\nMaybe you forgot to add the 'async' keyword?."
-            )
+            raise ValueError(NOT_ASYNC_FUNCTION_MESSAGE.format("Command error handler"))
 
         self.on_error = function
         return function
+
+    async def execute(self, message: Message, *args, **kwargs):
+        for check in self.checks:
+            await check(message)
+
+        try:
+            await self.callback(message, *args, **kwargs)
+        except Exception as error:
+            if self.on_error:
+                await self.on_error(message, error)
+            else:
+                raise error
+
+    async def __call__(self, message: Message, *args, **kwargs):
+        await self.callback(message, *args, **kwargs)
+
+
+def check(function: Callable[[Message], bool]):
+
+    def inner(command: Command):
+        command.add_check(function)
+        return command
+
+    return inner
