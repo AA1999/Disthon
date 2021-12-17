@@ -47,9 +47,6 @@ class Command:
         return self._callback
 
     def add_check(self, function: Callable[[Message], bool]):
-        if not asyncio.iscoroutinefunction(function):
-           raise ValueError(NOT_ASYNC_FUNCTION_MESSAGE.format("Command error handler"))
-
         self.checks.append(function)
 
     def error(self, function):
@@ -61,7 +58,10 @@ class Command:
 
     async def execute(self, message: Message, *args, **kwargs):
         for check in self.checks:
-            await check(message)
+            if asyncio.iscoroutinefunction(check):
+                await check(message)
+            else:
+                check(message)
 
         try:
             await self.callback(message, *args, **kwargs)
