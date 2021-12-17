@@ -14,6 +14,7 @@ class Message(BaseModel):
     id: Snowflake
     channel_id: Snowflake
     guild_id: Snowflake
+    author: dict
     content: str
 
     _client: Client
