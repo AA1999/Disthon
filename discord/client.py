@@ -31,7 +31,7 @@ class Client:
         command, args = self.command_parser.parse_message(message)
 
         if command:
-            await command(message, *args)
+            await command.execute(message, *args)
 
     def __init__(
         self,
