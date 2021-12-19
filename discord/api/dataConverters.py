@@ -49,5 +49,5 @@ class DataConverter:
     def convert(self, event, data):
         func: typing.Callable = self.converters.get(event)
         if not func:
-            return [data]
+            return data
         return func(data)

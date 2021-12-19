@@ -5,13 +5,12 @@ import inspect
 import sys
 import traceback
 import typing
+from copy import deepcopy
 
 from .api.dataConverters import DataConverter
 from .api.httphandler import HTTPHandler
 from .api.intents import Intents
 from .api.websocket import WebSocket
-from discord.commands import Command
-from discord.commands.parser import CommandParser
 
 
 class Client:
@@ -22,22 +21,11 @@ class Client:
             type(error), error, error.__traceback__, file=sys.stderr
         )
 
-    async def handle_commands(self, message):
-        if message.author.get("bot"):
-            return
-
-        command, args = self.command_parser.parse_message(message)
-
-        if command:
-            await command.execute(message, *args)
-
     def __init__(
         self,
-        command_prefix: str,
         *,
         intents: typing.Optional[Intents] = Intents.default(),
         respond_self: typing.Optional[bool] = False,
-        case_sensitive: bool=True,
         loop: typing.Optional[asyncio.AbstractEventLoop] = None,
     ) -> None:
         self._loop: asyncio.AbstractEventLoop = None # create the event loop when we run our client
@@ -48,14 +36,9 @@ class Client:
         self.httphandler = HTTPHandler()
         self.lock = asyncio.Lock()
         self.closed = False
-        self.events = {"message_create": [self.handle_commands], "event_error": [self.handle_event_error]}
+        self.events = {"event_error": [self.handle_event_error]}
         self.once_events = {}
-
-        self.command_prefix = command_prefix
-        self.commands: typing.Dict[str, Command] = {}
-
         self.converter = DataConverter(self)
-        self.command_parser = CommandParser(self.command_prefix, self.commands, case_sensitive)
 
     async def login(self, token: str) -> None:
         self.token = token
@@ -109,14 +92,6 @@ class Client:
             return func
 
         return wrapper
-
-    def command(self, name=None, **kwargs):
-        def inner(func) -> Command:
-            command = Command(func, name, **kwargs)
-            self.commands[command.name] = command
-            return command
-
-        return inner
 
     def add_listener(
         self,
