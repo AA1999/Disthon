@@ -12,8 +12,8 @@ from .api.dataConverters import DataConverter
 from .api.httphandler import HTTPHandler
 from .api.intents import Intents
 from .api.websocket import WebSocket
-from .ext.commands.core import Command
-from .ext.commands.parser import CommandParser
+from .commands.core import Command
+from .commands.parser import CommandParser
 
 
 class Client:
