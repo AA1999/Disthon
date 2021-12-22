@@ -1,5 +1,4 @@
 import asyncio
-import inspect
 import re
 from typing import Optional, Any, Callable, Iterable
 
@@ -40,7 +39,6 @@ class Command:
 
         self.checks = []
         self.description = kwargs.get("description") or self._callback.__doc__
-        self.signature = inspect.signature(self._callback)
         self.on_error: Optional[Callable[[Any], Any]] = None
 
     @property
