@@ -4,6 +4,7 @@ import re
 from typing import Optional, Any, Callable, Iterable
 
 from discord.message import Message
+from .errors import CheckFailure
 
 
 NOT_ASYNC_FUNCTION_MESSAGE = (
@@ -59,9 +60,12 @@ class Command:
     async def execute(self, message: Message, *args, **kwargs):
         for check in self.checks:
             if asyncio.iscoroutinefunction(check):
-                await check(message)
+                result = await check(message)
             else:
-                check(message)
+                result = check(message)
+
+            if result is not True:
+                raise CheckFailure(self)
 
         try:
             await self.callback(message, *args, **kwargs)
