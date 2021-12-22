@@ -28,10 +28,10 @@ class Client:
         if message.author.get("bot"):
             return
 
-        command, args = self.command_parser.parse_message(message)
+        command, args, kwargs, extra_kwargs = self.command_parser.parse_message(message)
 
         if command:
-            await command.execute(message, *args)
+            await command.execute(message, *args, **kwargs, **extra_kwargs)
 
     def __init__(
         self,
