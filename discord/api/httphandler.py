@@ -82,6 +82,17 @@ class HTTPHandler:
         if self._session:
             await self._session.close()
 
+    async def get_from_cdn(self, url: str) -> bytes:
+        async with self._session.get(url) as response:
+            if response.status == 200:
+                return await response.read()
+            elif response.status == 404:
+                raise DiscordNotFound("asset not found")
+            elif response.status == 403:
+                raise DiscordForbidden("cannot retrieve asset")
+            else:
+                raise DiscordHTTPException("failed to get asset", response.status)
+
     async def send_message(
         self,
         channel_id: int,
@@ -99,7 +110,7 @@ class HTTPHandler:
         if content:
             payload["content"] = content
         if embeds:
-            payload["embeds"] = [embed._to_dict() for embed in embeds]
+            payload["embeds"] = [embed.dict() for embed in embeds]
         if views:
             payload["components"] = [view._to_dict() for view in views]
 

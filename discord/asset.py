@@ -1,15 +1,18 @@
 import io
-from typing import Union
+from typing import Union, TYPE_CHECKING
 
 from pydantic import BaseModel
 
-from discord import Client
+
+if TYPE_CHECKING:
+    from discord import Client
 
 
 CDN_URL = "https://cdn.discordapp.com"
 
+
 class Asset(BaseModel):
-    _client: Client
+    _client: "Client"
     url: str
 
     async def read(self):
