@@ -8,9 +8,6 @@ if TYPE_CHECKING:
     from discord import Client
 
 
-CDN_URL = "https://cdn.discordapp.com"
-
-
 class Asset(BaseModel):
     _client: "Client"
     url: str
