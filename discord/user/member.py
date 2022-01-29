@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import TYPE_CHECKING, List, Optional, Any
+from typing import List, Optional, Any
 
 from pydantic import validator
+import arrow
 
 from .user import User
 from ..asset import Asset
-from ..types.image import Image
 from ..types.snowflake import Snowflake
 
 
@@ -15,7 +15,7 @@ def validate_dt(val):
     if val is None:
         return val
 
-    return datetime.fromisoformat(str(val))
+    return arrow.get(str(val))
 
 
 class Member(User):
