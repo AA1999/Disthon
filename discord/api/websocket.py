@@ -13,6 +13,7 @@ import aiohttp
 from aiohttp.http_websocket import WSMessage, WSMsgType
 
 from ..cache import LFUCache
+from ..channels.basechannel import BaseChannel
 from ..guild import Guild
 from ..types.snowflake import Snowflake
 
@@ -46,6 +47,7 @@ class WebSocket:
         self.closed: bool = False
 
         self.guild_cache = LFUCache[Snowflake, Guild](1000)
+        self.channel_cache = LFUCache[Snowflake, BaseChannel](5000)
         self.member_cache = LFUCache[Snowflake, dict](5000)
         self.user_cache = LFUCache[Snowflake, dict](5000)
 
