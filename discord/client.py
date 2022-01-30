@@ -11,11 +11,9 @@ from .api.dataConverters import DataConverter
 from .api.httphandler import HTTPHandler
 from .api.intents import Intents
 from .api.websocket import WebSocket
-<<<<<<< HEAD
+
 from .commands.core import Command
 from .commands.parser import CommandParser
-=======
->>>>>>> Converters
 
 
 class Client:
@@ -26,7 +24,6 @@ class Client:
             type(error), error, error.__traceback__, file=sys.stderr
         )
 
-<<<<<<< HEAD
     async def handle_commands(self, message):
         if message.author.get("bot"):
             return
@@ -36,8 +33,6 @@ class Client:
         if command:
             await command.execute(message, *args, **kwargs, **extra_kwargs)
 
-=======
->>>>>>> Converters
     def __init__(
         self,
         *,
