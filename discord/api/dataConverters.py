@@ -2,6 +2,7 @@ import inspect
 import typing
 
 from discord.types.snowflake import Snowflake
+from ..channels.guildchannel import TextChannel
 
 from ..guild import Guild
 from ..message import Message
@@ -24,7 +25,7 @@ class DataConverter:
         return [data]
 
     def convert_message_create(self, data):
-        return [Message(self.client, data)]
+        return [Message(self.client, **data)]
 
     def convert_ready(self, data):
         return []
@@ -43,6 +44,9 @@ class DataConverter:
 
             self.client.ws.member_cache[Snowflake(user_data["id"])] = Member(self.client, **member_data, **user_data)
             self.client.ws.user_cache[Snowflake(user_data["id"])] = User(self.client, **user_data)
+
+        for channel_data in data["channels"]:
+            self.client.ws.channel_cache[Snowflake(channel_data["id"])] = TextChannel(self.client, **channel_data)
 
         return [guild]
 
