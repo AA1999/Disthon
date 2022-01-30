@@ -67,7 +67,7 @@ class WebSocket:
             self.hb_stop: threading.Event = threading.Event()
             self.hb_t.start()
             return self
-        
+
     async def close(self) -> None:
         """Closes the websocket"""
         self.closed = True

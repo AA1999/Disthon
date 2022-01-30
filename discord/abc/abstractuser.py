@@ -9,11 +9,6 @@ from .discordobject import DiscordObject
 
 class AbstractUser(DiscordObject):
 
-    avatar: Optional[Avatar]
-    bot: bool
-    username: str
-    discriminator: str
-    id: int
 
     @property
     def tag(self):

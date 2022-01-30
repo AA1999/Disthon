@@ -1,4 +1,4 @@
-import datetime
+import arrow
 
 __all__ = ("Snowflake",)
 
@@ -22,7 +22,7 @@ class Snowflake(int):
     
     @property
     def created_at(self):
-        return datetime.datetime.fromtimestamp(self.timestamp)
+        return arrow.get(self.timestamp)
 
     @classmethod
     def __get_validators__(cls):

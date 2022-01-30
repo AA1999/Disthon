@@ -5,6 +5,9 @@ from discord.types.snowflake import Snowflake
 
 from ..guild import Guild
 from ..message import Message
+from ..user.user import User
+from ..user.member import Member
+
 
 class DataConverter:
     def __init__(self, client):
@@ -28,12 +31,18 @@ class DataConverter:
 
     def convert_guild_create(self, data):
         members = data["members"]
-        guild = Guild(**data)
+        guild = Guild(self.client, **data)
         self.client.ws.guild_cache[Snowflake(data["id"])] = guild
         
-        for member in members:
-            self.client.ws.member_cache[Snowflake(member["user"]["id"])] = member
-            self.client.ws.user_cache[Snowflake(member["user"]["id"])] = member["user"]
+        for member_data in members:
+            user_data = member_data["user"]
+            member_data.pop("user", None)
+            member_data["guild"] = guild
+            member_data["guild_avatar"] = member_data.get("avatar")
+            member_data.pop("avatar", None)
+
+            self.client.ws.member_cache[Snowflake(user_data["id"])] = Member(self.client, **member_data, **user_data)
+            self.client.ws.user_cache[Snowflake(user_data["id"])] = User(self.client, **user_data)
 
         return [guild]
 
@@ -49,5 +58,5 @@ class DataConverter:
     def convert(self, event, data):
         func: typing.Callable = self.converters.get(event)
         if not func:
-            return data
+            return [data]
         return func(data)

@@ -1,27 +1,44 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from datetime import datetime
+from typing import List, Optional, Any
+
+from pydantic import validator
+import arrow
 
 from .user import User
+from ..asset import Asset
+from ..types.snowflake import Snowflake
 
-if TYPE_CHECKING:
-    from ..guild import Guild
-    from ..role import Role
+
+def validate_dt(val):
+    if val is None:
+        return val
+
+    return arrow.get(str(val))
 
 
 class Member(User):
-    _top_role: Role
-    _roles: set[Role]
-    _guild: Guild
+    nick: Optional[str] = None
+    guild_avatar: Optional[Asset] = None
+    roles: List[Snowflake]
+    guild: Any
+    joined_at: datetime
+    premium_since: Optional[datetime] = None
+    deaf: Optional[bool]
+    mute: Optional[bool]
+    pending: Optional[bool]
+    permissions: Optional[str] = None
+    communication_disabled_until: Optional[datetime] = None
 
-    @property
-    def top_role(self):
-        return self._top_role
+    @validator("joined_at")
+    def validate_joined_at(cls, val):
+        return validate_dt(val)
 
-    @property
-    def roles(self):
-        return self._roles
+    @validator("premium_since")
+    def validate_premium_since(cls, val):
+        return validate_dt(val)
 
-    @property
-    def guild(self):
-        return self._guild
+    @validator("communication_disabled_until")
+    def validate_communication_disabled_until(cls, val):
+        return validate_dt(val)
