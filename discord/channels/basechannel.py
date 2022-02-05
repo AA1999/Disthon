@@ -5,22 +5,11 @@ from ..types.snowflake import Snowflake
 
 
 class BaseChannel(DiscordObject):
-    __slots__ = ("_id", "_name", "_mention")
-
-    _id: Snowflake
-    _name: str
-
-    @property
-    def id(self) -> Snowflake:
-        return self._id
-
-    @property
-    def name(self):
-        return self._name
+    name: str
 
     @property
     def mention(self):
-        return f"<#{self._id}>"
+        return f"<#{self.id}>"
 
     @property
     def created_at(self):
