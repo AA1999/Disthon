@@ -59,6 +59,18 @@ class DataConverter:
     def convert_guild_member_update(self, data):
         return [data]
 
+    def convert_interaction_create(self, payload):
+        message = payload.get("message")
+
+        if message:
+            message = Message(self.client, **payload)
+
+        if payload["type"] == 3:
+            component = self.client.httphandler.component_cache.get(payload["data"]["custom_id"])
+            self.client._loop.create_task(component.run_callback(message, payload["data"]))
+
+        return [payload]
+
     def convert(self, event, data):
         func: typing.Callable = self.converters.get(event)
         if not func:
