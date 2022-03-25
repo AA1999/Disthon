@@ -17,7 +17,6 @@ from .types.snowflake import Snowflake
 
 
 class RoleTags:
-    __slots__ = ("_bot_id", "_integration_id", "_premium_subscriber")
     _bot_id: Snowflake
     _integration_id: Snowflake
     _premium_subscriber: bool
