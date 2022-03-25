@@ -19,6 +19,8 @@ class HTTPHandler:
         self.base_url: str = "https://discord.com/api/v9/"
         self.user_agent: str = "Disthon Discord API wrapper V0.0.1b"
 
+        self.component_cache = {}
+
     async def request(
         self,
         method: str,
@@ -109,20 +111,30 @@ class HTTPHandler:
 
         if content:
             payload["content"] = content
+
         if embeds:
             payload["embeds"] = [embed.dict() for embed in embeds]
+
         if views:
-            payload["components"] = [view._to_dict() for view in views]
+            def _cache_view_components(view: View):
+                for component in view.components:
+                    self.component_cache[str(component.custom_id)] = component
+                return view._to_dict()
+
+            payload["components"] = [_cache_view_components(view) for view in views]
 
         data = await self.request(
             "POST", f"channels/{channel_id}/messages", data=payload
         )
         try:
             if isinstance(data, dict):
-                if data["code"] == 50008:
-                    raise DiscordChannelNotFound
-                elif data["code"] == 10003:
-                    raise DiscordChannelForbidden
+                code = data["code"]
+                if code == 50008:
+                    raise DiscordChannelNotFound()
+                elif code == 10003:
+                    raise DiscordChannelForbidden()
+                else:
+                    raise DiscordHTTPException(data.get("message"), code)
         except KeyError:
             return data
 
