@@ -1,9 +1,43 @@
-from typing import Any, Dict, List, Optional
+from __future__ import annotations
 
-from discord.user.user import User
+from typing import Optional, Any
 
-from discord.abc.discordobject import DiscordObject
+from pydantic import BaseModel
+
+from discord import Message
+from discord.abc.messageable import Messageable
+from discord.commands import Command
 
 
-class Context:
-    pass
+class Context(BaseModel, Messageable):
+    """The context model which will be used in commands"""
+    class Config:
+        arbitrary_types_allowed = True
+
+    client: Any
+    message: Message
+    command: Optional[Command] = None
+
+    @property
+    def _client(self):
+        return self.client  # Make an alias for client because Messageable uses it
+
+    @property
+    def guild(self):
+        """The guild the command was used in"""
+        return self.message.guild
+
+    @property
+    def channel(self):
+        """The channel the command was used in"""
+        return self.message.channel
+
+    @property
+    def author(self):
+        return self.message.author
+
+    def _get_channel(self):
+        return self.channel
+
+
+Context.update_forward_refs()
