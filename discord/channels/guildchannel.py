@@ -11,29 +11,12 @@ if TYPE_CHECKING:
 
 
 class TextChannel(BaseChannel):
-    __slots__ = ("name", "id", "guild", "nsfw", "category_id", "position", "topic")
+    ...
 
 
 class ThreadChannel(BaseChannel):
-    __slots__ = (
-        "name",
-        "id",
-        "guild",
-        "nsfw",
-        "category_id",
-        "position",
-        "topic",
-        "parent",
-    )
+    ...
 
 
 class VoiceChannel(BaseChannel):
-    __slots__ = (
-        "name",
-        "id",
-        "guild",
-        "bitrate",
-        "user_limit",
-        "category_id",
-        "position",
-    )
+    ...
