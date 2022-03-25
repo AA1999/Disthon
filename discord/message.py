@@ -1,13 +1,22 @@
 from __future__ import annotations
 
+from typing import Optional
+
 from .abc.discordobject import DiscordObject
 from .types.snowflake import Snowflake
+from .user.user import User
 
 
 class Message(DiscordObject):
     channel_id: Snowflake
-    guild_id: Snowflake
-    content: str
+    guild_id: Optional[Snowflake] = None
+    content: Optional[str]
+    author: Optional[User] = None
+
+    def __init__(self, client, **data):
+        if data.get("author"):
+            data["author"] = User(client, **data["author"])
+        super().__init__(client, **data)
 
     def __str__(self):
         return self.content
