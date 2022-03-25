@@ -56,11 +56,13 @@ class CommandParser:
         return positional_arguments, kwargs, extra_kwargs
 
     def parse_message(self, message: Message):
+        empty = None, [], {}, {}
+
         if not self.commands:
-            return None, []
+            return empty
 
         if not message.content.startswith(self.command_prefix):
-            return None, []
+            return empty
 
         no_prefix = self.remove_prefix(message.content)  # The content of the message but without the command_prefix
 
@@ -86,6 +88,6 @@ class CommandParser:
                         "First match group of command regex does not exist"
                     )
 
-                return regex_command, *self.get_args(command, no_prefix, prefix=prefix)
+                return regex_command, *self.get_args(regex_command, no_prefix, prefix=prefix)
 
-        return None, []
+        return empty
