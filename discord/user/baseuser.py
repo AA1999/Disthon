@@ -3,10 +3,7 @@ from __future__ import annotations
 from typing import Optional
 
 from ..abc.discordobject import DiscordObject
-from ..asset import Asset
 from ..color import Color
-from ..message import Message
-from ..types.avatar import Avatar
 from ..types.banner import Banner
 from ..types.enums.premiumtype import PremiumType
 from ..types.enums.userflags import UserFlags
