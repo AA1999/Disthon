@@ -16,6 +16,10 @@ from .commands.core import Command
 from .commands.parser import CommandParser
 
 
+if typing.TYPE_CHECKING:
+    from . import Message
+
+
 class Client:
 
     async def handle_event_error(self, error):
@@ -24,23 +28,19 @@ class Client:
             type(error), error, error.__traceback__, file=sys.stderr
         )
 
-    async def handle_commands(self, message):
-        if message.author.get("bot"):
-            return
-
-        command, args, kwargs, extra_kwargs = self.command_parser.parse_message(message)
-
-        if command:
-            await command.execute(message, *args, **kwargs, **extra_kwargs)
+    async def handle_commands(self, message: Message):
+        await self.process_commands(message)
 
     def __init__(
         self,
+        command_prefix: str,
         *,
         intents: typing.Optional[Intents] = Intents.default(),
         respond_self: typing.Optional[bool] = False,
+        case_sensitive: bool=True,
         loop: typing.Optional[asyncio.AbstractEventLoop] = None,
     ) -> None:
-        self._loop: asyncio.AbstractEventLoop = None # create the event loop when we run our client
+        self._loop: asyncio.AbstractEventLoop = None  # create the event loop when we run our client
         self.intents = intents
         self.respond_self = respond_self
 
@@ -48,9 +48,14 @@ class Client:
         self.httphandler = HTTPHandler()
         self.lock = asyncio.Lock()
         self.closed = False
-        self.events = {"event_error": [self.handle_event_error]}
+        self.events = {"message_create": [self.handle_commands], "event_error": [self.handle_event_error]}
         self.once_events = {}
+
+        self.command_prefix = command_prefix
+        self.commands: typing.Dict[str, Command] = {}
+
         self.converter = DataConverter(self)
+        self.command_parser = CommandParser(self.command_prefix, self.commands, case_sensitive)
 
     async def login(self, token: str) -> None:
         self.token = token
@@ -104,6 +109,15 @@ class Client:
 
         return wrapper
 
+    def command(self, name=None, **kwargs):
+        """The decorator used to register functions as commands"""
+        def inner(func) -> Command:
+            command = Command(func, name, **kwargs)
+            self.add_command(command)
+            return command
+
+        return inner
+
     def add_listener(
         self,
         func: typing.Callable,
@@ -147,6 +161,28 @@ class Client:
             except Exception as error:
                 error.event = coro
                 await self.handle_event({"d": error, "t": "event_error"})
+
+    def add_command(self, command: Command):
+        if command.name in self.commands:
+            raise ValueError("Duplicate command name")
+        self.commands[command.name] = command
+        return command
+
+    def remove_command(self, command: Command):
+        return self.commands.pop(command.name)
+
+    async def process_commands(self, message: Message):
+        """Command handling"""
+        from .commands.context import Context
+
+        if message.author.bot:
+            return
+
+        command, args, kwargs, extra_kwargs = self.command_parser.parse_message(message)
+        context = Context(client=self, message=message, command=command)
+
+        if command:
+            await command.execute(context, *args, **kwargs, **extra_kwargs)
 
     def get_guild(self, id: int):
         return self.ws.guild_cache.get(id)
