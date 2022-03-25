@@ -1,11 +1,15 @@
 from __future__ import annotations
 
 from ..abc.discordobject import DiscordObject
+from ..abc.messageable import Messageable
 from ..types.snowflake import Snowflake
 
 
-class BaseChannel(DiscordObject):
+class BaseChannel(DiscordObject, Messageable):
     name: str
+
+    def _get_channel(self):
+        return self
 
     @property
     def mention(self):
