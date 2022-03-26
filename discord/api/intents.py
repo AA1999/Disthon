@@ -23,6 +23,7 @@ class Intents:
         "dm_message": 12,
         "dm_reaction": 13,
         "dm_typing": 14,
+        "scheduled_events": 16,
     }
 
     def __init__(self, **kwargs):

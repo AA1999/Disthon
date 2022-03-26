@@ -9,11 +9,12 @@ import typing
 from .api.dataConverters import DataConverter
 from .api.httphandler import HTTPHandler
 from .api.intents import Intents
-from .api.websocket import WebSocket
+from .api.websocket import WebSocket, WebSocketReconnect
 
 
 class Client:
     async def handle_event_error(self, error):
+        # Default error handler
         print(f"Ignoring exception in event {error.event.__name__}", file=sys.stderr)
         traceback.print_exception(
             type(error), error, error.__traceback__, file=sys.stderr
@@ -24,11 +25,7 @@ class Client:
         *,
         intents: typing.Optional[Intents] = Intents.default(),
         respond_self: typing.Optional[bool] = False,
-        loop: typing.Optional[asyncio.AbstractEventLoop] = None,
     ) -> None:
-        self._loop: asyncio.AbstractEventLoop = (
-            None  # create the event loop when we run our client
-        )
         self.intents = intents
         self.respond_self = respond_self
 
@@ -56,8 +53,11 @@ class Client:
                     )
                 self.ws = await asyncio.wait_for(socket.start(g_url), timeout=30)
 
-            while not self.closed:
-                await self.ws.receive_events()
+            while True:
+                try:
+                    await self.ws.receive_events()
+                except WebSocketReconnect:
+                    break
 
     async def alive_loop(self, token: str) -> None:
         self._loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
@@ -73,21 +73,18 @@ class Client:
         await self.httphandler.close()
 
     def run(self, token: str):
-        if not self._loop:
-            asyncio.run(self.alive_loop(token))
-        else:
-            self._loop.run_forever(self.alive_loop(token))
-
-    def on(self, event: str = None, *, overwrite: bool = False):
-        def wrapper(func):
-            self.add_listener(func, event, overwrite=overwrite, once=False)
-            return func
-
-        return wrapper
+        return asyncio.run(self.alive_loop(token))
 
     def once(self, event: str = None, *, overwrite: bool = False):
         def wrapper(func):
             self.add_listener(func, event, overwrite=overwrite, once=True)
+            return func
+
+        return wrapper
+
+    def on(self, event: str = None, *, overwrite: bool = False):
+        def wrapper(func):
+            self.add_listener(func, event, overwrite=overwrite, once=False)
             return func
 
         return wrapper
@@ -124,16 +121,14 @@ class Client:
 
         for coro in self.events.get(event, []):
             try:
-                task = self._loop.create_task(coro(*args))
-                await task
+                asyncio.create_task(coro(*args), name=f"Disthon: {event}")
             except Exception as error:
                 error.event = coro
                 await self.handle_event({"d": error, "t": "event_error"})
 
         for coro in self.once_events.pop(event, []):
             try:
-                task = self._loop.create_task(coro(*args))
-                await task
+                asyncio.create_task(coro(*args), name=f"Disthon: {event}")
             except Exception as error:
                 error.event = coro
                 await self.handle_event({"d": error, "t": "event_error"})

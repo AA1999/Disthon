@@ -15,7 +15,14 @@ from aiohttp.http_websocket import WSMessage, WSMsgType
 if typing.TYPE_CHECKING:
     from ..client import Client
 
+class WebSocketClosed(Exception):
+    """Flag the websocket is closed and cannot reconnect"""
+    pass
 
+class WebSocketReconnect(Exception):
+    """Flag the websocket is closed and should reconnect"""
+    def __init__(self, resume: bool = True) -> None:
+        self.resume: bool = resume
 class WebSocket:
     # websocket opcodes
     DISPATCH = 0
@@ -77,7 +84,7 @@ class WebSocket:
             else:
                 asyncio.run(self.heartbeat())
 
-    def on_websocket_message(self, msg: WSMessage) -> dict:
+    def on_websocket_message(self, msg: WSMessage) -> typing.Union[dict, None]:
         if type(msg) is bytes:
             # always push the message data to your cache
             self.buffer.extend(msg)
@@ -87,27 +94,34 @@ class WebSocket:
                 return msg
 
             msg: bytes = self.decompress.decompress(self.buffer)
-            msg = msg.decode("utf-8")
+            msg: str = msg.decode("utf-8")
             self.buffer = bytearray()
 
         return msg
 
     async def receive_events(self) -> None:
-        msg: WSMessage = await self.socket.receive()
+        try:
+            msg: WSMessage = await self.socket.receive()
+        except asyncio.TimeoutError:
+            code = self.socket.close_code
+            if code in (1000, 4004, 4010, 4011, 4012, 4013, 4014):
+                raise WebSocketClosed()
+            else:
+                raise WebSocketReconnect()
+
         # if the message is something we can handle
         if msg.type is aiohttp.WSMsgType.TEXT or msg.type is aiohttp.WSMsgType.BINARY:
             msg = self.on_websocket_message(msg.data)
+            if msg == None:
+                return
         # if it's a disconnection
         elif msg.type in (
             aiohttp.WSMsgType.CLOSE,
             aiohttp.WSMsgType.CLOSING,
             aiohttp.WSMsgType.CLOSED,
         ):
-            if not self.closed:
-                await self.socket.close()
-                raise ConnectionResetError(msg.extra)
-            else:
-                return
+            await self.socket.close()
+            raise WebSocketClosed(msg.extra)
 
         msg = json.loads(msg)
 
@@ -124,9 +138,24 @@ class WebSocket:
         elif op == self.HEARTBEAT:
             await self.heartbeat()
 
+        elif op == self.RECONNECT:
+            await self.socket.close()
+            raise WebSocketReconnect()
+
+        elif op == self.INVALIDATE_SESSION:
+            if data is True:
+                await self.socket.close()
+                raise WebSocketReconnect()
+
+            self.sequence = None
+            self.session_id = None
+            await self.socket.close(code=1000)
+            raise WebSocketReconnect()
+
         elif op == self.DISPATCH:
             if msg["t"] == "READY":
-                self.session_id = msg["d"]["session_id"]
+                self.sequence = msg["s"]
+                self.session_id = data["session_id"]
 
             # send event to dispatch
             await self.client.handle_event(msg)
