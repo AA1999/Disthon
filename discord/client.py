@@ -14,6 +14,7 @@ from .api.websocket import WebSocket
 
 from .commands.core import Command
 from .commands.parser import CommandParser
+from .commands.help_command import HelpCommand, DefaultHelpCommand
 
 
 if typing.TYPE_CHECKING:
@@ -36,6 +37,7 @@ class Client:
         command_prefix: str,
         *,
         intents: typing.Optional[Intents] = Intents.default(),
+        help_command: HelpCommand = DefaultHelpCommand(),
         respond_self: typing.Optional[bool] = False,
         case_sensitive: bool=True,
         loop: typing.Optional[asyncio.AbstractEventLoop] = None,
@@ -56,6 +58,9 @@ class Client:
 
         self.converter = DataConverter(self)
         self.command_parser = CommandParser(self.command_prefix, self.commands, case_sensitive)
+
+        if help_command:
+            self.add_command(help_command)
 
     async def login(self, token: str) -> None:
         self.token = token
@@ -170,6 +175,15 @@ class Client:
 
     def remove_command(self, command: Command):
         return self.commands.pop(command.name)
+
+    def get_command_named(self, name: str) -> typing.Optional[Command]:
+        for command_name, command in self.commands.items():
+            if command.is_regex_command:
+                if command.regex_match_func(command_name, name, command.regex_flags):
+                    return command
+
+            elif command_name == name:
+                return command
 
     async def process_commands(self, message: Message):
         """Command handling"""
