@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 import asyncio
 import re
-from typing import Optional, Any, Callable, Iterable
+from typing import Optional, Any, Callable, Iterable, TYPE_CHECKING
 
 from discord.message import Message
 from .errors import CheckFailure
+
+if TYPE_CHECKING:
+    from .context import Context
 
 
 NOT_ASYNC_FUNCTION_MESSAGE = (
@@ -17,6 +22,7 @@ class Command:
         callback: Callable[[Any], Any],
         name: str = None,
         *,
+        qualified_name: str = None,
         aliases: Iterable[str] = None,
         regex_command: bool = False,
         regex_match_func=re.match,
@@ -31,6 +37,13 @@ class Command:
         self.is_regex_command = regex_command
         self.regex_match_func = regex_match_func
         self.regex_flags = regex_flags
+        self.qualified_name = qualified_name
+
+        if self.qualified_name is None and regex_command is True:
+            raise TypeError("You need to supply the qualified_name for regex commands")
+
+        elif self.qualified_name is None and regex_command is False:
+            self.qualified_name = name
 
         if aliases is None:
             self.aliases = []
@@ -55,26 +68,33 @@ class Command:
         self.on_error = function
         return function
 
-    async def execute(self, message: Message, *args, **kwargs):
+    async def run_checks(self, context):
         for check in self.checks:
             if asyncio.iscoroutinefunction(check):
-                result = await check(message)
+                result = await check(context)
             else:
-                result = check(message)
+                result = check(context)
 
             if result is not True:
                 raise CheckFailure(self)
 
+
+    async def execute(self, context: Context, *args, **kwargs):
+        """Runs the checks and execute the command"""
+        await self.run_checks(context)
+
         try:
-            await self.callback(message, *args, **kwargs)
+            await self.callback(context, *args, **kwargs)
         except Exception as error:
             if self.on_error:
-                await self.on_error(message, error)
+                await self.on_error(context, error)
             else:
                 raise error
 
-    async def __call__(self, message: Message, *args, **kwargs):
-        await self.callback(message, *args, **kwargs)
+    async def __call__(self, context: Context, *args, **kwargs):
+        """Execute the command when the instance is called
+           NOTE: This method does not validate checks"""
+        await self.callback(context, *args, **kwargs)
 
 
 def check(function: Callable[[Message], bool]):
