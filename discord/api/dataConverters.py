@@ -67,7 +67,10 @@ class DataConverter:
 
         if payload["type"] == 3:
             component = self.client.httphandler.component_cache.get(payload["data"]["custom_id"])
-            self.client._loop.create_task(component.run_callback(message, payload["data"]))
+
+            # When the bot restarts the previously cached components are gone
+            if component:  # so check if the component is a newly created
+                self.client._loop.create_task(component.run_callback(message, payload["data"]))
 
         return [payload]
 
