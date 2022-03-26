@@ -33,7 +33,7 @@ class CommandParser:
         content = content[len(prefix):].strip()
         signature = inspect.signature(command.callback)
         parameters = signature.parameters.copy()
-        parameters.pop(tuple(parameters.keys())[0])  # Remove the message parameter
+        parameters.pop(tuple(parameters.keys())[0])  # Remove the context parameter
 
         args = content.split()
         positional_arguments = []
