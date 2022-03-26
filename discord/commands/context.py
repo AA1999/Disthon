@@ -4,8 +4,8 @@ from typing import Optional, Any
 
 from pydantic import BaseModel
 
-from discord import Message
 from discord.abc.messageable import Messageable
+
 from discord.commands import Command
 
 
@@ -15,7 +15,7 @@ class Context(BaseModel, Messageable):
         arbitrary_types_allowed = True
 
     client: Any
-    message: Message
+    message: Any  # To avoid circular import errors
     command: Optional[Command] = None
 
     @property
