@@ -106,12 +106,12 @@ class EmbedAuthor(BaseModel):
 
 
 class Embed(BaseModel):
-    color: Union[Color, int] = Color.random()
+    color: Union[Color, int] = None
     title: Optional[str]
     _type: Final[EmbedType] = EmbedType.rich
     author: Optional[EmbedAuthor]
     url: Optional[str]
-    description = Optional[str]
+    description: Optional[str]
     timestamp: Optional[Arrow]
     thumbnail: Optional[EmbedMedia] = None
     image: Optional[EmbedMedia] = None
