@@ -4,4 +4,5 @@
 
 Discord API wrapper for Python built from scratch
 
-We're looking for contributors, feel free to join the support server and apply to get access.
+We're looking for contributors, feel free to join the support server and join our team.
+All PRs are more than welcome, this project is supposed to be a community project.
