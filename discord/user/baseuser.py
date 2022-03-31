@@ -18,10 +18,8 @@ class BaseUser(DiscordObject):
     # avatar: Optional[Asset]  TODO: Fix 'value is not a valid dict (type=type_error.dict)' error
     bot: Optional[bool] = False
     system: Optional[bool] = False
-    mfa_enabled: Optional[bool]
     banner: Optional[Banner]
     accent_color: Optional[Color]
-    flags: Optional[UserFlags]
     premium_type: Optional[PremiumType]
     public_flags: Optional[UserFlags]
 
