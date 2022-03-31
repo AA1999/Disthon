@@ -9,6 +9,11 @@ from ..user.baseuser import BaseUser
 
 
 class ClientUser(BaseUser):
+    verified: bool
+    locale: Optional[str] = None
+    mfa_enabled: bool
+    flags: int
+
     async def edit(self, *, username: str = None, avatar: bytes = None):
         pass
 
