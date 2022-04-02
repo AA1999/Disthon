@@ -1,18 +1,8 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Dict, OrderedDict
+from typing import Any, Dict, OrderedDict
 
 from .types.snowflake import Snowflake
-
-
-if TYPE_CHECKING:
-
-    from .api.httphandler import HTTPHandler
-    from .guild import Guild
-    from .message import Message
-    from .role import Role
-    from .user.member import Member
-    from .user.user import User
 
 
 class LFUCache(OrderedDict):
@@ -44,3 +34,17 @@ class LFUCache(OrderedDict):
         super().__delitem__(key)
         del self._frequency[key]
         self.length -= 1
+
+
+class FIFOCache(OrderedDict):
+    def __init__(self, capacity: int):
+        self.capacity: int = capacity
+        super().__init__()
+
+    def __setitem__(self, key, value):
+        super().__setitem__(key, value)
+        self.move_to_end(key, last=True)
+
+        if len(self) > self.capacity:
+            # Pop the first value if the capacity is exceeded
+            self.popitem(last=False)
