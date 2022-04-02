@@ -9,10 +9,13 @@ from ..message import Message
 from ..user.user import User
 from ..user.member import Member
 
+if typing.TYPE_CHECKING:
+    from ..client import Client
+
 
 class DataConverter:
-    def __init__(self, client):
-        self.client = client
+    def __init__(self, client: "Client"):
+        self.client: "Client" = client
         self.converters = {}
         for name, func in inspect.getmembers(self):
             if name.startswith("convert_"):
@@ -25,7 +28,9 @@ class DataConverter:
         return [data]
 
     def convert_message_create(self, data):
-        return [Message(self.client, **data)]
+        message = Message(self.client, **data)
+        self.client.ws.message_cache[message.id] = message
+        return [message]
 
     def convert_ready(self, data):
         return []
