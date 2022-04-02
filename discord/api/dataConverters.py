@@ -21,9 +21,6 @@ class DataConverter:
             if name.startswith("convert_"):
                 self.converters[name[8:]] = func
 
-    def _get_channel(self, id):
-        return None  # TODO: get channel from cache
-
     def convert_event_error(self, data):
         return [data]
 
