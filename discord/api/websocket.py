@@ -12,13 +12,14 @@ from copy import deepcopy
 import aiohttp
 from aiohttp.http_websocket import WSMessage, WSMsgType
 
-from ..cache import LFUCache
+from ..cache import LFUCache, FIFOCache
 from ..channels.basechannel import BaseChannel
 from ..guild import Guild
 from ..types.snowflake import Snowflake
 
 if typing.TYPE_CHECKING:
     from ..client import Client
+    from ..message import Message
 
 
 class WebSocket:
@@ -50,6 +51,7 @@ class WebSocket:
         self.channel_cache = LFUCache[Snowflake, BaseChannel](5000)
         self.member_cache = LFUCache[Snowflake, dict](5000)
         self.user_cache = LFUCache[Snowflake, dict](5000)
+        self.message_cache = FIFOCache[Snowflake, "Message"](1000)
 
     async def start(
         self,
