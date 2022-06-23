@@ -16,9 +16,8 @@ class Asset(BaseModel):
         return await self._client.httphandler.get_from_cdn(self.url)
 
     async def save(self, fp: Union[str, io.BufferedIOBase]):
-        data = await self.read()
         if isinstance(fp, str):
             with open(fp, "wb+") as file:
-                return file.write(data)
+                return file.write(await self.read())
 
-        return fp.write(data)
+        return fp.write(await self.read())
