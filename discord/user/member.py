@@ -42,3 +42,6 @@ class Member(User):
     @validator("communication_disabled_until")
     def validate_communication_disabled_until(cls, val):
         return validate_dt(val)
+
+    async def edit(self, *, username: str = None, avatar: bytes = None):
+        pass
