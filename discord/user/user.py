@@ -22,9 +22,6 @@ class User(BaseUser):
     async def fetch_message(self):
         pass
 
-    async def edit(self, *, username: str = None, avatar: bytes = None):
-        pass
-
     async def typing(self):
         pass
 
