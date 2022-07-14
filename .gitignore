@@ -134,3 +134,7 @@ dmypy.json
 .idea
 
 .DS_Store
+
+ Pipfile
+Pipfile.lock
+test.py
