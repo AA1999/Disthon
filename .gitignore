@@ -135,6 +135,6 @@ dmypy.json
 
 .DS_Store
 
- Pipfile
+Pipfile
 Pipfile.lock
 test.py
