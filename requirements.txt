@@ -1,4 +1,4 @@
-aiohttp~=3.7.4.post0
+aiohttp~=3.8.1
 yarl~=1.7.0
 pydantic~=1.9.1
 setuptools~=58.2.0
