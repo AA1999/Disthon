@@ -1,4 +1,5 @@
 aiohttp~=3.8.1
+cython~=0.29.32
 yarl~=1.7.0
 pydantic~=1.9.1
 setuptools~=63.4.2
