@@ -1,5 +1,5 @@
 aiohttp~=3.8.1
 yarl~=1.7.2
 pydantic~=1.9.1
-setuptools~=63.4.1
+setuptools~=63.4.2
 arrow~=1.2.2
