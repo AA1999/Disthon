@@ -1,122 +1,50 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, OrderedDict
+from typing import Any, Dict, OrderedDict
 
-if TYPE_CHECKING:
-
-    from .api.handler import Handler
-    from .guild import Guild
-    from .message import Message
-    from .role import Role
-    from .types.snowflake import Snowflake
-    from .user.member import Member
-    from .user.user import User
+from .types.snowflake import Snowflake
 
 
-class LFUCache:
-
-    capacity: int
-    _cache: OrderedDict[Snowflake, Any]
-    _frequency: dict[Snowflake, int]
-    handler: Handler
-
+class LFUCache(OrderedDict):
     def __init__(self, capacity: int) -> None:
-        self.capacity = capacity
-        self._frequency = {}
-        self.length = 0
-
-    @classmethod
-    def _from_lfu(cls, lfu: LFUCache):
-        self = cls.__new__(cls)
-        self.capacity = lfu.capacity
-        self._cache = lfu._cache
-        self._frequency = lfu._frequency
-        return self
-
-    def __eq__(self, other) -> bool:
-        return (
-            isinstance(other, LFUCache)
-            and other._cache == self._cache
-            and self.capacity == other.capacity
-        )
-
-    def __ne__(self, other) -> bool:
-        return not self.__eq__(other)
+        self.capacity: int = capacity
+        self._frequency: Dict[Snowflake, int] = {}
+        self.length: int = 0
+        super().__init__()
 
     def __setitem__(self, key: Snowflake, value: Any) -> None:
-        if key not in self._cache:
+        frequency = self._frequency
+
+        if key not in self:
             self.length += 1
-        self._cache[key] = value
-        if self._frequency[key]:
-            self._frequency[key] += 1
-        else:
-            self._frequency[key] = 0
+
+        super().__setitem__(key, value)
+        frequency[key] = 0
+
         if self.length > self.capacity:
-            snowflake: Snowflake
-            min_freq = float("inf")
-            for k in self._frequency.keys():
-                if self._frequency[k] < min_freq:
-                    min_freq = self._frequency[k]
-                    snowflake = k
-            del self._cache[snowflake]
+            inverted = dict(zip(frequency.values(), frequency.keys()))
+            least_used = min(self._frequency.values())
+            del self[inverted[least_used]]
 
     def __getitem__(self, key: Snowflake):
-        if self._cache[key]:
-            self._frequency[key] += 1
-            return self._cache[key]
-        raise KeyError
+        self._frequency[key] += 1
+        return self[key]
 
     def __delitem__(self, key: Snowflake):
-        del self._cache[key]
+        super().__delitem__(key)
         del self._frequency[key]
         self.length -= 1
 
 
-class UserCache(LFUCache):
-    _cache: dict[Snowflake, User]
+class FIFOCache(OrderedDict):
+    def __init__(self, capacity: int):
+        self.capacity: int = capacity
+        super().__init__()
 
-    def __init__(self) -> None:
-        super().__init__(100000)
+    def __setitem__(self, key, value):
+        super().__setitem__(key, value)
+        self.move_to_end(key, last=True)
 
-    def __setitem__(self, key: Snowflake, value: User) -> None:
-        return super().__setitem__(key, value)
-
-
-class MemberCache(LFUCache):
-    _cache: dict[Snowflake, Member]
-
-    def __init__(self) -> None:
-        super().__init__(100000)
-
-    def __setitem__(self, key: Snowflake, value: Member) -> None:
-        return super().__setitem__(key, value)
-
-
-class MessageCache(LFUCache):
-    _cache: dict[Snowflake, Message]
-
-    def __init__(self) -> None:
-        super().__init__(2000)
-
-    def __setitem__(self, key: Snowflake, value: Message) -> None:
-        return super().__setitem__(key, value)
-
-
-class RoleCache(LFUCache):
-    _cache: dict[Snowflake, Role]
-
-    def __init__(self) -> None:
-        super().__init__(250)
-
-    def __setitem__(self, key: Snowflake, value: Role) -> None:
-        return super().__setitem__(key, value)
-
-
-class GuildCache(LFUCache):
-    _cache: dict[Snowflake, Guild]
-
-    def __init__(self) -> None:
-        super().__init__(20000)
-
-    def __setitem__(self, key: Snowflake, value: Guild) -> None:
-        return super().__setitem__(key, value)
+        if len(self) > self.capacity:
+            # Pop the first value if the capacity is exceeded
+            self.popitem(last=False)

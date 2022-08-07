@@ -12,8 +12,14 @@ from copy import deepcopy
 import aiohttp
 from aiohttp.http_websocket import WSMessage, WSMsgType
 
+from ..cache import LFUCache, FIFOCache
+from ..channels.basechannel import BaseChannel
+from ..guild import Guild
+from ..types.snowflake import Snowflake
+
 if typing.TYPE_CHECKING:
     from ..client import Client
+    from ..message import Message
 
 
 class WebSocket:
@@ -39,6 +45,13 @@ class WebSocket:
         self.token = token
         self.session_id = None
         self.heartbeat_acked = True
+        self.closed: bool = False
+
+        self.guild_cache = LFUCache[Snowflake, Guild](1000)
+        self.channel_cache = LFUCache[Snowflake, BaseChannel](5000)
+        self.member_cache = LFUCache[Snowflake, dict](5000)
+        self.user_cache = LFUCache[Snowflake, dict](5000)
+        self.message_cache = FIFOCache[Snowflake, "Message"](1000)
 
     async def start(
         self,
@@ -47,37 +60,43 @@ class WebSocket:
         reconnect: typing.Optional[bool] = False
     ):
         if not url:
-            url = self.client.handler.gateway()
-        self.socket = await self.client.handler.connect(url)
+            url = self.client.httphandler.gateway()
+        self.socket = await self.client.httphandler.connect(url)
         await self.receive_events()
         await self.identify()
         if reconnect:
             await self.resume()
         else:
-            t = threading.Thread(target=self.keep_alive, daemon=True)
-            t.start()
+            self.hb_t: threading.Thread = threading.Thread(target=self.keep_alive, daemon=True)
+            self.hb_stop: threading.Event = threading.Event()
+            self.hb_t.start()
             return self
 
+    async def close(self) -> None:
+        """Closes the websocket"""
+        self.closed = True
+        await self.socket.close()
+        self.hb_stop.set()
+
     def keep_alive(self) -> None:
-        while True:
-            time.sleep(self.hb_int)
+        while not self.hb_stop.wait(self.hb_int):
             if not self.heartbeat_acked:
                 # We have a zombified connection
-                self.socket.close()
+                self.socket.close(code=1000)
                 asyncio.run(self.start(reconnect=True))
             else:
                 asyncio.run(self.heartbeat())
 
-    def on_websocket_message(self, msg: WSMessage) -> dict:
+    def on_websocket_message(self, msg: WSMessage) -> dict: 
         if type(msg) is bytes:
             # always push the message data to your cache
             self.buffer.extend(msg)
 
             # check if last 4 bytes are ZLIB_SUFFIX
             if len(msg) < 4 or msg[-4:] != b"\x00\x00\xff\xff":
-                return
+                return msg
 
-            msg = self.decompress.decompress(self.buffer)
+            msg: bytes = self.decompress.decompress(self.buffer)
             msg = msg.decode("utf-8")
             self.buffer = bytearray()
 
@@ -94,8 +113,11 @@ class WebSocket:
             aiohttp.WSMsgType.CLOSING,
             aiohttp.WSMsgType.CLOSED,
         ):
-            await self.socket.close()
-            raise ConnectionResetError(msg.extra)
+            if not self.closed:
+                await self.socket.close()
+                raise ConnectionResetError(msg.extra)
+            else:
+                return
 
         msg = json.loads(msg)
 

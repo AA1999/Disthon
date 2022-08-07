@@ -1,14 +1,17 @@
 from __future__ import annotations
 
-from typing import Optional, TypeVar
+from typing import TYPE_CHECKING, Optional, Any
 
 from .abc.discordobject import DiscordObject
+from .asset import Asset
 from .color import Color
-from .guild import Guild
+
+if TYPE_CHECKING:
+    from .guild import Guild
 
 __all__ = ("RoleTags", "Role")
 
-from .cache import RoleCache
+from .cache import LFUCache
 from .types.rolepayload import RolePayload, RoleTagsPayload
 from .types.snowflake import Snowflake
 
@@ -38,50 +41,24 @@ class RoleTags:
 
 
 class Role(DiscordObject):
-    __slots__ = (
-        "_guild",
-        "_cache",
-        "_id",
-        "_name",
-        "_color",
-        "_hoist",
-        "_position",
-        "_permissions",
-        "_managed",
-        "_mentionable",
-        "_tags",
-    )
-
-    _guild: Guild
-    _cache: RoleCache
-    _id: Snowflake
-    _name: str
-    _color: Color
-    _hoist: bool
-    _position: int
-    _permissions: str
-    _managed: bool
-    _mentionable: bool
-    _tags: Optional[RoleTags]
-
-    def __init__(self, guild: Guild, cache: RoleCache, payload: RolePayload):
-        self._guild = guild
-        self._cache = cache
-        self._id = payload["id"]
-        self._name = payload["name"]
-        self._color = payload["color"]
-        self._hoist = payload["hoist"]
-        self._position = payload["position"]
-        self._permissions = payload["permissions"]
-        self._managed = payload["managed"]
-        self._mentionable = payload["mentionable"]
-        self._tags = RoleTags(payload["tags"])
+    id: Snowflake
+    guild: Any
+    name: str
+    color: Color
+    hoist: bool
+    icon: Optional[str] = None
+    unicode_emoji: Optional[str] = None
+    position: int
+    permissions: str
+    managed: bool
+    mentionable: bool
+    tags: Optional[RoleTags] = None
 
     def __str__(self):
-        return self._name
+        return self.name
 
     def __repr__(self):
-        return f"Role {self._name} with id {self._id}"
+        return f"Role {self.name} with id {self.id}"
 
     def __eq__(self, other):
         return (
@@ -132,43 +109,3 @@ class Role(DiscordObject):
             and not self.managed
             and (me.top_role > self or me.id == self.guild.owner_id)
         )
-
-    @property
-    def id(self) -> Snowflake:
-        return self._id
-
-    @property
-    def guild(self) -> Guild:
-        return self._guild
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def color(self) -> Color:
-        return self._color
-
-    @property
-    def hoist(self) -> bool:
-        return self._hoist
-
-    @property
-    def position(self) -> int:
-        return self._position
-
-    @property
-    def permissions(self) -> str:
-        return self._permissions
-
-    @property
-    def managed(self) -> bool:
-        return self._managed
-
-    @property
-    def mentionable(self) -> bool:
-        return self._mentionable
-
-    @property
-    def tags(self) -> RoleTags:
-        return self._tags

@@ -1,44 +1,43 @@
-from __future__ import annotations
-
-from pydantic import BaseModel
+import arrow
 
 __all__ = ("Snowflake",)
 
 
-class Snowflake(BaseModel):
-    id: int
+class Snowflake(int):
+    @property
+    def timestamp(self):
+        return ((self >> 22) + 1420070400000) / 1000
 
-    def __eq__(self, other) -> bool:
-        if isinstance(other, (int, str)):
-            return self.id == other
-        return isinstance(other, Snowflake) and self.id == other.id
+    @property
+    def worker_id(self):
+        return (self & 0x3E0000) >> 17
 
-    def __ne__(self, other: object) -> bool:
-        return not self.__eq__(other)
+    @property
+    def process_id(self):
+        return (self & 0x1F000) >> 12
 
-    def __lt__(self, other: object):
-        if isinstance(other, int):
-            return self.id < other
-        if isinstance(other, str) and other.isdigit():
-            return self.id < int(other)
-        if isinstance(other, Snowflake):
-            return self.id < other.id
-        return NotImplemented
+    @property
+    def increment(self):
+        return self & 0xFFF
+    
+    @property
+    def created_at(self):
+        return arrow.get(self.timestamp)
 
-    def __le__(self, other: object):
-        return self.__eq__(other) or self.__lt__(other)
+    @classmethod
+    def __get_validators__(cls):
+        yield cls.validate
 
-    def __gt__(self, other: object):
-        return not self.__le__(other)
-
-    def __ge__(self, other: object):
-        return not self.__lt__(other)
-
-    def __str__(self) -> str:
-        return str(self.id)
-
-    def __int__(self) -> int:
-        return int(self.id)
-
-    def __repr__(self) -> str:
-        return f"Snowflake with id {self.id}"
+    @classmethod
+    def validate(cls, value):
+        if isinstance(value, int):
+            return cls(value)
+        elif isinstance(value, str):
+            if value.isdigit():
+                return cls(value)
+            else:
+                raise ValueError("Invalid Snowflake")
+        elif isinstance(value, Snowflake):
+            return value
+        else:
+            return ValueError("Invalid Snowflake")

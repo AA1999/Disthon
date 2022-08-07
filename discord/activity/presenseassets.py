@@ -1,8 +1,12 @@
 from __future__ import annotations
 
+from typing import TYPE_CHECKING
+
 from ..types.snowflake import Snowflake
-from .activity import Activity
-from .rawactivityassets import RawActivityAssets
+
+if TYPE_CHECKING:
+    from .activity import Activity
+    from .rawactivityassets import RawActivityAssets
 
 
 class PresenceAssets(dict[Snowflake, str]):

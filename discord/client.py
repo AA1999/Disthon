@@ -7,12 +7,20 @@ import traceback
 import typing
 from copy import deepcopy
 
-from .api.handler import Handler
+from .api.dataConverters import DataConverter
+from .api.httphandler import HTTPHandler
 from .api.intents import Intents
 from .api.websocket import WebSocket
 
 
 class Client:
+
+    async def handle_event_error(self, error):
+        print(f"Ignoring exception in event {error.event.__name__}", file=sys.stderr)
+        traceback.print_exception(
+            type(error), error, error.__traceback__, file=sys.stderr
+        )
+
     def __init__(
         self,
         *,
@@ -20,36 +28,39 @@ class Client:
         respond_self: typing.Optional[bool] = False,
         loop: typing.Optional[asyncio.AbstractEventLoop] = None,
     ) -> None:
-        self._loop: asyncio.AbstractEventLoop = loop or asyncio.get_event_loop()
+        self._loop: asyncio.AbstractEventLoop = None # create the event loop when we run our client
         self.intents = intents
         self.respond_self = respond_self
 
         self.stay_alive = True
-        self.handler = Handler()
+        self.httphandler = HTTPHandler()
         self.lock = asyncio.Lock()
         self.closed = False
-        self.events = {}
+        self.events = {"event_error": [self.handle_event_error]}
+        self.once_events = {}
+        self.converter = DataConverter(self)
 
     async def login(self, token: str) -> None:
         self.token = token
         async with self.lock:
-            self.info = await self.handler.login(token)
+            self.info = await self.httphandler.login(token)
 
     async def connect(self) -> None:
         while not self.closed:
             socket = WebSocket(self, self.token)
             async with self.lock:
-                g_url = await self.handler.gateway()
+                g_url = await self.httphandler.gateway()
                 if not isinstance(self.intents, Intents):
                     raise TypeError(
                         f"Intents must be of type Intents, got {self.intents.__class__}"
                     )
                 self.ws = await asyncio.wait_for(socket.start(g_url), timeout=30)
 
-            while True:
+            while not self.closed:
                 await self.ws.receive_events()
 
     async def alive_loop(self, token: str) -> None:
+        self._loop: asyncio.AbstractEventLoop = asyncio.get_running_loop()
         await self.login(token)
         try:
             await self.connect()
@@ -57,29 +68,37 @@ class Client:
             await self.close()
 
     async def close(self) -> None:
-        await self.handler.close()
+        self.closed = True
+        await self.ws.close()
+        await self.httphandler.close()
 
     def run(self, token: str):
-        def stop_loop_on_completion(_):
-            self._loop.stop()
+        if not self._loop:
+            asyncio.run(self.alive_loop(token))
+        else:
+            self._loop.run_forever(self.alive_loop(token))
 
-        future = asyncio.ensure_future(self.alive_loop(token), loop=self._loop)
-        future.add_done_callback(stop_loop_on_completion)
-
-        self._loop.run_forever()
-
-        if not future.cancelled():
-            return future.result()
-
-    def event(self, event: str = None):
+    def on(self, event: str = None, *, overwrite: bool = False):
         def wrapper(func):
-            self.add_listener(func, event)
+            self.add_listener(func, event, overwrite=overwrite, once=False)
+            return func
+
+        return wrapper
+
+    def once(self, event: str = None, *, overwrite: bool = False):
+        def wrapper(func):
+            self.add_listener(func, event, overwrite=overwrite, once=True)
             return func
 
         return wrapper
 
     def add_listener(
-        self, func: typing.Callable, event: typing.Optional[str] = None
+        self,
+        func: typing.Callable,
+        event: typing.Optional[str] = None,
+        *,
+        overwrite: bool = False,
+        once: bool = False,
     ) -> None:
         event = event or func.__name__
         if not inspect.iscoroutinefunction(func):
@@ -87,25 +106,38 @@ class Client:
                 "The callback is not a valid coroutine function. Did you forget to add async before def?"
             )
 
-        if event in self.events:
-            self.events[event].append(func)
-        else:
-            self.events[event] = [func]
+        if once:  # if it's a once event
+            if event in self.once_events and not overwrite:
+                self.once_events[event].append(func)
+            else:
+                self.once_events[event] = [func]
+        else:  # if it's a regular event
+            if event in self.events and not overwrite:
+                self.events[event].append(func)
+            else:
+                self.events[event] = [func]
 
     async def handle_event(self, msg):
-        event: str = "on_" + msg["t"].lower()
+        event: str = msg["t"].lower()
 
-        # create a global on_message event for either guild or dm messages
-        if event in ("on_message_create", "on_dm_message_create"):
-            global_message = deepcopy(msg)
-            global_message["t"] = "MESSAGE"
-            await self.handle_event(global_message)
+        args = self.converter.convert(event, msg["d"])
 
         for coro in self.events.get(event, []):
             try:
-                await coro(msg)
+                self._loop.create_task(coro(*args))
             except Exception as error:
-                print(f"Ignoring exception in event {coro.__name__}", file=sys.stderr)
-                traceback.print_exception(
-                    type(error), error, error.__traceback__, file=sys.stderr
-                )
+                error.event = coro
+                await self.handle_event({"d": error, "t": "event_error"})
+        
+        for coro in self.once_events.pop(event, []):
+            try:
+                self._loop.create_task(coro(*args))
+            except Exception as error:
+                error.event = coro
+                await self.handle_event({"d": error, "t": "event_error"})
+
+    def get_guild(self, id: int):
+        return self.ws.guild_cache.get(id)
+
+    def get_user(self, id: int):
+        return self.ws.user_cache.get(id)
