@@ -1,10 +1,6 @@
-import math
-from numbers import Integral
 import os, sys;
 
 sys.path.append(os.path.abspath("discord"));
-
-from tests import bot
 
 from argparse import ArgumentParser
 
