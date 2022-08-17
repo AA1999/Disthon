@@ -61,15 +61,19 @@ class WebSocket:
     ):
         if not url:
             url = self.client.httphandler.gateway()
+		
         self.socket = await self.client.httphandler.connect(url)
+
         await self.receive_events()
         await self.identify()
+
         if reconnect:
             await self.resume()
         else:
             self.hb_t: threading.Thread = threading.Thread(target=self.keep_alive, daemon=True)
             self.hb_stop: threading.Event = threading.Event()
             self.hb_t.start()
+			
             return self
 
     async def close(self) -> None:

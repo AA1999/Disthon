@@ -30,11 +30,8 @@ class Intents:
         for arg in kwargs:
             arg = arg.lower()
             try:
-                self.value = (
-                    self.value + (1 << self.VALID_INTENTS[arg])
-                    if kwargs[arg]
-                    else self.value
-                )
+				# These ternary statements make more sense on a single line
+                self.value = (self.value + (1 << self.VALID_INTENTS[arg]) if kwargs[arg] else self.value)
             except KeyError:
                 raise InvalidIntent(
                     arg, f"Invalid intent {arg}. Please check your spelling."
