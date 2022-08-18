@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from .user.user import User
 
+from .user.usermodel import UserModel
+
 from .abc.discordobject import DiscordObject
 from .types.snowflake import Snowflake
 
@@ -13,7 +15,20 @@ class Message(DiscordObject):
 	channel_id: Snowflake
 	guild_id: Snowflake
 	content: str
-	
+	author: User
+
+	def __init__(self, client, model):
+		super().__init__(client, model)
+
+		# Can probably be shortened with a loop or function.
+		self.channel_id = model.channel_id
+
+		self.guild_id = model.guild_id
+
+		self.content = model.content
+
+		self.author = User(client, model.author)
+
 	def __str__(self):
 		return self.content
 
@@ -21,13 +36,13 @@ class Message(DiscordObject):
 		return f"<Message id={self.id} content={self.content} channel_id={self.channel_id} guild_id={self.guild_id}>"
 
 	async def reply(self, content):
-		await self._client.httphandler.send_message(self.channel_id, content, reference = self.id)
+		await self.client.httphandler.send_message(self.channel_id, content, reference = self.id)
 
 	# Should these query discord if it's not in cache?
 	@property
 	def guild(self):
-		return self._client.ws.guild_cache.get(self.guild_id)
+		return self.client.ws.guild_cache.get(self.guild_id)
 
 	@property
 	def channel(self):
-		return self._client.ws.channel_cache.get(self.channel_id)
+		return self.client.ws.channel_cache.get(self.channel_id)

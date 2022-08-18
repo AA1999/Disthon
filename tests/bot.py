@@ -9,13 +9,10 @@ from discord.api.intents import Intents
 
 from discord.types.snowflake import Snowflake
 
-kwargs = {name: True for name in Intents.VALID_INTENTS}
-
 client = Client(intents = Intents.all())
 
 async def create(msg: Message):
-	if msg.content == "Hello":
-		print(msg.__repr__())
+	if msg.author.id != Snowflake(msg.client.info["id"]):
 		await msg.reply("Hello!");
 	
 	pass

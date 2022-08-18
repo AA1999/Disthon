@@ -5,9 +5,15 @@ from discord.types.snowflake import Snowflake
 from ..channels.guildchannel import TextChannel
 
 from ..guild import Guild
+from ..abc.guildmodel import GuildModel
 from ..message import Message
+from ..abc.messagemodel import MessageModel
 from ..user.user import User
+from ..user.usermodel import UserModel
 from ..user.member import Member
+from ..user.membermodel import MemberModel
+
+from ..channels.channelmodels import TextChannelModel
 
 if typing.TYPE_CHECKING:
 	from ..client import Client
@@ -25,7 +31,7 @@ class DataConverter:
 		return [data]
 
 	def convert_message_create(self, data):
-		message = Message(self.client, **data)
+		message = Message(self.client, MessageModel(**data))
 		self.client.ws.message_cache[message.id] = message
 		return [message]
 
@@ -34,7 +40,7 @@ class DataConverter:
 
 	def convert_guild_create(self, data):
 		members = data["members"]
-		guild = Guild(self.client, **data)
+		guild = Guild(self.client, GuildModel(**data))
 		self.client.ws.guild_cache[Snowflake(data["id"])] = guild
 		
 		for member_data in members:
@@ -44,11 +50,11 @@ class DataConverter:
 			member_data["guild_avatar"] = member_data.get("avatar")
 			member_data.pop("avatar", None)
 
-			self.client.ws.member_cache[Snowflake(user_data["id"])] = Member(self.client, **member_data, **user_data)
-			self.client.ws.user_cache[Snowflake(user_data["id"])] = User(self.client, **user_data)
+			self.client.ws.member_cache[Snowflake(user_data["id"])] = Member(self.client, MemberModel(**member_data, **user_data))
+			self.client.ws.user_cache[Snowflake(user_data["id"])] = User(self.client, UserModel(**user_data))
 
 		for channel_data in data["channels"]:
-			self.client.ws.channel_cache[Snowflake(channel_data["id"])] = TextChannel(self.client, **channel_data)
+			self.client.ws.channel_cache[Snowflake(channel_data["id"])] = TextChannel(self.client, TextChannelModel(**channel_data))
 
 		return [guild]
 
