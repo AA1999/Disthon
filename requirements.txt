@@ -4,4 +4,4 @@ yarl~=1.7.0
 pydantic~=1.9.1
 setuptools~=65.1.1
 pydantic~=1.9.2
-arrow~=1.2.2
+arrow~=1.2.3
